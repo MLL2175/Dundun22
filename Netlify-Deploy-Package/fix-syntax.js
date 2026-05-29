@@ -5,16 +5,19 @@ console.log('开始检查...');
 
 // 读取文件
 const fs = require('fs');
-const path = 'e:/project_20260401_020123/Netlify-Deploy-Package/chat-interface.js';
+const path = require('path');
+
+// 获取当前目录下的 chat-interface.js
+const targetFile = path.join(__dirname, 'chat-interface.js');
 
 try {
-    const content = fs.readFileSync(path, 'utf8');
+    const content = fs.readFileSync(targetFile, 'utf8');
     
     // 检查是否有BOM
     if (content.charCodeAt(0) === 0xFEFF) {
         console.log('⚠️  文件包含BOM字符，正在移除...');
         const cleanContent = content.slice(1);
-        fs.writeFileSync(path, cleanContent, 'utf8');
+        fs.writeFileSync(targetFile, cleanContent, 'utf8');
         console.log('✅ BOM已移除');
     } else {
         console.log('✅ 文件没有BOM');

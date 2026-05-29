@@ -1,0 +1,24 @@
+{
+  "name": "umi-chat-app",
+  "version": "1.0.0",
+  "description": "AI 聊天桌面应用",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,html,css,json}\"",
+    "check-format": "prettier --check \"**/*.{js,html,css,json}\""
+  },
+  "keywords": ["ai", "chat", "pwa", "web-app"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
