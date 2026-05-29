@@ -385,98 +385,124 @@
     </div>
 
     <script>
-        // 数据定义 - 像素风家具
+        // 数据定义 - 像素风家具（带尺寸）
         const furnitureData = [
             { 
                 id: 'sofa', 
                 name: '沙发', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="4" y="16" width="24" height="12" fill="#8B4513"/><rect x="6" y="12" width="20" height="4" fill="#A0522D"/><rect x="4" y="10" width="4" height="6" fill="#8B4513"/><rect x="24" y="10" width="4" height="6" fill="#8B4513"/><rect x="8" y="18" width="16" height="8" fill="#DEB887"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="4" y="16" width="24" height="12" fill="#8B4513"/><rect x="6" y="12" width="20" height="4" fill="#A0522D"/><rect x="4" y="10" width="4" height="6" fill="#8B4513"/><rect x="24" y="10" width="4" height="6" fill="#8B4513"/><rect x="8" y="18" width="16" height="8" fill="#DEB887"/></svg>', 
                 price: 100, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 96,  // 大尺寸
+                height: 64
             },
             { 
                 id: 'bed', 
                 name: '床', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="2" y="14" width="28" height="14" fill="#DEB887"/><rect x="4" y="16" width="24" height="8" fill="#FFF0F5"/><rect x="4" y="10" width="8" height="6" fill="#8B4513"/><rect x="2" y="26" width="4" height="4" fill="#8B4513"/><rect x="26" y="26" width="4" height="4" fill="#8B4513"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="2" y="14" width="28" height="14" fill="#DEB887"/><rect x="4" y="16" width="24" height="8" fill="#FFF0F5"/><rect x="4" y="10" width="8" height="6" fill="#8B4513"/><rect x="2" y="26" width="4" height="4" fill="#8B4513"/><rect x="26" y="26" width="4" height="4" fill="#8B4513"/></svg>', 
                 price: 150, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 112, // 最大
+                height: 80
             },
             { 
                 id: 'table', 
                 name: '桌子', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="4" y="8" width="24" height="4" fill="#8B4513"/><rect x="6" y="12" width="4" height="14" fill="#A0522D"/><rect x="22" y="12" width="4" height="14" fill="#A0522D"/><rect x="4" y="24" width="24" height="2" fill="#8B4513"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="4" y="8" width="24" height="4" fill="#8B4513"/><rect x="6" y="12" width="4" height="14" fill="#A0522D"/><rect x="22" y="12" width="4" height="14" fill="#A0522D"/><rect x="4" y="24" width="24" height="2" fill="#8B4513"/></svg>', 
                 price: 80, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 80,
+                height: 64
             },
             { 
                 id: 'lamp', 
                 name: '台灯', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="12" y="4" width="8" height="8" fill="#FFD700"/><rect x="14" y="12" width="4" height="12" fill="#808080"/><rect x="10" y="24" width="12" height="4" fill="#808080"/><rect x="13" y="6" width="6" height="4" fill="#FFFF00"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="12" y="4" width="8" height="8" fill="#FFD700"/><rect x="14" y="12" width="4" height="12" fill="#808080"/><rect x="10" y="24" width="12" height="4" fill="#808080"/><rect x="13" y="6" width="6" height="4" fill="#FFFF00"/></svg>', 
                 price: 50, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 48,  // 小尺寸
+                height: 56
             },
             { 
                 id: 'plant', 
                 name: '盆栽', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="10" y="18" width="12" height="10" fill="#8B4513"/><rect x="12" y="16" width="8" height="2" fill="#A0522D"/><rect x="14" y="8" width="4" height="8" fill="#228B22"/><rect x="10" y="10" width="4" height="6" fill="#32CD32"/><rect x="18" y="10" width="4" height="6" fill="#32CD32"/><rect x="12" y="6" width="2" height="4" fill="#228B22"/><rect x="18" y="6" width="2" height="4" fill="#228B22"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="10" y="18" width="12" height="10" fill="#8B4513"/><rect x="12" y="16" width="8" height="2" fill="#A0522D"/><rect x="14" y="8" width="4" height="8" fill="#228B22"/><rect x="10" y="10" width="4" height="6" fill="#32CD32"/><rect x="18" y="10" width="4" height="6" fill="#32CD32"/><rect x="12" y="6" width="2" height="4" fill="#228B22"/><rect x="18" y="6" width="2" height="4" fill="#228B22"/></svg>', 
                 price: 40, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 48,
+                height: 56
             },
             { 
                 id: 'tv', 
                 name: '电视', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="4" y="6" width="24" height="16" fill="#1C1C1C"/><rect x="6" y="8" width="20" height="12" fill="#4169E1"/><rect x="8" y="10" width="16" height="2" fill="#87CEEB"/><rect x="14" y="22" width="4" height="4" fill="#696969"/><rect x="10" y="26" width="12" height="2" fill="#696969"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="4" y="6" width="24" height="16" fill="#1C1C1C"/><rect x="6" y="8" width="20" height="12" fill="#4169E1"/><rect x="8" y="10" width="16" height="2" fill="#87CEEB"/><rect x="14" y="22" width="4" height="4" fill="#696969"/><rect x="10" y="26" width="12" height="2" fill="#696969"/></svg>', 
                 price: 200, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 88,
+                height: 72
             },
             { 
                 id: 'bookshelf', 
                 name: '书架', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="4" y="4" width="24" height="24" fill="#8B4513"/><rect x="6" y="6" width="8" height="6" fill="#FF6347"/><rect x="16" y="6" width="10" height="6" fill="#4169E1"/><rect x="6" y="14" width="6" height="6" fill="#32CD32"/><rect x="14" y="14" width="12" height="6" fill="#FFD700"/><rect x="6" y="22" width="10" height="6" fill="#FF69B4"/><rect x="18" y="22" width="8" height="6" fill="#9370DB"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="4" y="4" width="24" height="24" fill="#8B4513"/><rect x="6" y="6" width="8" height="6" fill="#FF6347"/><rect x="16" y="6" width="10" height="6" fill="#4169E1"/><rect x="6" y="14" width="6" height="6" fill="#32CD32"/><rect x="14" y="14" width="12" height="6" fill="#FFD700"/><rect x="6" y="22" width="10" height="6" fill="#FF69B4"/><rect x="18" y="22" width="8" height="6" fill="#9370DB"/></svg>', 
                 price: 120, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 72,
+                height: 88
             },
             { 
                 id: 'flower', 
                 name: '花瓶', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="12" y="14" width="8" height="14" fill="#DC143C"/><rect x="10" y="16" width="12" height="2" fill="#FF6B6B"/><rect x="14" y="6" width="4" height="8" fill="#228B22"/><rect x="10" y="8" width="4" height="4" fill="#FF69B4"/><rect x="18" y="8" width="4" height="4" fill="#FF69B4"/><rect x="14" y="4" width="4" height="4" fill="#FF1493"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="12" y="14" width="8" height="14" fill="#DC143C"/><rect x="10" y="16" width="12" height="2" fill="#FF6B6B"/><rect x="14" y="6" width="4" height="8" fill="#228B22"/><rect x="10" y="8" width="4" height="4" fill="#FF69B4"/><rect x="18" y="8" width="4" height="4" fill="#FF69B4"/><rect x="14" y="4" width="4" height="4" fill="#FF1493"/></svg>', 
                 price: 60, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 40,  // 最小
+                height: 56
             },
             { 
                 id: 'painting', 
                 name: '挂画', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="6" y="4" width="20" height="24" fill="#8B4513"/><rect x="8" y="6" width="16" height="20" fill="#F5DEB3"/><rect x="10" y="8" width="4" height="4" fill="#32CD32"/><rect x="18" y="8" width="4" height="4" fill="#FF6347"/><rect x="10" y="16" width="12" height="8" fill="#87CEEB"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="6" y="4" width="20" height="24" fill="#8B4513"/><rect x="8" y="6" width="16" height="20" fill="#F5DEB3"/><rect x="10" y="8" width="4" height="4" fill="#32CD32"/><rect x="18" y="8" width="4" height="4" fill="#FF6347"/><rect x="10" y="16" width="12" height="8" fill="#87CEEB"/></svg>', 
                 price: 90, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 64,
+                height: 72
             },
             { 
                 id: 'rug', 
                 name: '地毯', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="4" y="10" width="24" height="14" fill="#CD853F"/><rect x="6" y="12" width="20" height="10" fill="#DEB887"/><rect x="8" y="14" width="4" height="2" fill="#8B4513"/><rect x="14" y="14" width="4" height="2" fill="#8B4513"/><rect x="20" y="14" width="4" height="2" fill="#8B4513"/><rect x="10" y="18" width="4" height="2" fill="#8B4513"/><rect x="18" y="18" width="4" height="2" fill="#8B4513"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="4" y="10" width="24" height="14" fill="#CD853F"/><rect x="6" y="12" width="20" height="10" fill="#DEB887"/><rect x="8" y="14" width="4" height="2" fill="#8B4513"/><rect x="14" y="14" width="4" height="2" fill="#8B4513"/><rect x="20" y="14" width="4" height="2" fill="#8B4513"/><rect x="10" y="18" width="4" height="2" fill="#8B4513"/><rect x="18" y="18" width="4" height="2" fill="#8B4513"/></svg>', 
                 price: 70, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 104, // 很宽
+                height: 48
             },
             { 
                 id: 'clock', 
                 name: '挂钟', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="6" y="6" width="20" height="20" rx="10" fill="#FFFACD"/><rect x="8" y="8" width="16" height="16" fill="#FFF8DC"/><rect x="15" y="10" width="2" height="8" fill="#000"/><rect x="15" y="16" width="6" height="2" fill="#000"/><rect x="14" y="4" width="4" height="4" fill="#8B4513"/><rect x="14" y="24" width="4" height="4" fill="#8B4513"/><rect x="4" y="14" width="4" height="4" fill="#8B4513"/><rect x="24" y="14" width="4" height="4" fill="#8B4513"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="6" y="6" width="20" height="20" rx="10" fill="#FFFACD"/><rect x="8" y="8" width="16" height="16" fill="#FFF8DC"/><rect x="15" y="10" width="2" height="8" fill="#000"/><rect x="15" y="16" width="6" height="2" fill="#000"/><rect x="14" y="4" width="4" height="4" fill="#8B4513"/><rect x="14" y="24" width="4" height="4" fill="#8B4513"/><rect x="4" y="14" width="4" height="4" fill="#8B4513"/><rect x="24" y="14" width="4" height="4" fill="#8B4513"/></svg>', 
                 price: 55, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 56,
+                height: 56
             },
             { 
                 id: 'mirror', 
                 name: '镜子', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="8" y="4" width="16" height="26" fill="#C0C0C0"/><rect x="10" y="6" width="12" height="22" fill="#E0FFFF"/><rect x="12" y="8" width="8" height="4" fill="#B0E0E6"/><rect x="11" y="20" width="2" height="4" fill="#87CEEB"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="8" y="4" width="16" height="26" fill="#C0C0C0"/><rect x="10" y="6" width="12" height="22" fill="#E0FFFF"/><rect x="12" y="8" width="8" height="4" fill="#B0E0E6"/><rect x="11" y="20" width="2" height="4" fill="#87CEEB"/></svg>', 
                 price: 65, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 48,
+                height: 72
             },
             { 
                 id: 'chair', 
                 name: '椅子', 
-                icon: '<svg viewBox="0 0 32 32" width="64" height="64" style="image-rendering: pixelated;"><rect x="10" y="6" width="12" height="10" fill="#8B4513"/><rect x="12" y="8" width="8" height="6" fill="#A0522D"/><rect x="8" y="16" width="16" height="4" fill="#8B4513"/><rect x="10" y="20" width="4" height="10" fill="#A0522D"/><rect x="18" y="20" width="4" height="10" fill="#A0522D"/></svg>', 
+                icon: '<svg viewBox="0 0 32 32" style="image-rendering: pixelated;"><rect x="10" y="6" width="12" height="10" fill="#8B4513"/><rect x="12" y="8" width="8" height="6" fill="#A0522D"/><rect x="8" y="16" width="16" height="4" fill="#8B4513"/><rect x="10" y="20" width="4" height="10" fill="#A0522D"/><rect x="18" y="20" width="4" height="10" fill="#A0522D"/></svg>', 
                 price: 75, 
-                type: 'furniture' 
+                type: 'furniture',
+                width: 56,
+                height: 64
             }
         ];
 
@@ -653,10 +679,20 @@
             div.style.top = furniture.y + 'px';
             div.style.touchAction = 'none';
             div.style.pointerEvents = 'auto';
+            
+            // 获取家具尺寸，默认 64x64
+            const info = furnitureData.find(f => f.id === furniture.id);
+            const w = info?.width || 64;
+            const h = info?.height || 64;
+            
             div.innerHTML = `
-                <div class="room-furniture-icon">${furniture.icon}</div>
+                <div class="room-furniture-icon" style="width:${w}px;height:${h}px;">
+                    ${furniture.icon.replace(/viewBox="0 0 32 32"/, `viewBox="0 0 32 32" width="${w}" height="${h}"`)}
+                </div>
             `;
             div.dataset.furnitureIndex = index;
+            div.dataset.width = w;
+            div.dataset.height = h;
             
             return div;
         }
@@ -927,8 +963,12 @@
                 const dx = clientX - dragStartX;
                 const dy = clientY - dragStartY;
                 
-                dragData.x = Math.max(0, Math.min(dragInitialX + dx, window.innerWidth - 64));
-                dragData.y = Math.max(0, Math.min(dragInitialY + dy, 400 - 64));
+                // 获取家具/宠物实际大小
+                const w = parseInt(dragTarget.dataset.width) || 64;
+                const h = parseInt(dragTarget.dataset.height) || 64;
+                
+                dragData.x = Math.max(0, Math.min(dragInitialX + dx, window.innerWidth - w));
+                dragData.y = Math.max(0, Math.min(dragInitialY + dy, 400 - h));
                 
                 dragTarget.style.left = dragData.x + 'px';
                 dragTarget.style.top = dragData.y + 'px';
