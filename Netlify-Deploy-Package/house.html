@@ -806,6 +806,7 @@
         let longPressTimer = null;
         let lastTapTime = 0;
         let isLongPress = false;
+        let hasMoved = false; // 新增：记录是否发生了拖拽移动
 
         function setupDragListeners() {
             const room = document.getElementById('house-room');
@@ -841,24 +842,29 @@
                 
                 lastTapTime = currentTime;
                 
+                // 重置移动状态
+                hasMoved = false;
+                
                 // 设置长按定时器
                 isLongPress = false;
                 longPressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    
-                    const furnitureIndex = target.dataset.furnitureIndex;
-                    const petIndex = target.dataset.petIndex;
-                    
-                    if (furnitureIndex !== undefined) {
-                        const furniture = currentHouse.furniture[parseInt(furnitureIndex)];
-                        const furnitureInfo = furnitureData.find(f => f.id === furniture.id);
-                        showDeleteConfirm(furnitureInfo.name, 'furniture', parseInt(furnitureIndex));
-                    } else if (petIndex !== undefined) {
-                        const pet = currentHouse.pets[parseInt(petIndex)];
-                        const petInfo = petData.find(p => p.id === pet.id);
-                        showDeleteConfirm(petInfo.name, 'pet', parseInt(petIndex));
+                    if (!hasMoved) { // 只有没移动时才触发删除
+                        isLongPress = true;
+                        
+                        const furnitureIndex = target.dataset.furnitureIndex;
+                        const petIndex = target.dataset.petIndex;
+                        
+                        if (furnitureIndex !== undefined) {
+                            const furniture = currentHouse.furniture[parseInt(furnitureIndex)];
+                            const furnitureInfo = furnitureData.find(f => f.id === furniture.id);
+                            showDeleteConfirm(furnitureInfo.name, 'furniture', parseInt(furnitureIndex));
+                        } else if (petIndex !== undefined) {
+                            const pet = currentHouse.pets[parseInt(petIndex)];
+                            const petInfo = petData.find(p => p.id === pet.id);
+                            showDeleteConfirm(petInfo.name, 'pet', parseInt(petIndex));
+                        }
                     }
-                }, 800); // 800ms 长按触发
+                }, 600); // 稍微缩短一点长按时间
                 
                 // 开始拖拽
                 e.preventDefault();
@@ -898,14 +904,20 @@
             const handleMove = (e, clientX, clientY) => {
                 if (!dragTarget || !dragData) return;
                 
-                // 如果移动距离超过10px，取消长按
+                // 计算移动距离
                 const moveDistance = Math.sqrt(
                     Math.pow(clientX - dragStartX, 2) + 
                     Math.pow(clientY - dragStartY, 2)
                 );
-                if (moveDistance > 10 && longPressTimer) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
+                
+                // 如果移动超过 5px，标记为已移动
+                if (moveDistance > 5) {
+                    hasMoved = true;
+                    // 立即取消长按定时器
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
                 }
                 
                 if (isLongPress) return; // 长按已触发，不再拖拽
