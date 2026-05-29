@@ -1,0 +1,57 @@
+/* ============================================
+   可爱风格 - 界面自定义CSS
+   ============================================ */
+
+/* 整体背景色 */
+body .chat-container {
+    background-color: #fff5f8 !important;
+}
+
+/* 顶栏样式 - 可爱风格 */
+body .chat-header {
+    background: #ffe4ec !important;
+    border-bottom: 2px solid #ffb3c6 !important;
+}
+
+body .chat-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #ff6b9d !important;
+}
+
+/* 按钮颜色 */
+body .menu-btn svg,
+body .back-btn svg {
+    stroke: #ff6b9d !important;
+}
+
+/* 消息气泡 - 可爱风格 */
+body .message-item.sent .message-bubble {
+    background: #ff8fab !important;
+    color: #ffffff !important;
+    border-radius: 20px 20px 4px 20px !important;
+}
+
+body .message-item.received .message-bubble {
+    background: #ffffff !important;
+    color: #ff6b9d !important;
+    border-radius: 20px 20px 20px 4px !important;
+    border: 2px solid #ffb3c6 !important;
+}
+
+/* 输入框 - 可爱风格 */
+body .input-wrapper {
+    background: #ffffff !important;
+    border: 2px solid #ffb3c6 !important;
+    border-radius: 25px !important;
+}
+
+body .chat-input {
+    font-size: 15px !important;
+}
+
+/* 发送按钮 */
+body .send-btn {
+    background: #ff6b9d !important;
+    border-radius: 50% !important;
+}

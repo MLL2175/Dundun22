@@ -1,0 +1,50 @@
+/* ============================================
+   极简风格 - 界面自定义CSS
+   ============================================ */
+
+/* 整体背景色 */
+body .chat-container {
+    background-color: #ffffff !important;
+}
+
+/* 顶栏样式 - 极简 */
+body .chat-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+body .chat-title {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    color: #333333 !important;
+}
+
+/* 消息气泡 - 极简 */
+body .message-item.sent .message-bubble {
+    background: #f5f5f5 !important;
+    color: #333333 !important;
+    border-radius: 8px !important;
+}
+
+body .message-item.received .message-bubble {
+    background: #fafafa !important;
+    color: #666666 !important;
+    border-radius: 8px !important;
+}
+
+/* 输入框 - 极简风格 */
+body .chat-input {
+    font-size: 15px !important;
+}
+
+body .input-wrapper {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border: 1px solid #f0f0f0 !important;
+}
+
+/* 发送按钮 */
+body .send-btn {
+    background: #333333 !important;
+    border-radius: 4px !important;
+}

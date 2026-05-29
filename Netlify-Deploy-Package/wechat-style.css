@@ -1,0 +1,61 @@
+/* ============================================
+   微信风格 - 界面自定义CSS
+   ============================================ */
+
+/* 整体背景色 */
+body .chat-container {
+    background-color: #ededed !important;
+}
+
+/* 顶栏样式 - 微信风格 */
+body .chat-header {
+    background: #ededed !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid #d6d6d6 !important;
+}
+
+body .chat-title {
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+}
+
+/* 消息气泡 - 微信风格 */
+body .message-item.sent .message-bubble {
+    background: #95ec69 !important;
+    color: #000000 !important;
+    border-radius: 4px !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body .message-item.received .message-bubble {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 4px !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 输入框 - 微信风格 */
+body .chat-input {
+    font-size: 16px !important;
+}
+
+body .input-wrapper {
+    background: #ffffff !important;
+    border-radius: 6px !important;
+    border: 1px solid #d6d6d6 !important;
+}
+
+/* 发送按钮 - 绿色 */
+body .send-btn {
+    background: #07c160 !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+}

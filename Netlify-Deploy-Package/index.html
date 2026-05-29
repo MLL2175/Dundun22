@@ -1,0 +1,1039 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Umi</title>
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <!-- Favicon 图标 -->
+  <link rel="icon" type="image/jpeg" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <link rel="apple-touch-icon" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <!-- Android Chrome 图标 -->
+  <link rel="icon" type="image/png" sizes="192x192" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <link rel="icon" type="image/png" sizes="512x512" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
+  <link rel="stylesheet" href="style.css?v=177">
+  <script src="main.js?v=222"></script>
+  <script src="collection-widget.js?v=4"></script>
+</head>
+
+<body style="opacity: 0; transition: opacity 0.2s ease;">
+  <div id="phone-container">
+    <!-- 顶部状态栏 -->
+    <div id="status-bar">
+      <div class="status-time" id="status-time">09:41</div>
+      <div class="status-right">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" stroke-width="1.5">
+          <rect x="0" y="2" width="3" height="8" rx="1" fill="currentColor" />
+          <rect x="5" y="0" width="3" height="12" rx="1" fill="currentColor" />
+          <rect x="10" y="1" width="3" height="11" rx="1" fill="currentColor" />
+          <rect x="15" y="3" width="3" height="7" rx="1" fill="currentColor" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- 主屏幕（分页容器） -->
+    <div id="home-screen">
+      <div id="pages-wrapper">
+        <!-- 第一页 -->
+        <div class="desktop-page" id="page-1">
+          <!-- 组件区 -->
+          <div id="widget-area">
+            <div class="widget" id="time-weather-widget" data-widget-id="time-weather">
+              <div class="widget-delete" onclick="deleteWidget('time-weather')">×</div>
+              <div class="time-widget-new">
+                <div class="time-top-box" style="border-radius: 50px; padding: 0; overflow: hidden; border: 2px solid #000; background: #fff; height: 44px; display: flex; align-items: center; margin-bottom: 16px;">
+                  <!-- 搜索栏内容 -->
+                  <input type="text" placeholder="输入框程导航" style="flex: 1; border: none; outline: none; padding: 0 16px; font-size: 16px; color: #666; background: transparent;" />
+                  <div style="width: 60px; height: 44px; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="#fff" stroke-width="2.5" fill="none">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="time-bottom-box">
+                  <!-- 上部：时间和头像 -->
+                  <div class="time-upper-section">
+                  <div class="time-display-large" id="widget-time">21:04</div>
+                  <div class="time-bubble-section">
+                    <div class="time-day-abbr" id="widget-day-abbr">TUT</div>
+                    <div class="time-bubble-short" id="time-bubble-short" contenteditable="true" spellcheck="false">好香~~</div>
+                    <div class="time-bubble-long" id="time-bubble-long" contenteditable="true" spellcheck="false">(╯▽╰ )好香~~</div>
+                  </div>
+                  <div class="time-avatar-editable" onclick="setWidgetAvatar()">
+                    <div class="time-avatar-text" id="widget-avatar-placeholder">点击可编辑头像</div>
+                  </div>
+                </div>
+                
+                <!-- 中间分隔线 -->
+                <div class="time-divider"></div>
+                
+                <!-- 下部：图片和日历 -->
+                <div class="time-lower-section">
+                  <!-- 左侧：可编辑图片 -->
+                  <div class="time-image-editable" onclick="triggerWidgetImageUpload()">
+                    <div class="time-image-text" id="widget-image-placeholder">点击可编辑图片</div>
+                  </div>
+                  
+                  <!-- 右侧：日历 -->
+                  <div class="time-calendar-section">
+                    <div class="time-calendar-date" id="widget-calendar-date">May 15, 2026</div>
+                    <div class="time-calendar-weekdays">
+                      <div class="time-calendar-weekday">一</div>
+                      <div class="time-calendar-weekday">二</div>
+                      <div class="time-calendar-weekday">三</div>
+                      <div class="time-calendar-weekday">四</div>
+                      <div class="time-calendar-weekday">五</div>
+                      <div class="time-calendar-weekday">六</div>
+                      <div class="time-calendar-weekday">七</div>
+                    </div>
+                    <div class="time-calendar-grid" id="widget-calendar-grid">
+                      <!-- 日期格子将通过 JavaScript 动态生成 -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+            
+            <!-- 可爱方形照片组件 -->
+            <div class="widget square-photo-widget" id="squarePhoto" data-widget-id="squarePhoto">
+              <div class="widget-delete" onclick="deleteWidget('squarePhoto')">×</div>
+              <div class="square-photo-grid">
+                <div class="square-photo-item">
+                  <div class="square-photo" onclick="triggerSquarePhotoUpload('squarePhoto', 0)" title="点击上传照片"></div>
+                </div>
+                <div class="square-photo-item">
+                  <div class="square-decoration" onclick="editSquareDecoration('squarePhoto', 0)" title="点击编辑">♡ ·  · ♡</div>
+                </div>
+                <div class="square-photo-item">
+                  <div class="square-decoration" onclick="editSquareDecoration('squarePhoto', 1)" title="点击编辑">🍩 *  * 🍩</div>
+                </div>
+                <div class="square-photo-item">
+                  <div class="square-photo" onclick="triggerSquarePhotoUpload('squarePhoto', 1)" title="点击上传照片"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- APP图标网格 -->
+          <div id="app-grid">
+            <div class="app-icon" data-app-id="chat">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <div class="app-name">聊天</div>
+            </div>
+            <div class="app-icon" data-app-id="couple">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <div class="app-name">情侣空间</div>
+            </div>
+            <div class="app-icon" data-app-id="device-check">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                  <line x1="12" y1="18" x2="12.01" y2="18" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div class="app-name">查岗</div>
+            </div>
+            <div class="app-icon" data-app-id="forum">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  <path d="M23 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M8 12h8" />
+                </svg>
+              </div>
+              <div class="app-name">论坛</div>
+            </div>
+            <div class="app-icon" data-app-id="memory">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <div class="app-name">记忆</div>
+            </div>
+            <div class="app-icon" data-app-id="diary">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+              </div>
+              <div class="app-name">日记</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 第二页 -->
+        <div class="desktop-page" id="page-2">
+          <div id="widget-area-page2">
+            <!-- 拍立得组件 -->
+            <div class="widget polaroid-widget" id="polaroidWidget" data-widget-id="polaroidWidget" data-widget-type="polaroidWidget">
+              <div class="widget-delete" onclick="deleteWidget('polaroidWidget')">×</div>
+              <div class="polaroid-image-grid">
+                <div class="polaroid-item" onclick="editDialogImage(this, 0)">
+                  <div class="polaroid-placeholder">点击可编辑图片</div>
+                </div>
+                <div class="polaroid-item" onclick="editDialogImage(this, 1)">
+                  <div class="polaroid-placeholder">点击可编辑图片</div>
+                </div>
+                <div class="polaroid-item" onclick="editDialogImage(this, 2)">
+                  <div class="polaroid-placeholder">点击可编辑图片</div>
+                </div>
+                <div class="polaroid-item" onclick="editDialogImage(this, 3)">
+                  <div class="polaroid-placeholder">点击可编辑图片</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 文字气泡组件（含圆形头像） -->
+            <div class="widget cute-dialog-widget" id="dialogBubble-page2" data-widget-id="dialogBubble-page2" data-widget-type="dialogBubble">
+              <div class="widget-delete" onclick="deleteWidget('dialogBubble-page2')">×</div>
+              <div class="dialog-bubble">
+                <div class="dialog-avatar" onclick="editDialogAvatar(this)">
+                  <div class="avatar-placeholder">点击可编辑头像</div>
+                </div>
+                <div class="dialog-main-text" contenteditable="true" onclick="event.stopPropagation()">不是我可爱 是你爱上我了 笨蛋 <·>Δ<·></div>
+              </div>
+            </div>
+          </div>
+          <!-- 第二页图标网格 -->
+          <div id="app-grid-page2" class="app-grid">
+            <div class="app-icon" data-app-id="game">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M12 22h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8" />
+                  <path d="M8 12h4M10 10v4" />
+                  <circle cx="16" cy="12" r="2" />
+                </svg>
+              </div>
+              <div class="app-name">游戏</div>
+            </div>
+            <div class="app-icon" data-app-id="together">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  <path d="M23 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <div class="app-name">一起做</div>
+            </div>
+            <div class="app-icon" data-app-id="shop">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+              </div>
+              <div class="app-name">商城</div>
+            </div>
+            <div class="app-icon" data-app-id="ifline">
+              <div class="app-icon-box">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M18 4L6 20" />
+                  <path d="M12 4l-2 4" />
+                  <path d="M16 14l-2 4" />
+                </svg>
+              </div>
+              <div class="app-name">IF 线</div>
+            </div>
+          </div>
+
+          <!-- 简约卡片式收藏组件 -->
+          <div class="widget collection-chest-widget" id="collection-chest" data-widget-id="collection-chest" data-widget-type="collectionChest">
+            <div class="widget-delete" onclick="deleteWidget('collection-chest')" style="top: -8px; right: -8px;">×</div>
+            <div class="chest-container" id="chest-container">
+              <div class="chest-body" onclick="toggleCollectionPanel()">
+                <div class="chest-lock">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="10" r="2"/>
+                  </svg>
+                </div>
+                <div class="chest-label">My Collection</div>
+                <div class="chest-count" id="collection-count">0 items</div>
+              </div>
+              <div class="chest-content" id="chest-content"></div>
+            </div>
+          </div>
+
+          <!-- 小屋图标 -->
+          <div class="app-icon" data-app-id="house">
+            <div class="app-icon-box">
+              <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div class="app-name">我们的小屋</div>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- 页面指示器 -->
+      <div id="page-indicator">
+        <div class="page-dot active" data-page="1"></div>
+        <div class="page-dot" data-page="2"></div>
+      </div>
+    </div>
+
+    <!-- 组件选择面板 -->
+    <div id="widget-picker" class="widget-picker">
+      <div class="widget-picker-mask" onclick="closeWidgetPicker()"></div>
+      <div class="widget-picker-content">
+        <div class="widget-picker-header">
+          <span>添加组件</span>
+          <button class="widget-picker-close" onclick="closeWidgetPicker()">×</button>
+        </div>
+        <div class="widget-picker-list" id="widget-picker-list">
+          <!-- 日历组件 -->
+          <div class="widget-picker-item" data-widget-type="calendar">
+            <div class="widget-picker-icon">📅</div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">日历</div>
+              <div class="widget-picker-desc">查看月历与日期</div>
+            </div>
+          </div>
+          <!-- 倒计时组件 -->
+          <div class="widget-picker-item" data-widget-type="countdown">
+            <div class="widget-picker-icon">⏰</div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">倒计时</div>
+              <div class="widget-picker-desc">记录重要日子</div>
+            </div>
+          </div>
+          <!-- 便签组件 -->
+          <div class="widget-picker-item" data-widget-type="note">
+            <div class="widget-picker-icon">📝</div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">便签</div>
+              <div class="widget-picker-desc">快速记录备忘</div>
+            </div>
+          </div>
+          <!-- 照片组件 -->
+          <div class="widget-picker-item" data-widget-type="photo">
+            <div class="widget-picker-icon">📷</div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">照片</div>
+              <div class="widget-picker-desc">展示喜欢的照片</div>
+            </div>
+          </div>
+          <!-- 拍立得组件 -->
+          <div class="widget-picker-item" data-widget-type="polaroidWidget">
+            <div class="widget-picker-icon">📸</div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">拍立得</div>
+              <div class="widget-picker-desc">4张照片展示</div>
+            </div>
+          </div>
+          <!-- 韩系搜索栏组件 -->
+          <div class="widget-picker-item" data-widget-type="koreanSearch">
+            <div class="widget-picker-icon"></div>
+            <div class="widget-picker-info">
+              <div class="widget-picker-name">韩系搜索栏</div>
+              <div class="widget-picker-desc">极简装饰搜索框</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 隐藏的组件模板 -->
+    <div id="hidden-templates" style="display: none;">
+      <!-- 可爱对话气泡组件模板 -->
+      <div class="widget cute-dialog-widget" id="cuteDialog-template" data-widget-id="cuteDialog-template">
+        <div class="widget-delete" onclick="deleteWidget(this.parentElement.getAttribute('data-widget-id'))">×</div>
+        <div class="cute-dialog-content">
+          <div class="dialog-top-section">
+            <div class="dialog-main-text" contenteditable="true" onclick="event.stopPropagation()">不是我可爱 是你爱上我了 笨蛋 <·>Δ<·></div>
+            <div class="dialog-top-decoration" contenteditable="true" onclick="event.stopPropagation()">୨୧ ୨୧</div>
+          </div>
+          <div class="dialog-divider"></div>
+          <div class="dialog-bottom-section">
+            <div class="dialog-bottom-decoration" contenteditable="true" onclick="event.stopPropagation()">(๑>؂<๑)</div>
+            <div class="dialog-bottom-content">
+              <div class="dialog-sub-text" contenteditable="true" onclick="event.stopPropagation()">馅饼不会掉我头上的 ˶ᵒ  </div>
+              <div class="dialog-divider" style="margin: 4px 0;"></div>
+              <div class="dialog-date" contenteditable="true" onclick="event.stopPropagation()">2026-04-01</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 拍立得图片组件模板 -->
+      <div class="widget polaroid-widget" id="polaroidWidget-template" data-widget-id="polaroidWidget-template">
+        <div class="widget-delete" onclick="deleteWidget(this.parentElement.getAttribute('data-widget-id'))">×</div>
+        <div class="polaroid-image-grid">
+          <div class="polaroid-item" onclick="editDialogImage(this, 0)">
+            <img src="https://picsum.photos/seed/kitty1/200/200" alt="图片1" />
+          </div>
+          <div class="polaroid-item" onclick="editDialogImage(this, 1)">
+            <img src="https://picsum.photos/seed/kitty2/200/200" alt="图片2" />
+          </div>
+          <div class="polaroid-item" onclick="editDialogImage(this, 2)">
+            <img src="https://picsum.photos/seed/kitty3/200/200" alt="图片3" />
+          </div>
+          <div class="polaroid-item" onclick="editDialogImage(this, 3)">
+            <img src="https://picsum.photos/seed/kitty4/200/200" alt="图片4" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 韩系搜索栏组件模板 -->
+      <div class="widget korean-search-widget" id="koreanSearch-template" data-widget-id="koreanSearch-template">
+        <div class="widget-delete" onclick="deleteWidget(this.parentElement.getAttribute('data-widget-id'))">×</div>
+        <div class="korean-search-content">
+          <div class="korean-search-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </div>
+          <div class="korean-search-text" contenteditable="true" onclick="event.stopPropagation()" title="点击编辑文字">Search...</div>
+          <div class="korean-search-decoration">୨୧</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部Dock栏 -->
+    <div id="dock">
+      <div class="dock-drag-handle"></div>
+      <div class="app-icon" data-app-id="settings">
+        <div class="app-icon-box">
+          <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </div>
+        <div class="app-name">设置</div>
+      </div>
+      <div class="app-icon" data-app-id="worldbook">
+        <div class="app-icon-box">
+          <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            <path d="M8 12h8M8 11h8M8 15h4" />
+          </svg>
+        </div>
+        <div class="app-name">世界书</div>
+      </div>
+      <div class="app-icon" data-app-id="beautify">
+        <div class="app-icon-box">
+          <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1a9 9 0 0 1 9 9c0 4.17-2.2 7.93-5.5 10v1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1A11.99 11.99 0 0 1 3 10a9 9 0 0 1 9-9z" />
+          </svg>
+        </div>
+        <div class="app-name">美化</div>
+      </div>
+    </div>
+
+    <!-- 编辑模式工具栏 -->
+    <div id="edit-toolbar">
+      <button class="edit-btn" id="add-widget-btn">添加组件</button>
+      <button class="edit-btn" id="save-layout-btn" style="background: #007aff; color: white;">💾 保存布局</button>
+      <button class="edit-btn" id="finish-edit-btn">完成</button>
+    </div>
+
+    <!-- 聊天APP页面 -->
+    <div class="app-page" id="chat-page">
+      <div class="app-page-header">
+        <div class="back-btn" onclick="closeApp()">← 返回</div>
+        <div class="app-page-title">聊天</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="app-page-content">
+        <div class="chat-container">
+          <div class="chat-message-list" id="chat-message-list">
+            <div class="message-item ai">
+              <div class="message-bubble">你好呀</div>
+              <div class="message-time">09:41</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div id="chat-input" contenteditable="true" placeholder="输入消息..."></div>
+            <button id="send-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="white" stroke-width="2" fill="none">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置APP页面（完整功能） -->
+    <div class="app-page" id="settings-page">
+      <div class="app-page-header">
+        <div class="back-btn" onclick="closeApp()">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </div>
+        <div class="app-page-title">设置</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="app-page-content">
+        <div class="settings-container">
+    <!-- 新增：API预设分组管理 -->
+    <div>
+        <div class="section-title">API预设管理</div>
+        <div class="settings-section">
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">保存当前配置为预设</label>
+                    <span class="item-desc">将当前填好的API信息保存为分组</span>
+                </div>
+                <button class="btn-secondary" id="save-preset-btn">保存预设</button>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">我的预设分组</label>
+                <div id="preset-list" class="preset-list">
+                    <div class="preset-empty">暂无保存的预设</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心API配置 -->
+    <div>
+        <div class="section-title">核心API配置</div>
+        <div class="settings-section">
+            <div class="settings-item">
+                <label class="item-label">主 API 接口地址</label>
+                <span class="item-desc">兼容 OpenAI 规范接口</span>
+                <input type="text" class="settings-input" id="main-api-url" name="mainApiUrl" placeholder="https://api.openai.com/v1">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">主 API 密钥 (Token)</label>
+                <input type="password" class="settings-input" id="main-api-token" name="mainApiToken" placeholder="sk-xxxxxxxxxxxxxxxx">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">当前使用模型</label>
+                <select class="settings-input" id="model-select" name="modelSelect">
+                    <option value="">请先拉取模型列表</option>
+                </select>
+            </div>
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">拉取模型列表</label>
+                    <span class="item-desc">从 API 获取可用模型</span>
+                </div>
+                <button class="btn-secondary" id="fetch-model-btn">拉取</button>
+            </div>
+            <button class="settings-save-btn" id="api-save-btn" style="width: 100%; padding: 12px; background: #8E8E93; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 16px;">保存 API 配置</button>
+        </div>
+    </div>
+
+    <!-- 语音合成API配置 -->
+    <div>
+        <div class="section-title">语音合成 (TTS) 配置</div>
+        <div class="settings-section">
+            <div class="settings-item">
+                <label class="item-label">Group ID</label>
+                <span class="item-desc">MiniMax 组 ID</span>
+                <input type="text" class="settings-input" id="minimax-group-id" name="minimaxGroupId" placeholder="请输入 Group ID">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">API Key</label>
+                <span class="item-desc">MiniMax 鉴权密钥</span>
+                <input type="password" class="settings-input" id="minimax-api-key" name="minimaxApiKey" placeholder="请输入 API Key">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">语音语速 <span id="tts-speed-value">1.0</span></label>
+                <span class="item-desc">调节语音播放速度，范围 0.5 - 2.0</span>
+                <input type="range" class="slider-input" id="tts-speed-slider" name="ttsSpeed" min="0.5" max="2.0" step="0.1" value="1.0">
+            </div>
+            <button class="settings-save-btn" id="tts-save-btn" style="width: 100%; padding: 12px; background: #8E8E93; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 16px;">保存语音配置</button>
+        </div>
+    </div>
+
+    <!-- AI生图API配置 -->
+    <div>
+        <div class="section-title">AI生图配置</div>
+        <div class="settings-section">
+            <div class="settings-item">
+                <label class="item-label">生图API地址</label>
+                <span class="item-desc">支持 DALL-E、Stable Diffusion 等兼容接口</span>
+                <input type="text" class="settings-input" id="image-gen-url" name="imageGenUrl" placeholder="https://api.openai.com/v1/images/generations">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">生图API密钥</label>
+                <span class="item-desc">用于图像生成的 API Token</span>
+                <input type="password" class="settings-input" id="image-gen-token" name="imageGenToken" placeholder="sk-xxxxxxxxxxxxxxxx">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">生图模型</label>
+                <span class="item-desc">选择使用的图像生成模型</span>
+                <select class="settings-input" id="image-gen-model" name="imageGenModel">
+                    <option value="dall-e-3">DALL-E 3</option>
+                    <option value="dall-e-2">DALL-E 2</option>
+                    <option value="stable-diffusion-xl">Stable Diffusion XL</option>
+                    <option value="midjourney">Midjourney</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">图片尺寸</label>
+                <span class="item-desc">生成图片的分辨率</span>
+                <select class="settings-input" id="image-gen-size" name="imageGenSize">
+                    <option value="1024x1024">1024×1024（方形）</option>
+                    <option value="1024x1792">1024×1792（竖版）</option>
+                    <option value="1792x1024">1792×1024（横版）</option>
+                    <option value="512x512">512×512（小图）</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">图片质量</label>
+                <span class="item-desc">standard: 快速生成, hd: 高质量（耗时更长）</span>
+                <select class="settings-input" id="image-gen-quality" name="imageGenQuality">
+                    <option value="standard">标准质量</option>
+                    <option value="hd">高清质量</option>
+                </select>
+            </div>
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">论坛虚拟路人发图</label>
+                    <span class="item-desc">开启后论坛帖子会显示真实图片</span>
+                </div>
+                <div class="switch" id="forum-image-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <button class="settings-save-btn" id="image-gen-save-btn" style="width: 100%; padding: 12px; background: #8E8E93; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 16px;">保存生图配置</button>
+        </div>
+    </div>
+
+    <!-- 高级API设置 -->
+    <div>
+        <div class="section-title">高级API设置</div>
+        <div class="settings-section">
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">启用备用API</label>
+                    <span class="item-desc">主API失败时自动切换</span>
+                </div>
+                <div class="switch" id="backup-api-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">备用 API 接口地址</label>
+                <input type="text" class="settings-input" id="backup-api-url" name="backupApiUrl" placeholder="https://api.backup.com/v1" disabled>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">备用 API 密钥 (Token)</label>
+                <input type="password" class="settings-input" id="backup-api-token" name="backupApiToken" placeholder="sk-xxxxxxxxxxxxxxxx" disabled>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">模型温度 <span id="temperature-value">0.7</span></label>
+                <span class="item-desc">数值越高，回答越随机；越低越稳定</span>
+                <input type="range" class="slider-input" id="temperature-slider" name="temperature" min="0" max="2" step="0.1" value="0.7">
+            </div>
+            <div class="settings-item">
+                <label class="item-label">单次回复最大长度</label>
+                <input type="number" class="settings-input" id="max-tokens" name="maxTokens" placeholder="2048" value="2048">
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息与通知设置 -->
+    <div>
+        <div class="section-title">消息与通知设置</div>
+        <div class="settings-section">
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">后台消息保活</label>
+                    <span class="item-desc">切后台仍可接收消息</span>
+                </div>
+                <div class="switch" id="background-keep-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <label class="item-label">消息推送通知</label>
+                <span class="item-desc">开启后切换到其他应用时也能收到通知</span>
+                <div style="margin-top: 12px; padding: 12px; background: #f5f5f7; border-radius: 8px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 13px; color: #333; font-weight: 500;">通知权限状态</span>
+                    <span id="desktop-notification-status" style="font-size: 13px; color: #999;">检查中...</span>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn-secondary" id="enable-notification-btn" style="flex: 1; background: #007AFF; color: white;">开启通知</button>
+                    <button class="btn-secondary" id="test-notification-btn" style="flex: 1;">发送测试通知</button>
+                  </div>
+                  <div style="font-size: 11px; color: #86868b; margin-top: 8px; line-height: 1.5;">
+                    💡 提示：保持浏览器标签页打开即可接收推送，完全关闭后无法工作
+                  </div>
+                </div>
+            </div>
+            <div class="settings-item settings-switch">
+                <div>
+                    <label class="item-label">消息横幅通知</label>
+                    <span class="item-desc">窗口不活跃时显示横幅提醒</span>
+                </div>
+                <div class="switch" id="banner-notification-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div style="flex: 1;">
+                    <label class="item-label">横幅通知测试</label>
+                    <span class="item-desc">测试横幅通知效果，包含头像和消息</span>
+                </div>
+                <button onclick="testBannerNotification()" style="padding: 8px 16px; background: #007AFF; color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap;">测试</button>
+            </div>
+            <div class="settings-item settings-switch">
+                <div style="flex: 1;">
+                    <label class="item-label">显示 API 悬浮球</label>
+                    <span class="item-desc">开启后在聊天界面右下角显示可拖动的 API 切换按钮</span>
+                </div>
+                <div class="switch" id="api-fab-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item settings-switch">
+                <div style="flex: 1;">
+                    <label class="item-label">开启提示音</label>
+                    <span class="item-desc">收到新消息时播放提示音</span>
+                </div>
+                <div class="switch" id="sound-enabled-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item" id="sound-settings-section" style="display: none;">
+                <label class="item-label">提示音选择</label>
+                <span class="item-desc">选择您喜欢的提示音效果</span>
+                <select class="settings-input" id="sound-type-select" style="margin-top: 8px;">
+                    <option value="default">默认提示音</option>
+                    <option value="crisp">清脆提示音</option>
+                    <option value="soft">柔和提示音</option>
+                    <option value="custom">自定义提示音</option>
+                </select>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button class="btn-secondary" id="test-sound-btn" style="flex: 1;">试听</button>
+                    <input type="file" id="custom-sound-file" accept="audio/mp3,audio/wav,audio/mpeg" style="display: none;">
+                    <button class="btn-secondary" id="upload-sound-btn" onclick="document.getElementById('custom-sound-file').click()" style="flex: 1;">上传自定义</button>
+                </div>
+                <div id="custom-sound-status" style="font-size: 12px; color: #999; margin-top: 4px; display: none;"></div>
+            </div>
+            
+            <!-- 通话铃声设置 -->
+            <div class="settings-item settings-switch">
+                <div style="flex: 1;">
+                    <label class="item-label">通话铃声</label>
+                    <span class="item-desc">收到语音/视频通话时播放铃声</span>
+                </div>
+                <div class="switch" id="call-ringtone-switch">
+                    <div class="switch-dot"></div>
+                </div>
+            </div>
+            <div class="settings-item" id="call-ringtone-settings-section" style="display: none;">
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-secondary" id="test-call-ringtone-btn" style="flex: 1;">试听通话铃声</button>
+                </div>
+            </div>
+            
+            <div class="settings-item">
+                <label class="item-label" style="color: #dc3545; font-weight: 500;">数据管理</label>
+                <span class="item-desc">管理您的所有聊天数据</span>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button class="btn-secondary" id="export-data-btn" style="flex: 1; padding: 10px; background: #07C160; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">导出数据</button>
+                    <button class="btn-secondary" id="import-data-btn" style="flex: 1; padding: 10px; background: #007AFF; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">导入数据</button>
+                </div>
+                <button class="btn-danger" id="clear-chat-cache-btn" style="width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px;">清除数据</button>
+                <div style="font-size: 11px; color: #999; margin-top: 4px; line-height: 1.5;">导出：备份所有聊天记录和设置到本地文件<br>导入：从备份文件恢复数据<br>清除：删除所有数据（不可恢复）</div>
+            </div>
+        </div>
+    </div>
+
+          <!-- 提示横条（必显示） -->
+          <div id="toast" class="toast"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 固定底部保存按钮（移到 settings-page 外部，避免堆叠上下文问题） -->
+    <div class="save-btn-container" id="settings-save-btn">
+      <button id="save-all-settings-btn" class="save-btn">保存所有设置</button>
+    </div>
+
+    <!-- 美化APP页面 -->
+    <div class="app-page" id="beautify-page">
+      <div class="app-page-header">
+        <div class="back-btn" onclick="closeApp()">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </div>
+        <div class="app-page-title">美化</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="app-page-content">
+        <div class="settings-container">
+          <!-- 桌面设置 -->
+          <div>
+            <div class="section-title">桌面设置</div>
+            <div class="settings-section">
+              <!-- 壁纸设置 -->
+              <div class="settings-item">
+                <label class="item-label">桌面壁纸</label>
+                <span class="item-desc">设置桌面背景图片</span>
+                <div class="beautify-preview" id="wallpaper-preview" style="background: #f5f5f7; min-height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #86868b; margin-top: 8px;">
+                  暂无壁纸
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                  <input type="text" class="settings-input" id="wallpaper-url" name="wallpaperUrl" placeholder="输入图片 URL 链接" style="flex: 1;">
+                  <input type="file" id="wallpaper-file" accept="image/*" style="display: none;">
+                  <button class="btn-secondary" onclick="document.getElementById('wallpaper-file').click()">选择图片</button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                  <button class="btn-secondary" id="apply-wallpaper-btn">应用壁纸</button>
+                  <button class="btn-secondary" id="delete-wallpaper-btn" style="color: #ff3b30;">删除壁纸</button>
+                  <button class="btn-secondary" id="save-wallpaper-btn" style="background: var(--accent-color); color: white;">保存</button>
+                </div>
+              </div>
+              
+              <!-- 状态栏开关 -->
+              <div class="settings-item">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <label class="item-label">显示状态栏</label>
+                    <span class="item-desc">滑动开关立即生效</span>
+                  </div>
+                  <div class="switch active" id="status-bar-switch">
+                    <div class="switch-dot"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 图标自定义 -->
+              <div class="settings-item">
+                <label class="item-label">图标自定义</label>
+                <span class="item-desc">点击图标更换，自动保存</span>
+                <div id="icon-preview-container" style="margin-top: 12px;">
+                  <!-- 图标预览会在这里动态生成 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 字体设置 -->
+          <div>
+            <div class="section-title">字体设置</div>
+            <div class="settings-section">
+              <div class="settings-item">
+                <label class="item-label">字体链接URL</label>
+                <span class="item-desc">粘贴Google Fonts等字体链接</span>
+                <input type="text" class="settings-input" id="font-url" name="fontUrl" placeholder="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+                <button class="btn-secondary" id="save-font-btn" style="margin-top: 8px;">保存字体设置</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 全局美化（自定义CSS） -->
+          <div>
+            <div class="section-title">全局美化</div>
+            <div class="settings-section">
+              <div class="settings-item">
+                <label class="item-label">自定义CSS代码</label>
+                <span class="item-desc">粘贴自定义CSS样式代码（应用到整个页面）</span>
+                <textarea class="settings-input" id="custom-css" rows="6" placeholder="/* 输入自定义CSS代码 */"></textarea>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                  <input type="file" id="css-file" accept=".css" style="display: none;">
+                  <button class="btn-secondary" onclick="document.getElementById('css-file').click()">导入CSS文件</button>
+                  <button class="btn-secondary" id="clear-css-btn">清空</button>
+                  <button class="btn-secondary" id="save-css-btn" style="background: var(--accent-color); color: white;">保存CSS</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 方案管理 -->
+          <div>
+            <div class="section-title">方案管理</div>
+            <div class="settings-section">
+              <div class="settings-item settings-switch">
+                <div>
+                  <label class="item-label">保存当前方案</label>
+                  <span class="item-desc">将当前美化设置保存为方案</span>
+                </div>
+                <button class="btn-secondary" id="save-beautify-preset-btn">保存方案</button>
+              </div>
+              <div class="settings-item">
+                <label class="item-label">我的美化方案</label>
+                <div id="beautify-preset-list" class="preset-list">
+                  <div class="preset-empty">暂无保存的方案</div>
+                </div>
+              </div>
+              <div class="settings-item">
+                <div>
+                  <label class="item-label">恢复默认美化</label>
+                  <span class="item-desc">清空所有自定义美化设置</span>
+                </div>
+                <button class="btn-secondary" id="reset-beautify-btn" style="background: #ff6b6b; color: white;">恢复默认</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 提示横条 -->
+          <div id="beautify-toast" class="toast"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商城APP页面 -->
+    <div class="app-page" id="shop-page">
+      <div class="app-page-header">
+        <div class="back-btn" onclick="closeApp()">← 返回</div>
+        <div class="app-page-title">商城</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="app-page-content">
+        <div class="shop-container">
+          <div class="shop-banner">
+            <div class="shop-banner-text">欢迎来到商城</div>
+            <div class="shop-banner-sub">精选好物等你来</div>
+          </div>
+          <div class="shop-categories">
+            <div class="shop-category">
+              <div class="shop-category-icon">📱</div>
+              <div class="shop-category-name">数码</div>
+            </div>
+            <div class="shop-category">
+              <div class="shop-category-icon">👗</div>
+              <div class="shop-category-name">服饰</div>
+            </div>
+            <div class="shop-category">
+              <div class="shop-category-icon">🍎</div>
+              <div class="shop-category-name">食品</div>
+            </div>
+            <div class="shop-category">
+              <div class="shop-category-icon">🏠</div>
+              <div class="shop-category-name">家居</div>
+            </div>
+          </div>
+          <div class="shop-products">
+            <div class="shop-section-title">热门推荐</div>
+            <div class="shop-product-grid">
+              <div class="shop-product-card">
+                <div class="shop-product-img">🎁</div>
+                <div class="shop-product-name">精选好礼</div>
+                <div class="shop-product-price">¥99</div>
+              </div>
+              <div class="shop-product-card">
+                <div class="shop-product-img">⌚</div>
+                <div class="shop-product-name">智能手表</div>
+                <div class="shop-product-price">¥299</div>
+              </div>
+              <div class="shop-product-card">
+                <div class="shop-product-img">🎧</div>
+                <div class="shop-product-name">无线耳机</div>
+                <div class="shop-product-price">¥199</div>
+              </div>
+              <div class="shop-product-card">
+                <div class="shop-product-img">🎒</div>
+                <div class="shop-product-name">时尚背包</div>
+                <div class="shop-product-price">¥159</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 手机弹窗模板 -->
+  <div id="mobile-modal" class="mobile-modal">
+    <div class="mobile-modal-mask" onclick="closeMobileModal()"></div>
+    <div class="mobile-modal-content">
+      <div class="mobile-modal-header">
+        <span class="mobile-modal-title" id="modal-title">标题</span>
+        <button class="mobile-modal-close" onclick="closeMobileModal()">×</button>
+      </div>
+      <div class="mobile-modal-body" id="modal-body">
+        <!-- 动态内容 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 固定引入顺序 -->
+  <script src="settings.js"></script>
+  <script src="beautify.js?v=7"></script>
+  <script src="worldbook.js"></script>
+  
+  <!-- 世界书管理弹窗 -->
+  <div id="worldbook-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10001;">
+    <div style="background: white; width: 100%; max-width: 600px; margin: 40px auto; border-radius: 16px; overflow: hidden; max-height: calc(100vh - 80px); display: flex; flex-direction: column;">
+      <!-- 头部 -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; background: #f5f5f5;">
+        <h2 style="font-size: 17px; font-weight: 600; margin: 0;">世界书管理</h2>
+        <button onclick="closeWorldbookModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+      </div>
+      
+      <!-- 内容区 -->
+      <div style="flex: 1; overflow-y: auto; padding: 20px;">
+        <!-- 添加新世界书按钮 -->
+        <button onclick="showAddWorldbookForm()" style="width: 100%; padding: 12px; background: #07C160; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; margin-bottom: 16px;">+ 创建新世界书</button>
+        
+        <!-- 世界书列表 -->
+        <div id="worldbook-list-container">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ️ 全局通知横幅容器 -->
+  <div id="global-notification-container"></div>
+  
+  <!-- 商城iframe弹窗 -->
+  <div id="shop-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f5f5f7; z-index: 10000;">
+    <iframe id="shop-iframe" src="shop.html?v=2" style="width: 100%; height: 100%; border: none;"></iframe>
+  </div>
+
+  <script>
+    // 防止FOUC：页面加载完成后显示
+    window.addEventListener('load', function() {
+      document.body.style.opacity = '1';
+    });
+    
+    // 监听来自商城iframe的消息
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.action === 'closeShopModal') {
+        closeShopModal();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

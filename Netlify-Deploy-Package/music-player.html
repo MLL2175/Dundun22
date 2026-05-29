@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一起听</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100dvh;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 12px;
+            min-height: calc(100vh - 24px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+
+        .header-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            border-radius: 50%;
+        }
+
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 50px 14px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .search-box input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+            background: #fff;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #333;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        /* API选择器 */
+        .api-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .api-selector::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .api-selector::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        .api-tag {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+            background: #fafafa;
+            color: #666;
+        }
+
+        .api-tag.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .api-tag:hover {
+            background: #f0f0f0;
+        }
+
+        .api-tag.active:hover {
+            background: #333;
+        }
+
+        /* 导入区域 */
+        .import-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .import-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .import-btn:hover {
+            background: #f0f0f0;
+            border-color: #ccc;
+            transform: translateY(-1px);
+        }
+
+        .import-btn svg {
+            flex-shrink: 0;
+        }
+
+        /* 搜索结果 */
+        .search-results {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            padding-right: 8px;
+            display: none;
+        }
+
+        .search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #ccc;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .result-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .result-item .album-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+
+        .result-item .song-info {
+            flex: 1;
+        }
+
+        .result-item .song-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .result-item .artist-name {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 平台链接 */
+        .platform-links {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .platform-link {
+            padding: 4px 10px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .platform-link:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
+
+        /* 播放器 - 全屏弹窗 */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .player-modal.active {
+            display: block;
+        }
+
+        .player-modal-header {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            z-index: 10;
+        }
+
+        .player-modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .login-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #333;
+        }
+
+        .login-btn.logged-in {
+            background: #fff;
+            color: #000;
+            border: 1px solid #ddd;
+        }
+
+        .settings-btn {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-btn:hover {
+            background: #e8e8e8;
+            border-color: #ccc;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .player-modal-content {
+            padding: 20px 16px 40px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .now-playing-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .now-playing-info {
+            flex: 1;
+        }
+
+        .now-playing-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .now-playing-artist {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 进度条 */
+        .progress-container {
+            margin: 8px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #000;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+            padding: 6px;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            color: #333;
+        }
+
+        .control-btn.play-pause {
+            width: 48px;
+            height: 48px;
+            background: #000;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn.play-pause:hover {
+            background: #333;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* 音量控制 */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 70%;
+        }
+
+        /* 邀请角色 */
+        .invite-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .invite-btn {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .invite-btn:hover {
+            background: #333;
+            transform: scale(1.02);
+        }
+
+        .invite-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 角色反馈 */
+        .character-response {
+            margin-top: 16px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 12px;
+            border-left: 3px solid #000;
+            display: none;
+        }
+
+        .character-response.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .character-response .response-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .character-response .response-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+
+        .character-response .response-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .character-response .response-content {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 网易云嵌入播放器 */
+        .netease-embed {
+            margin: 16px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .netease-embed iframe {
+            display: block;
+            width: 100%;
+            height: 86px;
+            border: none;
+        }
+
+        /* 歌词容器 */
+        .lyrics-container {
+            margin: 20px 0;
+            height: 400px;
+            overflow-y: auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .lyrics-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .lyrics-container::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        .lyrics-content {
+            padding: 150px 0;
+        }
+
+        .lyrics-placeholder {
+            color: #999;
+            font-size: 15px;
+            padding: 150px 0;
+        }
+
+        .lyric-line {
+            padding: 14px 20px;
+            color: #aaa;
+            font-size: 15px;
+            line-height: 1.8;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .lyric-line.active {
+            color: #000;
+            font-size: 20px;
+            font-weight: 600;
+            opacity: 1;
+            transform: scale(1.08);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #ccc;
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #000;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* 滚动条美化 */
+        .search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-results::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 3px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* 角色选择弹窗 */
+        .character-select-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .character-select-modal.active {
+            display: block;
+        }
+
+        /* 登录弹窗 */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+        }
+
+        .login-modal.active {
+            display: block;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .character-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 登录弹窗样式 */
+        .login-modal-content {
+            max-width: 400px;
+        }
+
+        .login-form {
+            padding: 8px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input[type="tel"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #000;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .login-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .login-submit-btn {
+            flex: 1;
+            padding: 12px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-submit-btn:hover {
+            background: #333;
+        }
+
+        .login-cancel-btn {
+            flex: 1;
+            padding: 12px;
+            background: #fff;
+            color: #000;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-cancel-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .login-links {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .forgot-password-link {
+            color: #666;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-password-link:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        .login-tip {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .character-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .character-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .character-item img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+
+        .character-item-info {
+            flex: 1;
+        }
+
+        .character-item-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .character-item-desc {
+            font-size: 13px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 角色音乐邀请通知 */
+        .character-music-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .character-music-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .notification-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .notification-info {
+            flex: 1;
+        }
+
+        .notification-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notification-song {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .notification-message {
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #fff;
+        }
+
+        .notification-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-btn.accept {
+            background: #000;
+            color: #fff;
+        }
+
+        .notification-btn.accept:hover {
+            background: #333;
+            transform: scale(1.02);
+        }
+
+        .notification-btn.decline {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .notification-btn.decline:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='index.html'" title="返回桌面">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div>
+                    <h1>一起听</h1>
+                    <p>和TA一起享受音乐时光</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="login-btn" id="loginBtn" onclick="showLoginModal()">登录</button>
+                <button class="settings-btn" onclick="showCharacterInviteSettings()" title="角色邀请设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </button>
+                <button class="settings-btn" onclick="window.open('music-api-config.html', '_blank')" title="API配置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索歌曲、歌手..." />
+            <button class="search-btn" onclick="searchMusic()">搜索</button>
+        </div>
+
+        <!-- API选择器 -->
+        <div class="api-selector">
+            <div class="api-tag active" data-api="all" onclick="selectAPI('all')">🎵 全部</div>
+            <div class="api-tag" data-api="netease" onclick="selectAPI('netease')">网易云</div>
+            <div class="api-tag" data-api="qq" onclick="selectAPI('qq')">QQ音乐</div>
+            <div class="api-tag" data-api="kugou" onclick="selectAPI('kugou')">酷狗</div>
+            <div class="api-tag" data-api="deezer" onclick="selectAPI('deezer')">Deezer(预览)</div>
+        </div>
+
+        <!-- 导入本地音乐 -->
+        <div class="import-section">
+            <button class="import-btn" onclick="importLocalMusic()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>导入本地音乐</span>
+            </button>
+            <button class="import-btn" onclick="showUrlImportModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>URL播放</span>
+            </button>
+        </div>
+
+        <!-- 搜索结果 -->
+        <div class="search-results" id="searchResults"></div>
+
+        <!-- 隐藏的文件输入框 -->
+        <input type="file" id="localMusicInput" accept="audio/*" multiple style="display: none;" onchange="handleLocalMusicSelect(event)" />
+    </div>
+    
+    <!-- URL导入弹窗 -->
+    <div class="modal-overlay" id="urlImportModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>URL播放</h2>
+                <button class="modal-close" onclick="closeUrlImportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 16px; font-size: 14px;">
+                     输入音乐文件的直链URL（支持MP3、WAV、FLAC等格式）
+                </p>
+                <div class="form-group">
+                    <label>音乐URL：</label>
+                    <input type="url" id="musicUrlInput" placeholder="https://example.com/music.mp3">
+                </div>
+                <div class="form-group">
+                    <label>歌曲名称（选填）：</label>
+                    <input type="text" id="musicNameInput" placeholder="例如：晴天 - 周杰伦">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="playMusicFromUrl()">
+                    播放
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 播放器全屏弹窗 -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-modal-header">
+            <h2>正在播放</h2>
+            <button class="close-btn" onclick="closePlayerModal()">×</button>
+        </div>
+            
+        <div class="player-modal-content">
+            <div class="player-header">
+                <img class="now-playing-art" id="nowPlayingArt" src="" alt="专辑封面" />
+                <div class="now-playing-info">
+                    <div class="now-playing-title" id="nowPlayingTitle">-</div>
+                    <div class="now-playing-artist" id="nowPlayingArtist">-</div>
+                </div>
+            </div>
+                
+            <!-- 歌词容器 -->
+            <div class="lyrics-container" id="lyricsContainer">
+                <div class="lyrics-content" id="lyricsContent">
+                    <div class="lyrics-placeholder">暂无歌词</div>
+                </div>
+            </div>
+                
+            <!-- 网易云嵌入播放器 -->
+            <div class="netease-embed" id="neteaseEmbed" style="display: none;">
+                <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=100% height=86 
+                        id="neteaseFrame" scrolling="no">
+                </iframe>
+            </div>
+                
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+                
+            <div class="controls">
+                <button class="control-btn" onclick="previousTrack()">⏮</button>
+                <button class="control-btn play-pause" id="playPauseBtn" onclick="togglePlay()">▶</button>
+                <button class="control-btn" onclick="nextTrack()">⏭</button>
+            </div>
+                
+            <div class="volume-control">
+                <span>🔊</span>
+                <div class="volume-slider" onclick="setVolume(event)">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+                
+            <!-- 邀请角色一起听 -->
+            <div class="invite-section">
+                <button class="invite-btn" id="inviteBtn" onclick="showCharacterSelect()">邀请TA一起听</button>
+                <div class="character-response" id="characterResponse">
+                    <div class="response-header">
+                        <img class="response-avatar" id="responseAvatar" src="" alt="头像" />
+                        <div class="response-name" id="responseName"></div>
+                    </div>
+                    <div class="response-content" id="responseContent"></div>
+                </div>
+            </div>
+                
+            <!-- 角色选择弹窗 -->
+            <div class="character-select-modal" id="characterSelectModal">
+                <div class="modal-overlay" onclick="closeCharacterSelect()"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>选择一起听的角色</h3>
+                        <button class="modal-close" onclick="closeCharacterSelect()">×</button>
+                    </div>
+                    <div class="character-list" id="characterList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 角色邀请设置弹窗 -->
+    <div class="login-modal" id="characterInviteSettingsModal">
+        <div class="modal-overlay" onclick="closeCharacterInviteSettings()"></div>
+        <div class="modal-content login-modal-content">
+            <div class="modal-header">
+                <h3>角色邀请设置</h3>
+                <button class="modal-close" onclick="closeCharacterInviteSettings()">×</button>
+            </div>
+            <div class="login-form">
+                <div style="font-size: 14px; color: #666; margin-bottom: 16px; line-height: 1.6;">
+                    开启后，角色会定期主动邀请您一起听歌，增加互动体验。
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f5f5f7; border-radius: 10px; margin-bottom: 16px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; color: #333; font-weight: 500;">自动邀请开关</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后角色会定期发起音乐邀请</div>
+                    </div>
+                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px; cursor: pointer;">
+                        <input type="checkbox" id="character-invite-switch" style="opacity: 0; width: 0; height: 0;">
+                        <span class="toggle-slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+                        <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                    </label>
+                </div>
+                
+                <div id="character-invite-interval-container" style="display: none;">
+                    <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">邀请间隔时间（分钟）</label>
+                    <input type="number" id="character-invite-interval" min="5" max="120" value="30" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" />
+                    <div style="font-size: 12px; color: #999; margin-top: 6px;">建议设置为 15-60 分钟</div>
+                </div>
+                
+                <button onclick="saveCharacterInviteSettings()" style="width: 100%; padding: 12px; background: #000; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s;">
+                    保存设置
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 网易云登录弹窗 - 放在body根级别 -->
+    <div class="login-modal" id="loginModal">
+        <div class="modal-overlay" onclick="closeLoginModal()"></div>
+        <div class="modal-content login-modal-content">
+            <div class="modal-header">
+                <h3>网易云音乐登录</h3>
+                <button class="modal-close" onclick="closeLoginModal()">×</button>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label>手机号</label>
+                    <input type="tel" id="phoneInput" placeholder="请输入手机号" maxlength="11" />
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="passwordInput" placeholder="请输入密码" />
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe" />
+                        <span>记住登录状态</span>
+                    </label>
+                </div>
+                <div class="login-actions">
+                    <button class="login-submit-btn" onclick="loginNetease()">登录</button>
+                    <button class="login-cancel-btn" onclick="closeLoginModal()">取消</button>
+                </div>
+                <div class="login-links">
+                    <a href="https://music.163.com/#/recover" target="_blank" class="forgot-password-link">忘记密码？</a>
+                </div>
+                <div class="login-tip">
+                    登录后可以获取个人歌单、收藏等更多功能
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 隐藏的音频元素 -->
+    <audio id="audioPlayer"></audio>
+
+    <script src="music-player.js"></script>
+</body>
+</html>

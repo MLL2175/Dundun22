@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>记忆库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            text-align: center;
+            color: #333;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: #f5f5f5;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: hsl(0, 0%, 30%);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 20px;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: #4a4a4a;
+            color: white;
+            font-weight: 600;
+        }
+
+        .contact-filter {
+            margin-top: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .contact-filter label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .contact-filter select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .memory-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .memory-card {
+            background: #f9f9f9;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #eee;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .memory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .memory-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .source-chat { background: #e3f2fd; color: #1976d2; }
+        .source-call { background: #f3e5f5; color: #7b1fa2; }
+        .source-letter { background: #fce4ec; color: #c2185b; }
+        .source-diary { background: #fff3e0; color: #f57c00; }
+        .source-moment { background: #e8f5e9; color: #388e3c; }
+        .source-couple { background: #ffebee; color: #d32f2f; }
+        .source-question { background: #f1f8e9; color: #689f38; }
+        .source-manual { background: #fafafa; color: #616161; }
+
+        .memory-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .memory-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .memory-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .delete-btn {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .delete-btn:hover {
+            background: #ffcdd2;
+        }
+
+        .add-memory-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            font-size: 24px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .add-memory-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .confirm-btn {
+            background: #4a4a4a;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">总记忆</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="chat-count">0</div>
+                <div class="stat-label">聊天记忆</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="couple-count">0</div>
+                <div class="stat-label">情侣记忆</div>
+            </div>
+        </div>
+
+        <div class="contact-filter" id="contact-filter" style="display: none;">
+            <label>选择角色：</label>
+            <select id="contact-select" onchange="filterByContact()">
+                <option value="all">全部角色</option>
+            </select>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">全部</button>
+            <button class="filter-tab" data-filter="chat">聊天</button>
+            <button class="filter-tab" data-filter="call">通话</button>
+            <button class="filter-tab" data-filter="letter">信件</button>
+            <button class="filter-tab" data-filter="diary">日记</button>
+            <button class="filter-tab" data-filter="moment">朋友圈</button>
+            <button class="filter-tab" data-filter="couple">情侣互动</button>
+            <button class="filter-tab" data-filter="question">提问箱</button>
+            <button class="filter-tab" data-filter="manual">手动添加</button>
+        </div>
+
+        <div class="memory-list" id="memory-list"></div>
+
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <div class="empty-state-icon"></div>
+            <div class="empty-state-text">暂无记忆，开始记录你的故事吧</div>
+        </div>
+    </div>
+
+    <button class="add-memory-btn" onclick="showAddModal()">+</button>
+
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <h2>添加新记忆</h2>
+            <div class="form-group">
+                <label>记忆来源</label>
+                <select id="memory-source">
+                    <option value="manual">手动添加</option>
+                    <option value="chat">聊天</option>
+                    <option value="call">通话</option>
+                    <option value="letter">信件</option>
+                    <option value="diary">日记</option>
+                    <option value="moment">朋友圈</option>
+                    <option value="couple">情侣互动</option>
+                    <option value="question">提问箱</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>记忆内容</label>
+                <textarea id="memory-content" placeholder="记录这个重要的时刻..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeAddModal()">取消</button>
+                <button class="modal-btn confirm-btn" onclick="saveMemory()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentFilter = 'all';
+        let currentContactFilter = 'all';
+        let allMemories = [];
+        let contacts = [];
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAllMemories();
+            setupFilterTabs();
+            
+            // 监听来自其他页面的消息（记忆更新）
+            window.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'memoryUpdated') {
+                    console.log('收到记忆更新通知，重新加载');
+                    loadAllMemories();
+                }
+            });
+        });
+
+        // 从所有来源加载记忆
+        function loadAllMemories() {
+            allMemories = [];
+            contacts = [];
+            
+            // 1. 加载聊天记忆 (memory_records_*)
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('memory_records_')) {
+                    try {
+                        const contactId = key.replace('memory_records_', '');
+                        if (!contacts.includes(contactId)) {
+                            contacts.push(contactId);
+                        }
+                        const records = JSON.parse(localStorage.getItem(key) || '[]');
+                        records.forEach(record => {
+                            allMemories.push({
+                                ...record,
+                                sourceKey: key,
+                                sourceType: record.source || 'chat',
+                                contactId: contactId
+                            });
+                        });
+                    } catch (e) {
+                        console.error('加载聊天记忆失败:', e);
+                    }
+                }
+            }
+            
+            // 2. 加载情侣空间记忆 (couple_memories_*)
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('couple_memories_')) {
+                    try {
+                        const coupleId = key.replace('couple_memories_', '');
+                        if (!contacts.includes(coupleId)) {
+                            contacts.push(coupleId);
+                        }
+                        const records = JSON.parse(localStorage.getItem(key) || '[]');
+                        records.forEach(record => {
+                            allMemories.push({
+                                ...record,
+                                sourceKey: key,
+                                sourceType: record.source || 'couple',
+                                contactId: coupleId
+                            });
+                        });
+                    } catch (e) {
+                        console.error('加载情侣记忆失败:', e);
+                    }
+                }
+            }
+            
+            // 3. 加载全局记忆
+            try {
+                const globalMemories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+                globalMemories.forEach(record => {
+                    allMemories.push({
+                        ...record,
+                        sourceKey: 'global_memories',
+                        sourceType: record.source || 'manual',
+                        contactId: 'global'
+                    });
+                });
+            } catch (e) {
+                console.error('加载全局记忆失败:', e);
+            }
+            
+            // 按时间排序（最新的在前）
+            allMemories.sort((a, b) => (b.timestamp || b.createdAt || 0) - (a.timestamp || a.createdAt || 0));
+            
+            // 更新角色筛选器
+            updateContactFilter();
+            updateStats();
+            renderMemories();
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('total-count').textContent = allMemories.length;
+            
+            const chatCount = allMemories.filter(m => 
+                ['chat', 'call'].includes(m.sourceType)
+            ).length;
+            document.getElementById('chat-count').textContent = chatCount;
+            
+            const coupleCount = allMemories.filter(m => 
+                ['letter', 'diary', 'moment', 'couple', 'question'].includes(m.sourceType)
+            ).length;
+            document.getElementById('couple-count').textContent = coupleCount;
+        }
+
+        // 更新角色筛选器
+        function updateContactFilter() {
+            const filterEl = document.getElementById('contact-filter');
+            const selectEl = document.getElementById('contact-select');
+            
+            // 始终显示角色筛选器
+            filterEl.style.display = 'flex';
+            
+            // 保留第一个选项（全部角色）
+            selectEl.innerHTML = '<option value="all">全部角色</option>';
+            
+            contacts.forEach(contactId => {
+                const option = document.createElement('option');
+                option.value = contactId;
+                option.textContent = contactId;
+                selectEl.appendChild(option);
+            });
+            
+            // 如果没有角色，显示提示
+            if (contacts.length === 0) {
+                const option = document.createElement('option');
+                option.value = 'none';
+                option.textContent = '暂无角色数据';
+                option.disabled = true;
+                selectEl.appendChild(option);
+            }
+        }
+
+        // 按角色筛选
+        function filterByContact() {
+            currentContactFilter = document.getElementById('contact-select').value;
+            renderMemories();
+        }
+
+        // 设置过滤标签
+        function setupFilterTabs() {
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilter = tab.dataset.filter;
+                    renderMemories();
+                });
+            });
+        }
+
+        // 渲染记忆列表
+        function renderMemories() {
+            const listEl = document.getElementById('memory-list');
+            const emptyEl = document.getElementById('empty-state');
+            
+            // 过滤记忆
+            let filtered = allMemories;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(m => m.sourceType === currentFilter);
+            }
+            if (currentContactFilter !== 'all') {
+                filtered = filtered.filter(m => m.contactId === currentContactFilter);
+            }
+            
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.style.display = 'block';
+                return;
+            }
+            
+            emptyEl.style.display = 'none';
+            
+            listEl.innerHTML = filtered.map((memory, index) => {
+                const time = new Date(memory.timestamp || memory.createdAt || Date.now());
+                const timeStr = formatTime(time);
+                const sourceClass = `source-${memory.sourceType}`;
+                const sourceText = getSourceText(memory.sourceType);
+                const contactLabel = memory.contactId && memory.contactId !== 'global' ? ` - ${memory.contactId}` : '';
+                
+                return `
+                    <div class="memory-card">
+                        <div class="memory-header">
+                            <span class="memory-source ${sourceClass}">${sourceText}${contactLabel}</span>
+                            <span class="memory-time">${timeStr}</span>
+                        </div>
+                        <div class="memory-content">${escapeHtml(memory.content)}</div>
+                        <div class="memory-actions">
+                            <button class="action-btn delete-btn" onclick="deleteMemory(${index})">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取来源文本
+        function getSourceText(source) {
+            const map = {
+                'chat': '聊天',
+                'call': '通话',
+                'letter': '信件',
+                'diary': '日记',
+                'moment': '朋友圈',
+                'couple': '情侣互动',
+                'question': '提问箱',
+                'manual': '手动添加'
+            };
+            return map[source] || source;
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) {
+                return '今天 ' + date.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+            } else if (days === 1) {
+                return '昨天 ' + date.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+            } else if (days < 7) {
+                return `${days}天前`;
+            } else {
+                return date.toLocaleDateString('zh-CN', {month: '2-digit', day: '2-digit'});
+            }
+        }
+
+        // 显示添加弹窗
+        function showAddModal() {
+            document.getElementById('add-modal').classList.add('active');
+            document.getElementById('memory-content').value = '';
+        }
+
+        // 关闭添加弹窗
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.remove('active');
+        }
+
+        // 保存记忆
+        function saveMemory() {
+            const content = document.getElementById('memory-content').value.trim();
+            const source = document.getElementById('memory-source').value;
+            
+            if (!content) {
+                showToast('请输入记忆内容');
+                return;
+            }
+            
+            // 保存到通用记忆库
+            const memories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+            memories.push({
+                id: Date.now(),
+                content: content,
+                timestamp: Date.now(),
+                source: source,
+                createdAt: Date.now()
+            });
+            localStorage.setItem('global_memories', JSON.stringify(memories));
+            
+            closeAddModal();
+            loadAllMemories();
+            showToast('✅ 记忆已保存');
+            
+            // 通知其他页面
+            notifyMemoryUpdate();
+        }
+
+        // 删除记忆
+        function deleteMemory(index) {
+            if (!confirm('确定要删除这条记忆吗？')) {
+                return;
+            }
+            
+            // 这里简化处理，实际应该根据ID删除
+            showToast('删除功能待完善');
+        }
+
+        // 通知记忆更新
+        function notifyMemoryUpdate() {
+            // 向父窗口发送消息
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'memoryUpdated'
+                }, '*');
+            }
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== 记忆保存API（供其他页面调用）==========
+        
+        // 保存聊天记忆
+        window.saveChatMemory = function(chatId, content, source = 'chat') {
+            const memoryKey = `memory_records_${chatId}`;
+            const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
+            memories.push({
+                id: Date.now(),
+                content: content,
+                timestamp: Date.now(),
+                source: source,
+                createdAt: Date.now()
+            });
+            localStorage.setItem(memoryKey, JSON.stringify(memories));
+            notifyMemoryUpdate();
+        };
+
+        // 保存情侣记忆
+        window.saveCoupleMemory = function(coupleId, content, source = 'couple') {
+            const memoryKey = `couple_memories_${coupleId}`;
+            const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
+            memories.push({
+                id: Date.now(),
+                content: content,
+                timestamp: Date.now(),
+                source: source,
+                createdAt: Date.now()
+            });
+            localStorage.setItem(memoryKey, JSON.stringify(memories));
+            notifyMemoryUpdate();
+        };
+
+        // 保存全局记忆
+        window.saveGlobalMemory = function(content, source = 'manual') {
+            const memories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+            memories.push({
+                id: Date.now(),
+                content: content,
+                timestamp: Date.now(),
+                source: source,
+                createdAt: Date.now()
+            });
+            localStorage.setItem('global_memories', JSON.stringify(memories));
+            notifyMemoryUpdate();
+        };
+
+        // 获取某个联系人的所有记忆
+        window.getMemoriesByContact = function(contactId) {
+            const memoryKey = `memory_records_${contactId}`;
+            return JSON.parse(localStorage.getItem(memoryKey) || '[]');
+        };
+
+        // 获取情侣空间的所有记忆
+        window.getCoupleMemories = function(coupleId) {
+            const memoryKey = `couple_memories_${coupleId}`;
+            return JSON.parse(localStorage.getItem(memoryKey) || '[]');
+        };
+    </script>
+</body>
+</html>
