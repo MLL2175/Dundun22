@@ -1,5 +1,5 @@
 // 聊天数据
-console.log('chat-interface.js v195 已加载 (节日礼物系统+个性化+动画+纯色背景)');
+console.log('chat-interface.js v196 已加载 (节日礼物系统+个性化+动画+纯色背景+测试函数)');
 let currentChatId = null;
 let chatMessages = [];
 let apiConfig = null;
@@ -327,6 +327,24 @@ function sendGiftMessage(reminder) {
     
     console.log(`🎁 礼物消息已发送: ${gift.occasion} (${gift.personaType || '默认'})`);
 }
+
+// 测试发送节日礼物（在浏览器控制台调用）
+window.sendTestGift = function(occasion = '生日') {
+    if (!currentChatId) {
+        console.log('❌ 请先选择一个聊天！');
+        alert('请先选择一个聊天！');
+        return;
+    }
+    
+    const testReminder = {
+        occasion: occasion,
+        date: new Date().toISOString().split('T')[0],
+        note: '测试礼物'
+    };
+    
+    sendGiftMessage(testReminder);
+    console.log(`✅ 已发送「${occasion}」测试礼物！`);
+};
 
 // 初始化礼物动画CSS
 function initGiftAnimations() {
