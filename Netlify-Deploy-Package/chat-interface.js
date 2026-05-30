@@ -9048,8 +9048,8 @@ function _doRenderMessages() {
         } else if (msg.type === 'video-call') {
             // 视频通话记录 - 对话气泡样式，显示通话时长
             const callInfo = msg.content;
-            const iconColor = '#666';
-            const textColor = '#333';
+            const iconColor = '#fff';
+            const textColor = '#fff';
             messageContent = `
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2">
@@ -9063,8 +9063,8 @@ function _doRenderMessages() {
         } else if (msg.type === 'voice-call') {
             // 语音通话记录 - 对话气泡样式，显示通话时长
             const callInfo = msg.content;
-            const iconColor = '#666';
-            const textColor = '#333';
+            const iconColor = '#fff';
+            const textColor = '#fff';
             messageContent = `
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2">
