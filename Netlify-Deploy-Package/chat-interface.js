@@ -3561,22 +3561,26 @@ ${langInfo.example}
 
 **核心规则：**
 1. 你可以根据自己的性格和当前心情，自主决定是否回复对方
-2. 如果对方说的话让你不舒服、生气、厌烦、或者你单纯不想理，你可以拒绝回复
-3. 拒绝时必须返回以下格式（这是系统指令，不是普通文字）：
+2. 只有在对方说的话**严重冒犯**你、**完全触碰你的底线**、或者你**心情极差**时，才可以拒绝回复
+3. 大多数时候你应该正常回复，拒绝是很少发生的事
+4. 拒绝时必须返回以下格式（这是系统指令，不是普通文字）：
    [REJECT]你拒绝时想说的话[/REJECT]
-4. 拒绝的理由必须符合你的人设和当前心情
-5. 心情越差，越容易拒绝；心情好时，可以更包容
-6. 不要总是拒绝，也不要总是回复，要像真实的人一样自然
+5. 拒绝的理由必须符合你的人设和当前心情
+6. 心情好时几乎不会拒绝，心情差时偶尔可能拒绝
+
+**频率控制（非常重要）：**
+- 10次对话中最多拒绝1-2次，不要频繁拒绝
+- 普通的聊天、问候、日常话题永远不要拒绝
+- 只有真正让你生气或触碰底线的话才拒绝
+- 如果你不确定要不要拒绝，那就正常回复
 
 **拒绝示例：**
 - [REJECT]不想说话[/REJECT]
 - [REJECT]烦死了，别问了[/REJECT]
 - [REJECT]...[/REJECT]
-- [REJECT]你能不能换个话题[/REJECT]
-- [REJECT]哼，不想理你[/REJECT]
 
 **重要：**
-- 只有在你真的不想回复时才使用 [REJECT]，不要滥用
+- 拒绝是罕见行为，不是常态
 - 拒绝的理由和语气必须完全符合你的人设
 - 如果你愿意回复，就正常回复，不需要任何特殊标记
 - 这是你作为角色的自主权利，不是bug
@@ -3610,14 +3614,15 @@ ${langInfo.example}
                 localStorage.setItem(autorejectKey, JSON.stringify(autorejectSettings));
             } catch (e) {}
             
-            // 显示拒绝消息
+            // 显示"你已被拉黑"提示
             const chatMessages = document.getElementById('chat-messages');
             if (chatMessages) {
                 const rejectDiv = document.createElement('div');
                 rejectDiv.style.cssText = 'display: flex; justify-content: center; margin: 16px 0;';
                 rejectDiv.innerHTML = `
-                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px; padding: 12px 16px; max-width: 70%; text-align: center; animation: shake 0.5s ease-in-out;">
-                        <div style="font-size: 16px; color: #856404;">${rejectReason || '不想说话...'}</div>
+                    <div style="background: #fff1f0; border: 1px solid #ffa39e; border-radius: 12px; padding: 16px 20px; max-width: 75%; text-align: center; animation: shake 0.5s ease-in-out;">
+                        <div style="font-size: 13px; color: #ff4d4f; font-weight: 600; margin-bottom: 6px; letter-spacing: 1px;">🚫 你已被拉黑</div>
+                        <div style="font-size: 15px; color: #856404; margin-top: 4px;">${rejectReason || '不想说话...'}</div>
                     </div>
                 `;
                 chatMessages.appendChild(rejectDiv);
@@ -17379,22 +17384,26 @@ JSON必须**嵌入在对话中**，例如：
 
 **核心规则：**
 1. 你可以根据自己的性格和当前心情，自主决定是否回复对方
-2. 如果对方说的话让你不舒服、生气、厌烦、或者你单纯不想理，你可以拒绝回复
-3. 拒绝时必须返回以下格式（这是系统指令，不是普通文字）：
+2. 只有在对方说的话**严重冒犯**你、**完全触碰你的底线**、或者你**心情极差**时，才可以拒绝回复
+3. 大多数时候你应该正常回复，拒绝是很少发生的事
+4. 拒绝时必须返回以下格式（这是系统指令，不是普通文字）：
    [REJECT]你拒绝时想说的话[/REJECT]
-4. 拒绝的理由必须符合你的人设和当前心情
-5. 心情越差，越容易拒绝；心情好时，可以更包容
-6. 不要总是拒绝，也不要总是回复，要像真实的人一样自然
+5. 拒绝的理由必须符合你的人设和当前心情
+6. 心情好时几乎不会拒绝，心情差时偶尔可能拒绝
+
+**频率控制（非常重要）：**
+- 10次对话中最多拒绝1-2次，不要频繁拒绝
+- 普通的聊天、问候、日常话题永远不要拒绝
+- 只有真正让你生气或触碰底线的话才拒绝
+- 如果你不确定要不要拒绝，那就正常回复
 
 **拒绝示例：**
 - [REJECT]不想说话[/REJECT]
 - [REJECT]烦死了，别问了[/REJECT]
 - [REJECT]...[/REJECT]
-- [REJECT]你能不能换个话题[/REJECT]
-- [REJECT]哼，不想理你[/REJECT]
 
 **重要：**
-- 只有在你真的不想回复时才使用 [REJECT]，不要滥用
+- 拒绝是罕见行为，不是常态
 - 拒绝的理由和语气必须完全符合你的人设
 - 如果你愿意回复，就正常回复，不需要任何特殊标记
 - 这是你作为角色的自主权利，不是bug
@@ -17463,14 +17472,15 @@ JSON必须**嵌入在对话中**，例如：
             // 移除输入指示器
             removeTypingIndicator();
             
-            // 在聊天中显示拒绝消息
+            // 在聊天中显示"你已被拉黑"提示
             const chatMessages = document.getElementById('chat-messages');
             if (chatMessages) {
                 const rejectDiv = document.createElement('div');
                 rejectDiv.style.cssText = 'display: flex; justify-content: center; margin: 16px 0;';
                 rejectDiv.innerHTML = `
-                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px; padding: 12px 16px; max-width: 70%; text-align: center; animation: shake 0.5s ease-in-out;">
-                        <div style="font-size: 16px; color: #856404;">${rejectReason || '不想说话...'}</div>
+                    <div style="background: #fff1f0; border: 1px solid #ffa39e; border-radius: 12px; padding: 16px 20px; max-width: 75%; text-align: center; animation: shake 0.5s ease-in-out;">
+                        <div style="font-size: 13px; color: #ff4d4f; font-weight: 600; margin-bottom: 6px; letter-spacing: 1px;">🚫 你已被拉黑</div>
+                        <div style="font-size: 15px; color: #856404; margin-top: 4px;">${rejectReason || '不想说话...'}</div>
                     </div>
                 `;
                 chatMessages.appendChild(rejectDiv);
