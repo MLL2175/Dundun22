@@ -734,6 +734,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.log('独立运行模式');
     }
     
+    setTimeout(() => {
+        if (typeof checkKeepAliveStatus === 'function') {
+            checkKeepAliveStatus();
+        }
+        if (typeof pullKeepAliveMessages === 'function') {
+            pullKeepAliveMessages();
+        }
+    }, 2000);
+
     // 页面卸载前保存数据
     window.addEventListener('beforeunload', () => {
         console.log('页面即将卸载，保存聊天数据...');
@@ -19535,6 +19544,245 @@ window.startCheckPhoneTimer = startCheckPhoneTimer;
 window.stopCheckPhoneTimer = stopCheckPhoneTimer;
 window.updateAuthorizationUI = updateAuthorizationUI;
 window.setCheckPhoneMode = setCheckPhoneMode;
+
+// ========== 后台保活服务控制 ==========
+
+const KEEPALIVE_API = 'http://localhost:8081/api/keepalive';
+
+async function keepAliveRequest(endpoint, method = 'GET', body = null) {
+    try {
+        const options = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (body) options.body = JSON.stringify(body);
+        const res = await fetch(`${KEEPALIVE_API}${endpoint}`, options);
+        return await res.json();
+    } catch (e) {
+        console.error('[KeepAlive] 请求失败:', e);
+        return null;
+    }
+}
+
+async function toggleKeepAlive() {
+    const checkbox = document.getElementById('settings-keepalive-enabled');
+    const enabled = checkbox.checked;
+
+    if (enabled) {
+        const status = await keepAliveRequest('/status');
+        if (!status) {
+            if (window.showToast) showToast('无法连接保活服务，请先运行 node keepalive-worker.js', 'error');
+            checkbox.checked = false;
+            updateKeepAliveUI(false);
+            return;
+        }
+
+        const intervalEl = document.getElementById('settings-keepalive-interval');
+        const checkInterval = intervalEl ? Math.max(30, parseInt(intervalEl.value) || 60) : 60;
+
+        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || 'null');
+        if (!apiConfig || !apiConfig.mainApi || !apiConfig.mainApi.url || !apiConfig.mainApi.token) {
+            if (window.showToast) showToast('请先配置 API 信息', 'error');
+            checkbox.checked = false;
+            updateKeepAliveUI(false);
+            return;
+        }
+
+        const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+        const result = await keepAliveRequest('/config', 'POST', {
+            enabled: true,
+            checkInterval,
+            apiConfig,
+            contacts: contacts.map(c => ({
+                id: c.id,
+                name: c.name || c.contactName,
+                persona: c.persona || c.systemPrompt || ''
+            }))
+        });
+
+        if (result && result.success) {
+            if (window.showToast) showToast('后台保活已启动', 'success');
+            updateKeepAliveUI(true);
+            await syncToKeepAlive();
+        } else {
+            if (window.showToast) showToast('启动保活服务失败', 'error');
+            checkbox.checked = false;
+            updateKeepAliveUI(false);
+        }
+    } else {
+        const result = await keepAliveRequest('/stop', 'POST');
+        if (result && result.success) {
+            if (window.showToast) showToast('后台保活已停止', 'success');
+        }
+        updateKeepAliveUI(false);
+    }
+}
+
+async function syncToKeepAlive() {
+    const status = await keepAliveRequest('/status');
+    if (!status) {
+        if (window.showToast) showToast('无法连接保活服务', 'error');
+        return;
+    }
+
+    const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || 'null');
+
+    await keepAliveRequest('/config', 'POST', {
+        apiConfig,
+        contacts: contacts.map(c => ({
+            id: c.id,
+            name: c.name || c.contactName,
+            persona: c.persona || c.systemPrompt || ''
+        }))
+    });
+
+    let syncCount = 0;
+    for (const contact of contacts) {
+        try {
+            let messages = [];
+            if (window.ChatDB && window.ChatDB.loadMessages) {
+                messages = await window.ChatDB.loadMessages(contact.id) || [];
+            }
+            if (messages.length === 0) {
+                const storageKey = `persona_${currentPersona}_chat_${contact.id}`;
+                const stored = localStorage.getItem(storageKey);
+                if (stored) {
+                    try { messages = JSON.parse(stored); } catch (e) {}
+                }
+            }
+
+            const settings = {};
+            const autorejectKey = `role_${contact.id}_autoreject`;
+            const autorejectStr = localStorage.getItem(autorejectKey);
+            if (autorejectStr) {
+                try { settings[autorejectKey] = JSON.parse(autorejectStr); } catch (e) {}
+            }
+
+            await keepAliveRequest('/sync', 'POST', {
+                chatId: contact.id,
+                messages,
+                settings
+            });
+            syncCount++;
+        } catch (e) {
+            console.error(`[KeepAlive] 同步 ${contact.name} 失败:`, e);
+        }
+    }
+
+    if (window.showToast) showToast(`已同步 ${syncCount} 个角色的数据`, 'success');
+    await checkKeepAliveStatus();
+}
+
+async function checkKeepAliveStatus() {
+    const status = await keepAliveRequest('/status');
+    const statusText = document.getElementById('keepalive-status-text');
+    const statsEl = document.getElementById('keepalive-stats');
+    const statReplies = document.getElementById('keepalive-stat-replies');
+    const statAuto = document.getElementById('keepalive-stat-auto');
+
+    if (!status) {
+        if (statusText) {
+            statusText.textContent = '未连接';
+            statusText.style.color = '#ff4d4f';
+        }
+        if (statsEl) statsEl.style.display = 'none';
+        const checkbox = document.getElementById('settings-keepalive-enabled');
+        if (checkbox) checkbox.checked = false;
+        if (window.showToast) showToast('保活服务未运行，请先执行: node keepalive-worker.js', 'error');
+        return;
+    }
+
+    if (statusText) {
+        if (status.enabled && status.running) {
+            statusText.textContent = '运行中';
+            statusText.style.color = '#52c41a';
+        } else if (status.enabled) {
+            statusText.textContent = '已启用（空闲）';
+            statusText.style.color = '#faad14';
+        } else {
+            statusText.textContent = '已停止';
+            statusText.style.color = '#999';
+        }
+    }
+
+    if (statsEl && status.stats) {
+        statsEl.style.display = 'block';
+        if (statReplies) statReplies.textContent = status.stats.totalReplies || 0;
+        if (statAuto) statAuto.textContent = status.stats.totalAutoMessages || 0;
+    }
+
+    const checkbox = document.getElementById('settings-keepalive-enabled');
+    if (checkbox) checkbox.checked = status.enabled;
+
+    const intervalEl = document.getElementById('settings-keepalive-interval');
+    if (intervalEl && status.checkInterval) intervalEl.value = status.checkInterval;
+}
+
+function updateKeepAliveUI(running) {
+    const statusText = document.getElementById('keepalive-status-text');
+    if (statusText) {
+        statusText.textContent = running ? '运行中' : '已停止';
+        statusText.style.color = running ? '#52c41a' : '#999';
+    }
+}
+
+async function pullKeepAliveMessages() {
+    const status = await keepAliveRequest('/status');
+    if (!status || !status.enabled) return;
+
+    const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+    let newMsgCount = 0;
+
+    for (const contact of contacts) {
+        try {
+            const result = await keepAliveRequest(`/messages?chatId=${contact.id}`);
+            if (!result || !result.messages) continue;
+
+            let localMessages = [];
+            if (window.ChatDB && window.ChatDB.loadMessages) {
+                localMessages = await window.ChatDB.loadMessages(contact.id) || [];
+            }
+
+            const localLastTs = localMessages.length > 0
+                ? Math.max(...localMessages.map(m => m.ts || 0))
+                : 0;
+
+            const newMessages = result.messages.filter(m => (m.ts || 0) > localLastTs);
+
+            if (newMessages.length > 0) {
+                const merged = [...localMessages, ...newMessages];
+                if (window.ChatDB && window.ChatDB.saveMessages) {
+                    await window.ChatDB.saveMessages(contact.id, merged);
+                }
+                newMsgCount += newMessages.length;
+                console.log(`[KeepAlive] 拉取 ${contact.name} 的新消息: ${newMessages.length} 条`);
+            }
+        } catch (e) {
+            console.error(`[KeepAlive] 拉取 ${contact.name} 消息失败:`, e);
+        }
+    }
+
+    if (newMsgCount > 0) {
+        if (window.showToast) showToast(`从保活服务拉取了 ${newMsgCount} 条新消息`, 'success');
+        if (typeof loadChatData === 'function') await loadChatData();
+        if (typeof renderMessages === 'function') renderMessages();
+    }
+}
+
+window.toggleKeepAlive = toggleKeepAlive;
+window.syncToKeepAlive = syncToKeepAlive;
+window.checkKeepAliveStatus = checkKeepAliveStatus;
+window.pullKeepAliveMessages = pullKeepAliveMessages;
 
 // ========== 表情包分类绑定功能 ==========
 
