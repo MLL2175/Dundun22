@@ -2571,12 +2571,15 @@ window.sendMessage = function() {
             let myProfileName = '我';  // 默认名称
             try {
                 //  关键：从 persona_${currentPersona}_myProfile 获取用户名（主页人设）
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
+                const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
                 const myProfileKey = `persona_${currentPersona}_myProfile`;
                 const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
                 myProfileId = myProfile.id || '';
-                // 🔴 优先使用真实姓名，如果没有则使用昵称
-                myProfileName = myProfile.realName || myProfile.name || '我';
+                if (myProfile.isAlt) {
+                    myProfileName = myProfile.name || '陌生人';
+                } else {
+                    myProfileName = myProfile.realName || myProfile.name || '我';
+                }
                 console.log(' 发送消息 - currentPersona:', currentPersona);
                 console.log(' 发送消息 - myProfileKey:', myProfileKey);
                 console.log(' 发送消息 - 用户 ID:', myProfileId, '名字:', myProfileName, 'myProfile:', myProfile);
@@ -2847,19 +2850,31 @@ window.regenerateAIResponse = async function() {
         //  关键：获取用户信息（名字和人设）
         let userInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
+            const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
             const myProfileKey = `persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
-            // 🔴 优先使用真实姓名，如果没有则使用昵称
-            const userName = myProfile.realName || myProfile.name || '用户';
-            const userPersona = myProfile.persona || myProfile.roleSetting || myProfile.setting || '';
-            
-            if (userPersona) {
-                userInfo = `\n\n【对方（用户）信息】\n- 名字：${userName}\n- 人设：${userPersona}`;
-                console.log(' 已注入用户信息:', { userName, userPersona: userPersona.substring(0, 50) });
+            const isAlt = myProfile.isAlt === true;
+
+            if (isAlt) {
+                const altName = myProfile.name || '陌生人';
+                const altPersona = myProfile.persona || '';
+                if (altPersona) {
+                    userInfo = `\n\n【对方（用户）信息】\n- 名字：${altName}\n- 人设：${altPersona}\n- 注意：你完全不认识这个人，这是第一次和TA聊天`;
+                } else {
+                    userInfo = `\n\n【对方（用户）信息】\n- 名字：${altName}\n- 注意：你完全不认识这个人，这是第一次和TA聊天，你不知道TA的真实身份`;
+                }
+                console.log(' [小号模式] 已注入小号身份:', altName);
             } else {
-                userInfo = `\n\n【对方（用户）信息】\n- 名字：${userName}`;
-                console.log(' 已注入用户名字:', userName);
+                const userName = myProfile.realName || myProfile.name || '用户';
+                const userPersona = myProfile.persona || myProfile.roleSetting || myProfile.setting || '';
+                
+                if (userPersona) {
+                    userInfo = `\n\n【对方（用户）信息】\n- 名字：${userName}\n- 人设：${userPersona}`;
+                    console.log(' 已注入用户信息:', { userName, userPersona: userPersona.substring(0, 50) });
+                } else {
+                    userInfo = `\n\n【对方（用户）信息】\n- 名字：${userName}`;
+                    console.log(' 已注入用户名字:', userName);
+                }
             }
         } catch (e) {
             console.error('获取用户信息失败:', e);
@@ -2868,36 +2883,35 @@ window.regenerateAIResponse = async function() {
         // 📸 读取朋友圈动态（让角色看到用户的朋友圈）
         let momentsContext = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersonaId') || 'default';
-            const momentsKey = `persona_${currentPersona}_moments`;
-            const allMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
-            
-            if (allMoments && allMoments.length > 0) {
-                // 获取当前用户的名字（从 myProfile）
-                const myProfile = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
-                // 🔴 优先使用真实姓名
-                const userName = myProfile.realName || myProfile.name || '用户';
+            const currentPersona = localStorage.getItem('currentPersonaId') || localStorage.getItem('currentPersona') || 'default';
+            const myProfileForAlt = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+            const isAltMode = myProfileForAlt.isAlt === true;
+
+            if (!isAltMode) {
+                const momentsKey = `persona_${currentPersona}_moments`;
+                const allMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
                 
-                // 过滤出用户发布的朋友圈（不是角色的）
-                const userMoments = allMoments
-                    .filter(m => m.author === userName)
-                    .slice(-3); // 只取最近3条
-                
-                if (userMoments.length > 0) {
-                    momentsContext = '\n\n【你看到对方最近的朋友圈】：\n';
-                    userMoments.forEach((moment, index) => {
-                        const momentTime = new Date(moment.time);
-                        const timeStr = `${momentTime.getMonth() + 1}月${momentTime.getDate()}日 ${String(momentTime.getHours()).padStart(2, '0')}:${String(momentTime.getMinutes()).padStart(2, '0')}`;
-                        const content = (moment.content || '（图片）').substring(0, 80);
-                        momentsContext += `${index + 1}. [${timeStr}] ${content}${content.length >= 80 ? '...' : ''}\n`;
-                    });
-                    console.log(`📸 已注入 ${userMoments.length} 条用户朋友圈动态到上下文`);
-                    console.log('📸 朋友圈内容示例:', userMoments[0].content?.substring(0, 50));
-                } else {
-                    console.log('⚠️ 未找到用户的朋友圈动态');
-                    console.log('当前用户名称:', userName);
-                    console.log('所有动态作者:', allMoments.map(m => m.author));
+                if (allMoments && allMoments.length > 0) {
+                    const myProfile = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+                    const userName = myProfile.realName || myProfile.name || '用户';
+                    
+                    const userMoments = allMoments
+                        .filter(m => m.author === userName)
+                        .slice(-3);
+                    
+                    if (userMoments.length > 0) {
+                        momentsContext = '\n\n【你看到对方最近的朋友圈】：\n';
+                        userMoments.forEach((moment, index) => {
+                            const momentTime = new Date(moment.time);
+                            const timeStr = `${momentTime.getMonth() + 1}月${momentTime.getDate()}日 ${String(momentTime.getHours()).padStart(2, '0')}:${String(momentTime.getMinutes()).padStart(2, '0')}`;
+                            const content = (moment.content || '（图片）').substring(0, 80);
+                            momentsContext += `${index + 1}. [${timeStr}] ${content}${content.length >= 80 ? '...' : ''}\n`;
+                        });
+                        console.log(`📸 已注入 ${userMoments.length} 条用户朋友圈动态到上下文`);
+                    }
                 }
+            } else {
+                console.log('🎭 [小号模式] 跳过朋友圈注入，角色不认识此身份');
             }
         } catch (e) {
             console.error('读取朋友圈动态失败:', e);
@@ -16121,8 +16135,11 @@ function syncSingleChatTitle() {
         
         if (currentContact) {
             const contactName = currentContact.remark || currentContact.name || '聊天';
-            document.getElementById('chat-title').textContent = contactName;
-            console.log('✅ 单聊标题已同步:', contactName);
+            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
+            const altBadge = myProfile.isAlt ? ' 🎭' : '';
+            document.getElementById('chat-title').textContent = contactName + altBadge;
+            console.log('✅ 单聊标题已同步:', contactName, myProfile.isAlt ? '(小号模式)' : '');
             
             // 设置头像显示
             const avatarEl = document.getElementById('chat-avatar');

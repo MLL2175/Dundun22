@@ -3871,6 +3871,7 @@ ${recentChatContext}
         if (personaInput) personaInput.value = profile.persona || '';
         
         renderAllPersonas();
+        if (typeof renderAltAccounts === 'function') renderAltAccounts();
     }
 
     function renderAllPersonas() {
@@ -3937,8 +3938,27 @@ ${recentChatContext}
         
         saveData('myProfile', profile);
         
-        // 检查是否是编辑状态 (有 currentEditingPersonaId)
         const currentEditingPersonaId = window.currentEditingPersonaId;
+        
+        // 小号编辑保存
+        if (window.currentEditingIsAlt && currentEditingPersonaId) {
+            const alts = getAltAccounts();
+            const altIdx = alts.findIndex(a => a.id === currentEditingPersonaId);
+            if (altIdx !== -1) {
+                alts[altIdx].name = profile.name;
+                alts[altIdx].avatar = profile.avatar;
+                saveAltAccounts(alts);
+            }
+            localStorage.setItem(`persona_${currentEditingPersonaId}_myProfile`, JSON.stringify(profile));
+            delete window.currentEditingPersonaId;
+            delete window.currentEditingIsAlt;
+            renderAltAccounts();
+            renderProfile();
+            showToast('小号信息已更新！');
+            return;
+        }
+        
+        // 检查是否是编辑状态 (有 currentEditingPersonaId)
         const allPersonas = getAllPersonas();
         
         if (currentEditingPersonaId) {
@@ -4040,6 +4060,191 @@ ${recentChatContext}
         showToast('删除成功！');
         }, false);
     };
+
+    // ========== 小号系统 ==========
+
+    function getAltAccounts() {
+        return JSON.parse(localStorage.getItem('altAccounts') || '[]');
+    }
+
+    function saveAltAccounts(alts) {
+        localStorage.setItem('altAccounts', JSON.stringify(alts));
+    }
+
+    function getMainAccountId() {
+        return localStorage.getItem('currentPersonaId') || 'default';
+    }
+
+    function isCurrentAlt() {
+        const currentId = localStorage.getItem('currentPersonaId') || 'default';
+        const alts = getAltAccounts();
+        return alts.some(a => a.id === currentId);
+    }
+
+    function getCurrentAltInfo() {
+        const currentId = localStorage.getItem('currentPersonaId') || 'default';
+        const alts = getAltAccounts();
+        return alts.find(a => a.id === currentId) || null;
+    }
+
+    window.createAltAccount = function() {
+        const mainId = getMainAccountId();
+        const mainProfile = JSON.parse(localStorage.getItem(`persona_${mainId}_myProfile`) || '{}');
+
+        const altId = 'alt_' + Date.now();
+        const altName = '小号' + Math.floor(Math.random() * 9000 + 1000);
+
+        const altProfile = {
+            avatar: '',
+            name: altName,
+            userId: altId,
+            realName: '',
+            signature: '',
+            persona: '',
+            isAlt: true,
+            linkedMainId: mainId
+        };
+
+        localStorage.setItem(`persona_${altId}_myProfile`, JSON.stringify(altProfile));
+
+        const mainContacts = JSON.parse(localStorage.getItem(`persona_${mainId}_chatContacts`) || '[]');
+        localStorage.setItem(`persona_${altId}_chatContacts`, JSON.stringify(mainContacts));
+        localStorage.setItem(`persona_${altId}_chatConversations`, JSON.stringify([]));
+
+        const alts = getAltAccounts();
+        alts.push({
+            id: altId,
+            name: altName,
+            avatar: '',
+            linkedMainId: mainId,
+            createdAt: Date.now()
+        });
+        saveAltAccounts(alts);
+
+        renderAltAccounts();
+        showToast('小号创建成功！');
+    };
+
+    window.switchToAlt = function(altId) {
+        window.switchPersona(altId);
+        renderAltAccounts();
+    };
+
+    window.switchToMain = function() {
+        const alts = getAltAccounts();
+        const currentId = localStorage.getItem('currentPersonaId') || 'default';
+        const currentAlt = alts.find(a => a.id === currentId);
+        if (currentAlt) {
+            window.switchPersona(currentAlt.linkedMainId || 'default');
+        } else {
+            window.switchPersona('default');
+        }
+        renderAltAccounts();
+    };
+
+    window.deleteAltAccount = function(altId) {
+        window.showIosConfirm('删除小号', '删除后小号的所有聊天记录也会消失，确定吗？', '删除', function() {
+            const alts = getAltAccounts().filter(a => a.id !== altId);
+            saveAltAccounts(alts);
+
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(`persona_${altId}_`)) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+
+            const currentId = localStorage.getItem('currentPersonaId') || 'default';
+            if (currentId === altId) {
+                window.switchPersona('default');
+            }
+
+            renderAltAccounts();
+            showToast('小号已删除');
+        }, false);
+    };
+
+    window.editAltAccount = function(altId) {
+        const alts = getAltAccounts();
+        const alt = alts.find(a => a.id === altId);
+        if (!alt) return;
+
+        const altProfile = JSON.parse(localStorage.getItem(`persona_${altId}_myProfile`) || '{}');
+
+        const profile = getData('myProfile') || {};
+        profile.avatar = altProfile.avatar || '';
+        profile.name = altProfile.name || alt.name;
+        profile.userId = altProfile.userId || altId;
+        profile.realName = altProfile.realName || '';
+        profile.signature = altProfile.signature || '';
+        profile.persona = altProfile.persona || '';
+        profile.isAlt = true;
+        profile.linkedMainId = altProfile.linkedMainId || alt.linkedMainId;
+        saveData('myProfile', profile);
+
+        document.getElementById('my-name').value = profile.name;
+        document.getElementById('my-id').value = profile.userId;
+        document.getElementById('my-realname').value = profile.realName;
+        document.getElementById('my-signature').value = profile.signature;
+        document.getElementById('my-persona').value = profile.persona;
+
+        const selector = document.getElementById('my-avatar-selector');
+        if (selector && isImageUrl(profile.avatar)) {
+            selector.innerHTML = `<img src="${profile.avatar}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        }
+
+        window.currentEditingPersonaId = altId;
+        window.currentEditingIsAlt = true;
+    };
+
+    function renderAltAccounts() {
+        const listEl = document.getElementById('alt-accounts-list');
+        if (!listEl) return;
+
+        const alts = getAltAccounts();
+        const currentId = localStorage.getItem('currentPersonaId') || 'default';
+
+        if (alts.length === 0) {
+            listEl.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 13px;">
+                    <div style="font-size: 28px; margin-bottom: 8px;">🎭</div>
+                    还没有小号，点击上方按钮创建
+                </div>`;
+            return;
+        }
+
+        listEl.innerHTML = alts.map(alt => {
+            const altProfile = JSON.parse(localStorage.getItem(`persona_${alt.id}_myProfile`) || '{}');
+            const isActive = currentId === alt.id;
+            const avatarDisplay = isImageUrl(alt.avatar)
+                ? `<img src="${alt.avatar}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                : (alt.avatar || '🎭');
+
+            return `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: ${isActive ? 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))' : '#f9f9f9'}; border-radius: 12px; border: 1px solid ${isActive ? 'rgba(102,126,234,0.3)' : '#eee'}; transition: all 0.2s;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; overflow: hidden;">
+                        ${avatarDisplay}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 14px; font-weight: 500; color: #333; display: flex; align-items: center; gap: 6px;">
+                            ${alt.name || '小号'}
+                            ${isActive ? '<span style="font-size: 11px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1px 8px; border-radius: 10px;">当前</span>' : ''}
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 2px;">角色不认识此身份</div>
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                        ${isActive
+                            ? `<button onclick="switchToMain()" style="padding: 4px 10px; background: #52c41a; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切回大号</button>`
+                            : `<button onclick="switchToAlt('${alt.id}')" style="padding: 4px 10px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切换</button>`
+                        }
+                        <button onclick="editAltAccount('${alt.id}')" style="padding: 4px 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">编辑</button>
+                        <button onclick="deleteAltAccount('${alt.id}')" style="padding: 4px 10px; background: #fff1f0; color: #ff4d4f; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">删除</button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
 
     // 钱包
     function renderWallet() {
