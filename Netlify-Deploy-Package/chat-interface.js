@@ -687,7 +687,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     //  关键修复：DOM 加载后立即强制同步标题（解决缓存问题）
     setTimeout(() => {
         console.log(' 强制同步标题...');
-        if (currentChatId.startsWith('group_')) {
+        if (currentChatId && currentChatId.startsWith('group_')) {
             loadGroupChatInfo();
         } else {
             syncSingleChatTitle();
@@ -2588,7 +2588,7 @@ window.sendMessage = function() {
             }
             
             // 如果 myProfileId 为空，尝试从群聊信息中获取
-            if (!myProfileId && currentChatId.startsWith('group_')) {
+            if (!myProfileId && currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     myProfileId = groupInfo.owner || '';
@@ -5667,7 +5667,7 @@ ${text}`;
             
             // 🎯 获取 AI 角色的 senderId（群聊中需要）
             let aiSenderId = '';
-            if (currentChatId.startsWith('group_')) {
+            if (currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
@@ -5723,7 +5723,7 @@ ${text}`;
             
             // 🎯 获取 AI 角色的 senderId（群聊中需要）
             let aiSenderId = '';
-            if (currentChatId.startsWith('group_')) {
+            if (currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
@@ -5765,7 +5765,7 @@ ${text}`;
             
             // 🎯 获取 AI 角色的 senderId（群聊中需要）
             let aiSenderId = '';
-            if (currentChatId.startsWith('group_')) {
+            if (currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
@@ -5807,7 +5807,7 @@ ${text}`;
             
             // 🎯 获取 AI 角色的 senderId（群聊中需要）
             let aiSenderId = '';
-            if (currentChatId.startsWith('group_')) {
+            if (currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
@@ -5849,7 +5849,7 @@ ${text}`;
                 time: Date.now(),
                 avatar: getAIAvatar()
             };
-        } else if (currentChatId.startsWith('group_') && handleGroupAdminCommand(jsonMatch)) {
+        } else if (currentChatId && currentChatId.startsWith('group_') && handleGroupAdminCommand(jsonMatch)) {
             // 🎯 群聊管理命令处理
             console.log('🎯 已执行群聊管理命令:', jsonMatch.type);
             aiMessage = null; // 不显示消息，直接执行命令
@@ -5859,7 +5859,7 @@ ${text}`;
             
             // 🎯 获取 AI 角色的 senderId（群聊中需要）
             let aiSenderId = '';
-            if (currentChatId.startsWith('group_')) {
+            if (currentChatId && currentChatId.startsWith('group_')) {
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
@@ -8011,7 +8011,7 @@ function _doRenderMessages() {
         
         // 群聊模式：显示发送者名称和头衔（包括自己）
         let senderNameHTML = '';
-        if (currentChatId.startsWith('group_')) {
+        if (currentChatId && currentChatId.startsWith('group_')) {
             try {
                 const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                         
@@ -9976,7 +9976,7 @@ async function loadChatData() {
     clearUnreadCountOnEnter(currentChatId);
     
     // 检测是否为群聊
-    const isGroupChat = currentChatId.startsWith('group_');
+    const isGroupChat = currentChatId && currentChatId.startsWith('group_');
     console.log('是否为群聊:', isGroupChat);
     
     // 🎭 根据聊天类型显示/隐藏心声按钮（在顶栏中）
@@ -10855,7 +10855,7 @@ window.closeChatSettings = function() {
     
     // 关键修复：关闭设置面板后同步标题
     setTimeout(() => {
-        if (currentChatId.startsWith('group_')) {
+        if (currentChatId && currentChatId.startsWith('group_')) {
             // 群聊：重新加载群聊信息
             console.log('🔄 群聊模式：关闭设置后重新加载群聊信息');
             loadGroupChatInfo();
@@ -14583,7 +14583,7 @@ window.clearChatMessages = function() {
     renderMessages();
     
     // 🛡️ 更新 UI：根据当前是群聊还是单聊，更新对应的元素
-    const isGroupChat = currentChatId.startsWith('group_');
+    const isGroupChat = currentChatId && currentChatId.startsWith('group_');
     const countElementId = isGroupChat ? 'chat-message-count-group' : 'chat-message-count-single';
     const countElement = document.getElementById(countElementId);
     if (countElement) {
@@ -14629,7 +14629,7 @@ window.clearAllChatData = function() {
     loadMemoryRecords();
     
     // 🛡️ 更新 UI：根据当前是群聊还是单聊，更新对应的元素
-    const isGroupChat = currentChatId.startsWith('group_');
+    const isGroupChat = currentChatId && currentChatId.startsWith('group_');
     const countElementId = isGroupChat ? 'chat-message-count-group' : 'chat-message-count-single';
     const countElement = document.getElementById(countElementId);
     if (countElement) {
@@ -14732,7 +14732,7 @@ window.importChatData = function() {
                 loadMemoryRecords();
                 
                 // 🛡️ 更新 UI：根据当前是群聊还是单聊，更新对应的元素
-                const isGroupChat = currentChatId.startsWith('group_');
+                const isGroupChat = currentChatId && currentChatId.startsWith('group_');
                 const countElementId = isGroupChat ? 'chat-message-count-group' : 'chat-message-count-single';
                 const countElement = document.getElementById(countElementId);
                 if (countElement) {
@@ -16101,7 +16101,7 @@ window.applyInterfaceCss = function(event) {
     
     // ️ 关键修复：应用CSS后重新同步标题
     setTimeout(() => {
-        if (currentChatId.startsWith('group_')) {
+        if (currentChatId && currentChatId.startsWith('group_')) {
             // 群聊：重新加载群聊信息
             console.log('🔄 群聊模式：重新加载群聊信息以确保顶栏正确显示');
             loadGroupChatInfo();
