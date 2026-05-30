@@ -1,5 +1,5 @@
 // 聊天数据
-console.log('chat-interface.js v192 已加载 (节日礼物系统)');
+console.log('chat-interface.js v193 已加载 (节日礼物系统+个性化)');
 let currentChatId = null;
 let chatMessages = [];
 let apiConfig = null;
@@ -303,7 +303,7 @@ function sendGiftMessage(reminder) {
         return;
     }
     
-    const gift = generateRandomGift(reminder.occasion);
+    const gift = generatePersonalizedGift(reminder.occasion);
     
     const giftMessage = {
         id: Date.now().toString(),
@@ -322,7 +322,172 @@ function sendGiftMessage(reminder) {
     // 渲染消息
     renderMessages(true);
     
-    console.log(`🎁 礼物消息已发送: ${gift.occasion}`);
+    console.log(`🎁 礼物消息已发送: ${gift.occasion} (${gift.personaType || '默认'})`);
+}
+
+// 获取当前角色信息
+function getCurrentCharacterInfo() {
+    try {
+        if (!currentChatId) {
+            return null;
+        }
+        
+        const currentPersona = localStorage.getItem('currentPersona') || 'default';
+        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+        const contact = contacts.find(c => c.id === currentChatId);
+        
+        if (!contact) {
+            return null;
+        }
+        
+        // 获取角色人设
+        let persona = contact.persona || contact.roleSetting || contact.setting || '';
+        
+        // 获取关系类型（从人设中分析或从标记中获取）
+        let relationshipType = 'default';
+        
+        if (persona) {
+            // 从人设中分析关系类型
+            persona = persona.toLowerCase();
+            if (persona.includes('恋人') || persona.includes('男朋友') || persona.includes('女朋友') || persona.includes('老公') || persona.includes('老婆')) {
+                relationshipType = 'lover';
+            } else if (persona.includes('朋友') || persona.includes('闺蜜') || persona.includes('兄弟')) {
+                relationshipType = 'friend';
+            } else if (persona.includes('家人') || persona.includes('哥哥') || persona.includes('姐姐') || persona.includes('弟弟') || persona.includes('妹妹')) {
+                relationshipType = 'family';
+            } else if (persona.includes('老师') || persona.includes('学生')) {
+                relationshipType = 'teacher_student';
+            }
+        }
+        
+        // 获取用户名称（用于称呼）
+        let userName = '你';
+        try {
+            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
+            userName = myProfile.name || myProfile.username || '你';
+        } catch (e) {}
+        
+        return {
+            name: contact.name || 'AI',
+            persona: contact.persona || contact.roleSetting || contact.setting || '',
+            avatar: contact.avatar || '🤖',
+            relationshipType: relationshipType,
+            userName: userName
+        };
+    } catch (e) {
+        console.error('获取角色信息失败:', e);
+        return null;
+    }
+}
+
+// 个性化礼物模板
+const personalizedGiftTemplates = {
+    lover: { // 恋人关系
+        icons: ['❤️', '💝', '💕', '💖', '🌹', '✨', '🎁', '💍'],
+        names: ['永恒之恋', '心动时刻', '甜蜜时光', '爱的承诺', '专属幸福', '浪漫惊喜', '真心礼物', '甜蜜回忆'],
+        messages: [
+            '亲爱的{userName}，这是我特意为你准备的礼物，希望你喜欢。有你在的每一天，都是最美好的节日。',
+            '宝贝，节日快乐！这份礼物承载着我对你的爱，希望能让你感受到我的心意。',
+            '{userName}，与你相遇是我最大的幸运。这个节日，让我用这份礼物表达我对你的爱。',
+            '亲爱的，想把世界上最美好的都给你。这份礼物，只是我心意的万分之一。',
+            '{userName}，节日快乐！愿我们的爱情像这份礼物一样，永远美丽动人。'
+        ]
+    },
+    friend: { // 朋友关系
+        icons: ['🎁', '✨', '🎉', '🎈', '🌟', '🎊', '💫', '🌈'],
+        names: ['友情见证', '快乐分享', '美好时光', '闺蜜专属', '兄弟礼物', '青春纪念', '友谊长存', '开心礼物'],
+        messages: [
+            '{userName}，节日快乐！很高兴能有你这样的朋友，希望这份礼物能让你开心。',
+            '嘿，节日到了！给你准备了一份小礼物，愿我们的友谊天长地久。',
+            '{userName}，知道你今天过节，特意准备了这份礼物，希望你喜欢！',
+            '老朋友，节日快乐！这份礼物代表我对你的祝福，愿你一切顺利。',
+            '{userName}，愿这份礼物能给你带来好心情，节日快乐！'
+        ]
+    },
+    family: { // 家人关系
+        icons: ['🏠', '❤️', '🎁', '✨', '🌟', '💝', '🌙', '☀️'],
+        names: ['家人关怀', '温暖祝福', '亲情礼物', '贴心礼物', '爱的表达', '温馨纪念', '家庭时光', '暖暖心意'],
+        messages: [
+            '{userName}，节日快乐！作为家人，希望你每天都能开心幸福。',
+            '孩子/姐姐/哥哥，这是给你的节日礼物，愿你喜欢。',
+            '{userName}，在这个特别的日子里，送上我的心意，愿你一切都好。',
+            '家人的祝福永远是最温暖的，节日快乐，{userName}！',
+            '{userName}，愿这份礼物能让你感受到家的温暖，节日快乐！'
+        ]
+    },
+    teacher_student: { // 师生关系
+        icons: ['📚', '🎁', '✨', '🌟', '📖', '🎓', '💫', '🌱'],
+        names: ['学业进步', '智慧之光', '感谢师恩', '成长礼物', '知识之礼', '学业祝福', '未来可期', '青春纪念'],
+        messages: [
+            '{userName}，节日快乐！愿你在学习的道路上越走越远。',
+            '学生/老师，这是给你的节日礼物，希望对你有所帮助。',
+            '{userName}，愿这份礼物能给你带来灵感和动力，节日快乐！',
+            '在这个特别的日子里，送上我最真挚的祝福，{userName}节日快乐！',
+            '{userName}，愿你前程似锦，未来可期，节日快乐！'
+        ]
+    },
+    default: { // 默认关系
+        icons: ['🎁', '💝', '✨', '🌟', '🦋', '💕', '🎀', '🌸'],
+        names: ['精美礼物', '心意之礼', '幸福时光', '美好回忆', '甜蜜惊喜', '温暖关怀', '浪漫礼物', '真情相送'],
+        messages: [
+            '{userName}，节日快乐！这是我为你准备的礼物，希望能让你开心。',
+            '在这个特别的日子里，送上我的心意，愿你每一天都幸福快乐。',
+            '{userName}，小小的礼物，大大的心意，愿你感受到我的祝福。',
+            '愿这份礼物能给你带来好心情，{userName}节日快乐！',
+            '{userName}，时光静好，愿你每一天都被温柔以待。节日快乐！'
+        ]
+    }
+};
+
+// 生成个性化礼物
+function generatePersonalizedGift(occasion) {
+    const characterInfo = getCurrentCharacterInfo();
+    const relationshipType = characterInfo?.relationshipType || 'default';
+    const userName = characterInfo?.userName || '你';
+    const characterName = characterInfo?.name || 'AI';
+    
+    // 根据关系类型选择模板
+    let template = personalizedGiftTemplates[relationshipType] || personalizedGiftTemplates['default'];
+    
+    // 如果节日有专属模板，且是恋人关系，可以混合使用
+    if (giftTemplates[occasion] && relationshipType === 'lover') {
+        // 恋人和节日专属模板混合
+        template = {
+            icons: [...new Set([...template.icons, ...giftTemplates[occasion].icons])],
+            names: [...new Set([...template.names, ...giftTemplates[occasion].names])],
+            messages: [...template.messages, ...giftTemplates[occasion].messages]
+        };
+    } else if (giftTemplates[occasion]) {
+        // 其他关系优先使用节日模板
+        template = giftTemplates[occasion];
+    }
+    
+    // 随机选择礼物
+    const icon = template.icons[Math.floor(Math.random() * template.icons.length)];
+    const name = template.names[Math.floor(Math.random() * template.names.length)];
+    let message = template.messages[Math.floor(Math.random() * template.messages.length)];
+    
+    // 替换消息中的用户名占位符
+    message = message.replace(/\{userName\}/g, userName);
+    
+    // 特殊节日特殊处理
+    if (occasion === '生日') {
+        message = `亲爱的${userName}，生日快乐！愿你的每一天都充满阳光和欢笑，愿你的愿望都能实现。这是${characterName}给你的礼物，希望你喜欢。🎂`;
+    } else if (occasion === '情人节') {
+        message = `${userName}，情人节快乐！与你在一起的每一天都是情人节。这份礼物代表我的心，我爱你。❤️`;
+    } else if (occasion === '520') {
+        message = `520，我爱你，${userName}！这句话想对你说一辈子。希望你喜欢这份礼物。💕`;
+    }
+    
+    return {
+        occasion: occasion,
+        giftIcon: icon,
+        giftName: name,
+        message: message,
+        personaType: relationshipType
+    };
 }
 
 
