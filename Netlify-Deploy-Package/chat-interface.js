@@ -19584,7 +19584,6 @@ async function keepAliveRequest(endpoint, method = 'GET', body = null) {
         const res = await fetch(`${KEEPALIVE_API}${endpoint}`, options);
         return await res.json();
     } catch (e) {
-        console.error('[KeepAlive] 请求失败:', e);
         return null;
     }
 }

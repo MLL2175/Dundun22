@@ -1524,7 +1524,6 @@ async function settingsKeepAliveRequest(endpoint, method = 'GET', body = null) {
         const res = await fetch(`${SETTINGS_KEEPALIVE_API}${endpoint}`, options);
         return await res.json();
     } catch (e) {
-        console.error('[KeepAlive] 请求失败:', e);
         return null;
     }
 }
@@ -1635,10 +1634,14 @@ window.toggleKeepAlive = async function() {
     if (enabled) {
         const status = await settingsKeepAliveRequest('/status');
         if (!status) {
-            if (window.showToast) showToast('无法连接保活服务，请先运行 node keepalive-worker.js', 'error');
+            if (window.showToast) showToast('保活服务未启动。需在服务器运行 node keepalive-worker.js，且页面需通过 http://localhost 访问', 'error');
             if (keepSwitch) keepSwitch.classList.remove('active');
             const keepaliveSection = document.getElementById('keepalive-detail-section');
             if (keepaliveSection) keepaliveSection.style.display = 'none';
+            const statusText = document.getElementById('keepalive-status-text');
+            if (statusText) { statusText.textContent = '未连接'; statusText.style.color = '#ff4d4f'; }
+            const statusDot = document.getElementById('keepalive-status-dot');
+            if (statusDot) statusDot.style.background = '#ff4d4f';
             return;
         }
 
