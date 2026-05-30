@@ -1641,12 +1641,6 @@ function initAppClick() {
                 return;
             }
             
-            // 我们的小屋 - 独立应用
-            if (appId === 'house') {
-                openAppIframe('house.html?v=4', '我们的小屋');
-                return;
-            }
-            
             // 世界书 - 使用iframe在当前页面内打开
             if (appId === 'worldbook') {
                 openAppIframe('worldbook.html', '世界书');
@@ -2726,7 +2720,7 @@ function initDefaultLayout() {
                 iconGroup.remove();
             }
             
-            // 将所有图标移到widget-area（除了商城和小屋）
+            // 将所有图标移到widget-area（除了商城）
             const iconIds = ['forum', 'device-check', 'together', 'chat', 'couple', 'memory', 'diary'];
             const appGridForIcons = document.getElementById('app-grid');
             if (appGridForIcons) {
@@ -2820,7 +2814,6 @@ function initDefaultLayout() {
                 'forum': { col: 2, row: 3 },       // 论坛
                 'video': { col: 3, row: 3 },       // 视频
                 'music': { col: 4, row: 3 },       // 音乐
-                'house': { col: 1, row: 4 },       // 小屋（收藏组件下面）
             };
             
             Object.entries(iconPositions2).forEach(([appId, pos]) => {
