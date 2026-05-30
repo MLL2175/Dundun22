@@ -4216,34 +4216,66 @@ ${recentChatContext}
 
         listEl.innerHTML = alts.map(alt => {
             const altProfile = JSON.parse(localStorage.getItem(`persona_${alt.id}_myProfile`) || '{}');
+            const altContacts = JSON.parse(localStorage.getItem(`persona_${alt.id}_chatContacts`) || '[]');
+            const altContactCount = altContacts.filter(c => !c.isGroup).length;
             const isActive = currentId === alt.id;
             const avatarDisplay = isImageUrl(alt.avatar)
                 ? `<img src="${alt.avatar}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
                 : (alt.avatar || '');
 
             return `
-                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: ${isActive ? '#f0f0f0' : '#f9f9f9'}; border-radius: 12px; border: 1px solid ${isActive ? '#555' : '#eee'}; transition: all 0.2s;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; overflow: hidden;">
-                        ${avatarDisplay}
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 14px; font-weight: 500; color: #333; display: flex; align-items: center; gap: 6px;">
-                            ${alt.name || '小号'}
-                            ${isActive ? '<span style="font-size: 11px; background: #555; color: white; padding: 1px 8px; border-radius: 10px;">当前</span>' : ''}
+                <div style="padding: 12px; margin-bottom: 8px; background: ${isActive ? '#f0f0f0' : '#f9f9f9'}; border-radius: 12px; border: 1px solid ${isActive ? '#555' : '#eee'}; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; overflow: hidden;">
+                            ${avatarDisplay}
                         </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 2px;">角色不认识此身份</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 14px; font-weight: 500; color: #333; display: flex; align-items: center; gap: 6px;">
+                                ${alt.name || '小号'}
+                                ${isActive ? '<span style="font-size: 11px; background: #555; color: white; padding: 1px 8px; border-radius: 10px;">当前</span>' : ''}
+                            </div>
+                            <div style="font-size: 12px; color: #999; margin-top: 2px;">${altContactCount} 个角色 | 角色不认识此身份</div>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                            ${isActive
+                                ? `<button onclick="switchToMain()" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切回大号</button>`
+                                : `<button onclick="switchToAlt('${alt.id}')" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切换</button>`
+                            }
+                            <button onclick="editAltAccount('${alt.id}')" style="padding: 4px 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">编辑</button>
+                            <button onclick="deleteAltAccount('${alt.id}')" style="padding: 4px 10px; background: #fff1f0; color: #ff4d4f; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">删除</button>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                        ${isActive
-                            ? `<button onclick="switchToMain()" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切回大号</button>`
-                            : `<button onclick="switchToAlt('${alt.id}')" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切换</button>`
-                        }
-                        <button onclick="editAltAccount('${alt.id}')" style="padding: 4px 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">编辑</button>
-                        <button onclick="deleteAltAccount('${alt.id}')" style="padding: 4px 10px; background: #fff1f0; color: #ff4d4f; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">删除</button>
-                    </div>
+                    ${isActive ? `
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; display: flex; gap: 8px;">
+                        <button onclick="openCreateRoleModal()" style="flex: 1; padding: 6px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">添加角色</button>
+                        <button onclick="addMainContactsToAlt('${alt.id}')" style="flex: 1; padding: 6px 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">同步大号角色</button>
+                    </div>` : ''}
                 </div>`;
         }).join('');
     }
+
+    window.addMainContactsToAlt = function(altId) {
+        const alts = getAltAccounts();
+        const alt = alts.find(a => a.id === altId);
+        if (!alt) return;
+
+        const mainId = alt.linkedMainId || 'default';
+        const mainContacts = JSON.parse(localStorage.getItem(`persona_${mainId}_chatContacts`) || '[]');
+        const altContacts = JSON.parse(localStorage.getItem(`persona_${altId}_chatContacts`) || '[]');
+
+        const existingIds = new Set(altContacts.map(c => c.id));
+        const newContacts = mainContacts.filter(c => !existingIds.has(c.id));
+
+        if (newContacts.length === 0) {
+            showToast('大号的角色已全部同步过');
+            return;
+        }
+
+        const merged = [...altContacts, ...newContacts];
+        localStorage.setItem(`persona_${altId}_chatContacts`, JSON.stringify(merged));
+        renderAltAccounts();
+        showToast(`已同步 ${newContacts.length} 个角色`);
+    };
 
     // 钱包
     function renderWallet() {
