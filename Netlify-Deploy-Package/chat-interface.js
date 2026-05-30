@@ -741,6 +741,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (typeof pullKeepAliveMessages === 'function') {
             pullKeepAliveMessages();
         }
+        if (typeof loadNotificationSetting === 'function') {
+            loadNotificationSetting();
+        }
     }, 2000);
 
     // 页面卸载前保存数据
@@ -19607,6 +19610,7 @@ async function toggleKeepAlive() {
             if (window.showToast) showToast('后台保活已启动', 'success');
             updateKeepAliveUI(true);
             await syncToKeepAlive();
+            if (typeof startNotificationPoll === 'function') startNotificationPoll();
         } else {
             if (window.showToast) showToast('启动保活服务失败', 'error');
             checkbox.checked = false;
@@ -19617,6 +19621,7 @@ async function toggleKeepAlive() {
         if (result && result.success) {
             if (window.showToast) showToast('后台保活已停止', 'success');
         }
+        if (typeof stopNotificationPoll === 'function') stopNotificationPoll();
         updateKeepAliveUI(false);
     }
 }
@@ -19783,6 +19788,219 @@ window.toggleKeepAlive = toggleKeepAlive;
 window.syncToKeepAlive = syncToKeepAlive;
 window.checkKeepAliveStatus = checkKeepAliveStatus;
 window.pullKeepAliveMessages = pullKeepAliveMessages;
+
+// ========== 后台横幅通知系统 ==========
+
+let notificationPollTimer = null;
+let notificationLastCheck = Date.now();
+let notificationSound = null;
+
+function initNotificationSound() {
+    try {
+        notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2JkZeXkIuEfXdxb3B1fIeRmZuXj4Z9dG1pbHN+iZOZm5aMgXdua2xxeYSPlpqYkYiAdnBtcHd/ipSampeTiYF4cG5wd4KMlpmYk4qCeXJvcniCjZaZl5KJgXlyb3F4go2WmZeTiYF4cm9xeIKNlpmXk4mBeHJvcXiCjZaZl5OJgXhyb3F4go2WmZeTiYF4cm9xeIKNlpmXk4mBeHJvcXg=');
+        notificationSound.volume = 0.5;
+    } catch (e) {
+        console.log('[Notification] 音频初始化失败:', e);
+    }
+}
+
+function playNotificationSound() {
+    try {
+        if (notificationSound) {
+            notificationSound.currentTime = 0;
+            notificationSound.play().catch(() => {});
+        }
+    } catch (e) {}
+}
+
+async function startNotificationPoll() {
+    if (notificationPollTimer) return;
+
+    if (!('Notification' in window)) {
+        console.log('[Notification] 浏览器不支持通知');
+        return;
+    }
+
+    if (Notification.permission === 'default') {
+        const result = await Notification.requestPermission();
+        if (result !== 'granted') {
+            if (window.showToast) showToast('需要通知权限才能接收横幅提醒', 'error');
+            return;
+        }
+    } else if (Notification.permission === 'denied') {
+        if (window.showToast) showToast('通知权限被拒绝，请在浏览器设置中开启', 'error');
+        return;
+    }
+
+    initNotificationSound();
+    notificationLastCheck = Date.now();
+
+    notificationPollTimer = setInterval(async () => {
+        await pollKeepAliveForNotifications();
+    }, 15000);
+
+    console.log('[Notification] 横幅通知轮询已启动 (15秒/次)');
+}
+
+function stopNotificationPoll() {
+    if (notificationPollTimer) {
+        clearInterval(notificationPollTimer);
+        notificationPollTimer = null;
+    }
+    console.log('[Notification] 横幅通知轮询已停止');
+}
+
+async function pollKeepAliveForNotifications() {
+    const status = await keepAliveRequest('/status');
+    if (!status || !status.enabled) return;
+
+    const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+    for (const contact of contacts) {
+        try {
+            const result = await keepAliveRequest(`/messages?chatId=${contact.id}`);
+            if (!result || !result.messages) continue;
+
+            const newMessages = result.messages.filter(m =>
+                (m.ts || 0) > notificationLastCheck &&
+                m.s === 'assistant'
+            );
+
+            if (newMessages.length > 0) {
+                const latestMsg = newMessages[newMessages.length - 1];
+                const contactName = contact.name || contact.contactName || '角色';
+                const preview = (latestMsg.c || '').substring(0, 80) + ((latestMsg.c || '').length > 80 ? '...' : '');
+
+                showBannerNotification(contactName, preview, contact.id);
+
+                let localMessages = [];
+                if (window.ChatDB && window.ChatDB.loadMessages) {
+                    localMessages = await window.ChatDB.loadMessages(contact.id) || [];
+                }
+                const localLastTs = localMessages.length > 0
+                    ? Math.max(...localMessages.map(m => m.ts || 0))
+                    : 0;
+                const toMerge = result.messages.filter(m => (m.ts || 0) > localLastTs);
+                if (toMerge.length > 0) {
+                    const merged = [...localMessages, ...toMerge];
+                    if (window.ChatDB && window.ChatDB.saveMessages) {
+                        await window.ChatDB.saveMessages(contact.id, merged);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(`[Notification] 轮询 ${contact.name} 失败:`, e);
+        }
+    }
+
+    notificationLastCheck = Date.now();
+}
+
+function showBannerNotification(title, body, chatId) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    playNotificationSound();
+
+    const notification = new Notification(title, {
+        body: body,
+        icon: '/icon.png',
+        badge: '/badge.png',
+        tag: `keepalive-${chatId}-${Date.now()}`,
+        requireInteraction: false,
+        silent: false,
+        data: { chatId: chatId }
+    });
+
+    notification.onclick = function() {
+        window.focus();
+        if (chatId && typeof switchToChat === 'function') {
+            switchToChat(chatId);
+        } else if (chatId) {
+            window.location.href = `chat-interface.html?chatId=${chatId}`;
+        }
+        notification.close();
+    };
+
+    setTimeout(() => {
+        try { notification.close(); } catch (e) {}
+    }, 8000);
+}
+
+function startBackgroundNotificationWatch() {
+    startNotificationPoll();
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (!notificationPollTimer && typeof checkKeepAliveStatus === 'function') {
+                checkKeepAliveStatus().then(status => {
+                    if (status && status.enabled) {
+                        startNotificationPoll();
+                    }
+                });
+            }
+        } else {
+            if (typeof pullKeepAliveMessages === 'function') {
+                pullKeepAliveMessages();
+            }
+        }
+    });
+}
+
+window.startNotificationPoll = startNotificationPoll;
+window.stopNotificationPoll = stopNotificationPoll;
+window.startBackgroundNotificationWatch = startBackgroundNotificationWatch;
+
+async function toggleBannerNotification() {
+    const checkbox = document.getElementById('settings-notification-enabled');
+    const enabled = checkbox.checked;
+
+    if (enabled) {
+        if (!('Notification' in window)) {
+            if (window.showToast) showToast('你的浏览器不支持通知功能', 'error');
+            checkbox.checked = false;
+            return;
+        }
+
+        if (Notification.permission === 'default') {
+            const result = await Notification.requestPermission();
+            if (result !== 'granted') {
+                if (window.showToast) showToast('需要允许通知权限才能弹窗提醒', 'error');
+                checkbox.checked = false;
+                return;
+            }
+        } else if (Notification.permission === 'denied') {
+            if (window.showToast) showToast('通知权限被拒绝，请在浏览器设置中开启', 'error');
+            checkbox.checked = false;
+            return;
+        }
+
+        startNotificationPoll();
+        localStorage.setItem('keepalive_notification_enabled', 'true');
+        if (window.showToast) showToast('横幅通知已开启，离开页面时会弹窗提醒', 'success');
+    } else {
+        stopNotificationPoll();
+        localStorage.setItem('keepalive_notification_enabled', 'false');
+        if (window.showToast) showToast('横幅通知已关闭', 'success');
+    }
+}
+
+function loadNotificationSetting() {
+    const saved = localStorage.getItem('keepalive_notification_enabled');
+    const checkbox = document.getElementById('settings-notification-enabled');
+    if (checkbox && saved === 'true') {
+        checkbox.checked = true;
+        if (Notification.permission === 'granted') {
+            startNotificationPoll();
+        } else {
+            checkbox.checked = false;
+        }
+    }
+}
+
+window.toggleBannerNotification = toggleBannerNotification;
+window.loadNotificationSetting = loadNotificationSetting;
 
 // ========== 表情包分类绑定功能 ==========
 
