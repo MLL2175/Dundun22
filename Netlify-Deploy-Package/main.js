@@ -359,6 +359,14 @@ window.openAppIframe = function(url, title, options) {
             }
         } else if (event.data && event.data.type === 'closeAppIframe') {
             closeAppIframe();
+        } else if (event.data && event.data.type === 'hideIframeHeader') {
+            // 隐藏iframe顶栏
+            const header = container.querySelector('.iframe-header');
+            if (header) header.style.display = 'none';
+        } else if (event.data && event.data.type === 'showIframeHeader') {
+            // 显示iframe顶栏
+            const header = container.querySelector('.iframe-header');
+            if (header) header.style.display = 'flex';
         }
     });
     

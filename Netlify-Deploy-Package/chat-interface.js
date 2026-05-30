@@ -6768,8 +6768,9 @@ window.selectEmoji = function(url) {
 window.videoCall = function() {
     console.log('📹 用户发起视频通话');
     
-    // 获取联系人名称
+    // 获取联系人信息
     let contactName = '对方';
+    let contactAvatar = '';
     try {
         const currentPersona = localStorage.getItem('currentPersona') || 'default';
         const contactsKey = `persona_${currentPersona}_chatContacts`;
@@ -6777,6 +6778,7 @@ window.videoCall = function() {
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
             contactName = currentContact.name || currentContact.remark || '对方';
+            contactAvatar = currentContact.avatar || '';
         }
     } catch (e) {
         console.error('读取联系人信息失败:', e);
@@ -6785,6 +6787,23 @@ window.videoCall = function() {
     // 隐藏聊天顶栏
     const chatHeader = document.querySelector('.chat-header');
     if (chatHeader) chatHeader.style.display = 'none';
+    
+    // 告诉父窗口隐藏iframe顶栏
+    if (window.parent && window.parent.postMessage) {
+        window.parent.postMessage({ type: 'hideIframeHeader' }, '*');
+    }
+    
+    // 显示头像
+    const avatarImg = document.getElementById('call-avatar');
+    const avatarPlaceholder = document.getElementById('call-avatar-placeholder');
+    if (contactAvatar) {
+        avatarImg.src = contactAvatar;
+        avatarImg.style.display = 'block';
+        avatarPlaceholder.style.display = 'none';
+    } else {
+        avatarImg.style.display = 'none';
+        avatarPlaceholder.style.display = 'block';
+    }
     
     // 显示通话界面
     document.getElementById('call-contact-name').textContent = contactName;
@@ -6818,13 +6837,31 @@ window.acceptIncomingCall = function() {
     // 隐藏来电浮窗
     document.getElementById('incoming-call-modal').style.display = 'none';
     
-    // 获取联系人名称和通话类型
+    // 获取联系人信息和通话类型
     const contactName = window.incomingCallContactName || '对方';
+    const contactAvatar = window.incomingCallContactAvatar || '';
     const callType = window.incomingCallType || 'video'; // 默认视频通话
     
     // 隐藏聊天顶栏
     const chatHeader = document.querySelector('.chat-header');
     if (chatHeader) chatHeader.style.display = 'none';
+    
+    // 告诉父窗口隐藏iframe顶栏
+    if (window.parent && window.parent.postMessage) {
+        window.parent.postMessage({ type: 'hideIframeHeader' }, '*');
+    }
+    
+    // 显示头像
+    const avatarImg = document.getElementById('call-avatar');
+    const avatarPlaceholder = document.getElementById('call-avatar-placeholder');
+    if (contactAvatar) {
+        avatarImg.src = contactAvatar;
+        avatarImg.style.display = 'block';
+        avatarPlaceholder.style.display = 'none';
+    } else {
+        avatarImg.style.display = 'none';
+        avatarPlaceholder.style.display = 'block';
+    }
     
     // 显示通话界面
     document.getElementById('call-contact-name').textContent = contactName;
@@ -6899,6 +6936,11 @@ window.endVideoCall = async function() {
     
     // 隐藏通话界面
     document.getElementById('video-call-modal').style.display = 'none';
+    
+    // 告诉父窗口显示iframe顶栏
+    if (window.parent && window.parent.postMessage) {
+        window.parent.postMessage({ type: 'showIframeHeader' }, '*');
+    }
     
     // 重新显示聊天顶栏
     const chatHeader = document.querySelector('.chat-header');

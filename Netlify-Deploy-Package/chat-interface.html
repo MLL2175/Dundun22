@@ -2420,6 +2420,14 @@
         <div style="height: 100vh; display: flex; flex-direction: column;">
             <!-- 顶部状态栏 -->
             <div style="padding: 16px; text-align: center; color: white;">
+                <!-- 头像 -->
+                <div id="call-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 0 auto 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <img id="call-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <svg id="call-avatar-placeholder" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                    </svg>
+                </div>
                 <div id="call-contact-name" style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">对方名称</div>
                 <div id="call-status" style="font-size: 14px; opacity: 0.8;">正在呼叫...</div>
                 <div id="call-duration" style="font-size: 14px; opacity: 0.8; display: none;">00:00</div>
