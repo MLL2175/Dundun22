@@ -1,5 +1,5 @@
 // 聊天数据
-console.log('chat-interface.js v193 已加载 (节日礼物系统+个性化)');
+console.log('chat-interface.js v194 已加载 (节日礼物系统+个性化+动画)');
 let currentChatId = null;
 let chatMessages = [];
 let apiConfig = null;
@@ -303,6 +303,9 @@ function sendGiftMessage(reminder) {
         return;
     }
     
+    // 初始化礼物动画CSS
+    initGiftAnimations();
+    
     const gift = generatePersonalizedGift(reminder.occasion);
     
     const giftMessage = {
@@ -323,6 +326,49 @@ function sendGiftMessage(reminder) {
     renderMessages(true);
     
     console.log(`🎁 礼物消息已发送: ${gift.occasion} (${gift.personaType || '默认'})`);
+}
+
+// 初始化礼物动画CSS
+function initGiftAnimations() {
+    if (document.getElementById('gift-anim-styles')) {
+        return; // 已经初始化过
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'gift-anim-styles';
+    style.textContent = `
+        /* 礼物弹跳动画 */
+        @keyframes giftBounce {
+            0% {
+                transform: scale(0) translateY(20px);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) translateY(-5px);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(0.95) translateY(0);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 礼物闪烁动画 */
+        @keyframes giftSparkle {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(248, 204, 219, 0));
+            }
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 8px rgba(248, 204, 219, 0.6));
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // 获取当前角色信息
@@ -9575,7 +9621,7 @@ function _doRenderMessages() {
                     <div style="background: linear-gradient(135deg, #FFE8F0 0%, #FFF5F8 100%); border-radius: 16px; padding: 20px; min-width: 260px; max-width: 300px; box-shadow: 0 4px 16px rgba(248, 204, 219, 0.3);">
                         <!-- 礼物图标 -->
                         <div style="text-align: center; margin-bottom: 14px;">
-                            <div style="font-size: 72px; animation: giftBounce 0.6s ease-out;">${gift.giftIcon || '🎁'}</div>
+                            <div style="font-size: 72px; display: inline-block; animation: giftBounce 0.6s ease-out, giftSparkle 2s ease-in-out infinite;">${gift.giftIcon || '🎁'}</div>
                         </div>
                         
                         <!-- 节日标题 -->
