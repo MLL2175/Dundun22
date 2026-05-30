@@ -74,6 +74,28 @@ document.addEventListener('click', function(e) {
                 callRingtoneSection.style.display = isActive ? 'block' : 'none';
             }
         }
+        if (switchEl.id === 'background-keep-switch') {
+            const isActive = switchEl.classList.contains('active');
+            const keepaliveSection = document.getElementById('keepalive-detail-section');
+            if (keepaliveSection) {
+                keepaliveSection.style.display = isActive ? 'block' : 'none';
+            }
+            localStorage.setItem('keepalive-enabled', isActive ? 'true' : 'false');
+            if (isActive && typeof toggleKeepAlive === 'function') {
+                toggleKeepAlive();
+            }
+        }
+        if (switchEl.id === 'banner-notification-switch') {
+            const isActive = switchEl.classList.contains('active');
+            const bannerSection = document.getElementById('banner-detail-section');
+            if (bannerSection) {
+                bannerSection.style.display = isActive ? 'block' : 'none';
+            }
+            localStorage.setItem('banner-notification-enabled', isActive ? 'true' : 'false');
+            if (isActive && typeof toggleBannerNotification === 'function') {
+                toggleBannerNotification();
+            }
+        }
         return;
     }
 
@@ -861,6 +883,16 @@ window.reloadApiSettings = function() {
         setSwitch('banner-notification-switch', c.notification?.bannerEnabled);
         setSwitch('api-fab-switch', c.notification?.apiFabEnabled);
         
+        const keepaliveSection = document.getElementById('keepalive-detail-section');
+        if (keepaliveSection) {
+            keepaliveSection.style.display = c.notification?.backgroundKeep ? 'block' : 'none';
+        }
+        
+        const bannerSection = document.getElementById('banner-detail-section');
+        if (bannerSection) {
+            bannerSection.style.display = c.notification?.bannerEnabled ? 'block' : 'none';
+        }
+        
         // 加载提示音配置
         const soundEnabled = c.notification?.soundEnabled || false;
         setSwitch('sound-enabled-switch', soundEnabled);
@@ -1477,3 +1509,217 @@ document.addEventListener('DOMContentLoaded', function() {
         initNotificationSettings();
     }
 });
+
+// ========== 后台保活与横幅通知 ==========
+
+const SETTINGS_KEEPALIVE_API = 'http://localhost:8081/api/keepalive';
+
+async function settingsKeepAliveRequest(endpoint, method = 'GET', body = null) {
+    try {
+        const options = {
+            method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (body) options.body = JSON.stringify(body);
+        const res = await fetch(`${SETTINGS_KEEPALIVE_API}${endpoint}`, options);
+        return await res.json();
+    } catch (e) {
+        console.error('[KeepAlive] 请求失败:', e);
+        return null;
+    }
+}
+
+window.syncToKeepAlive = async function() {
+    const status = await settingsKeepAliveRequest('/status');
+    if (!status) {
+        if (window.showToast) showToast('无法连接保活服务', 'error');
+        return;
+    }
+
+    const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || 'null');
+
+    await settingsKeepAliveRequest('/config', 'POST', {
+        apiConfig,
+        contacts: contacts.map(c => ({
+            id: c.id,
+            name: c.name || c.contactName,
+            persona: c.persona || c.systemPrompt || ''
+        }))
+    });
+
+    let syncCount = 0;
+    for (const contact of contacts) {
+        try {
+            const storageKey = `persona_${currentPersona}_chat_${contact.id}`;
+            let messages = [];
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+                try { messages = JSON.parse(stored); } catch (e) {}
+            }
+
+            const settings = {};
+            const autorejectKey = `role_${contact.id}_autoreject`;
+            const autorejectStr = localStorage.getItem(autorejectKey);
+            if (autorejectStr) {
+                try { settings[autorejectKey] = JSON.parse(autorejectStr); } catch (e) {}
+            }
+
+            await settingsKeepAliveRequest('/sync', 'POST', {
+                chatId: contact.id,
+                messages,
+                settings
+            });
+            syncCount++;
+        } catch (e) {
+            console.error(`[KeepAlive] 同步 ${contact.name} 失败:`, e);
+        }
+    }
+
+    if (window.showToast) showToast(`已同步 ${syncCount} 个角色的数据`, 'success');
+    await window.checkKeepAliveStatus();
+};
+
+window.checkKeepAliveStatus = async function() {
+    const status = await settingsKeepAliveRequest('/status');
+    const statusText = document.getElementById('keepalive-status-text');
+    const statusDot = document.getElementById('keepalive-status-dot');
+    const statsEl = document.getElementById('keepalive-stats');
+    const statReplies = document.getElementById('keepalive-stat-replies');
+    const statAuto = document.getElementById('keepalive-stat-auto');
+
+    if (!status) {
+        if (statusText) {
+            statusText.textContent = '未连接';
+            statusText.style.color = '#ff4d4f';
+        }
+        if (statusDot) statusDot.style.background = '#ff4d4f';
+        if (statsEl) statsEl.style.display = 'none';
+        if (window.showToast) showToast('保活服务未运行，请先执行: node keepalive-worker.js', 'error');
+        return;
+    }
+
+    if (statusText) {
+        if (status.enabled && status.running) {
+            statusText.textContent = '运行中';
+            statusText.style.color = '#52c41a';
+        } else if (status.enabled) {
+            statusText.textContent = '已启用（空闲）';
+            statusText.style.color = '#faad14';
+        } else {
+            statusText.textContent = '已停止';
+            statusText.style.color = '#999';
+        }
+    }
+    if (statusDot) {
+        statusDot.style.background = (status.enabled && status.running) ? '#52c41a' : (status.enabled ? '#faad14' : '#ccc');
+    }
+
+    if (statsEl && status.stats) {
+        statsEl.style.display = 'block';
+        if (statReplies) statReplies.textContent = status.stats.totalReplies || 0;
+        if (statAuto) statAuto.textContent = status.stats.totalAutoMessages || 0;
+    }
+
+    const intervalEl = document.getElementById('settings-keepalive-interval');
+    if (intervalEl && status.checkInterval) intervalEl.value = status.checkInterval;
+};
+
+window.toggleKeepAlive = async function() {
+    const keepSwitch = document.getElementById('background-keep-switch');
+    const enabled = keepSwitch && keepSwitch.classList.contains('active');
+
+    if (enabled) {
+        const status = await settingsKeepAliveRequest('/status');
+        if (!status) {
+            if (window.showToast) showToast('无法连接保活服务，请先运行 node keepalive-worker.js', 'error');
+            if (keepSwitch) keepSwitch.classList.remove('active');
+            const keepaliveSection = document.getElementById('keepalive-detail-section');
+            if (keepaliveSection) keepaliveSection.style.display = 'none';
+            return;
+        }
+
+        const intervalEl = document.getElementById('settings-keepalive-interval');
+        const checkInterval = intervalEl ? Math.max(30, parseInt(intervalEl.value) || 60) : 60;
+
+        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || 'null');
+        if (!apiConfig || !apiConfig.mainApi || !apiConfig.mainApi.url || !apiConfig.mainApi.token) {
+            if (window.showToast) showToast('请先配置 API 信息', 'error');
+            if (keepSwitch) keepSwitch.classList.remove('active');
+            const keepaliveSection = document.getElementById('keepalive-detail-section');
+            if (keepaliveSection) keepaliveSection.style.display = 'none';
+            return;
+        }
+
+        const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
+        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+
+        const result = await settingsKeepAliveRequest('/config', 'POST', {
+            enabled: true,
+            checkInterval,
+            apiConfig,
+            contacts: contacts.map(c => ({
+                id: c.id,
+                name: c.name || c.contactName,
+                persona: c.persona || c.systemPrompt || ''
+            }))
+        });
+
+        if (result && result.success) {
+            if (window.showToast) showToast('后台保活已启动', 'success');
+            await window.syncToKeepAlive();
+        } else {
+            if (window.showToast) showToast('启动保活服务失败', 'error');
+            if (keepSwitch) keepSwitch.classList.remove('active');
+            const keepaliveSection = document.getElementById('keepalive-detail-section');
+            if (keepaliveSection) keepaliveSection.style.display = 'none';
+        }
+    } else {
+        const result = await settingsKeepAliveRequest('/stop', 'POST');
+        if (result && result.success) {
+            if (window.showToast) showToast('后台保活已停止', 'success');
+        }
+    }
+};
+
+window.toggleBannerNotification = async function() {
+    const bannerSwitch = document.getElementById('banner-notification-switch');
+    const enabled = bannerSwitch && bannerSwitch.classList.contains('active');
+
+    if (enabled) {
+        if (!('Notification' in window)) {
+            if (window.showToast) showToast('你的浏览器不支持通知功能', 'error');
+            if (bannerSwitch) bannerSwitch.classList.remove('active');
+            const bannerSection = document.getElementById('banner-detail-section');
+            if (bannerSection) bannerSection.style.display = 'none';
+            return;
+        }
+
+        if (Notification.permission === 'default') {
+            const result = await Notification.requestPermission();
+            if (result !== 'granted') {
+                if (window.showToast) showToast('需要允许通知权限才能弹窗提醒', 'error');
+                if (bannerSwitch) bannerSwitch.classList.remove('active');
+                const bannerSection = document.getElementById('banner-detail-section');
+                if (bannerSection) bannerSection.style.display = 'none';
+                return;
+            }
+        } else if (Notification.permission === 'denied') {
+            if (window.showToast) showToast('通知权限被拒绝，请在浏览器设置中开启', 'error');
+            if (bannerSwitch) bannerSwitch.classList.remove('active');
+            const bannerSection = document.getElementById('banner-detail-section');
+            if (bannerSection) bannerSection.style.display = 'none';
+            return;
+        }
+
+        localStorage.setItem('keepalive_notification_enabled', 'true');
+        if (window.showToast) showToast('横幅通知已开启，离开页面时会弹窗提醒', 'success');
+    } else {
+        localStorage.setItem('keepalive_notification_enabled', 'false');
+        if (window.showToast) showToast('横幅通知已关闭', 'success');
+    }
+};
