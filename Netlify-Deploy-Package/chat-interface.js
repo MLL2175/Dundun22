@@ -1,5 +1,5 @@
 // 聊天数据
-console.log('chat-interface.js v191 已加载 (修复 memoryContext 和 hasPayRequest)');
+console.log('chat-interface.js v192 已加载 (节日礼物系统)');
 let currentChatId = null;
 let chatMessages = [];
 let apiConfig = null;
@@ -10,6 +10,321 @@ let selectedMessageIds = new Set(); // 选中的消息 ID
 let offlineMode = null; // 线下模式：'long-text' 或 'narration'（按联系人存储）
 let offlineStartTime = null; // 线下模式开始时间（按联系人存储）
 let isTestMode = false; // 自动回复模式
+
+// ========== 节日礼物系统 ==========
+const giftTemplates = {
+    '生日': {
+        icons: ['🎂', '🎁', '🎈', '🎉', '🥳', '🌟', '💝', '🦋'],
+        names: ['甜蜜蛋糕', '心愿礼物盒', '快乐气球束', '幸福香槟', '美好回忆', '璀璨星光', '永恒之爱', '自由蝴蝶'],
+        messages: [
+            '祝你生日快乐！愿每一岁都奔走在自己的热爱里。',
+            '愿你的眼睛只看得到笑容，愿你流下的泪都是喜极而泣。',
+            '新的一岁，希望你所有的美好都能如期而至。',
+            '岁月漫长，然而值得等待，愿你永远温柔且坚定。',
+            '生日快乐呀！今天你是世界上最幸福的人~'
+        ]
+    },
+    '恋爱纪念日': {
+        icons: ['💕', '💖', '💗', '💝', '🌹', '💑', '🦋', '✨'],
+        names: ['永恒的爱', '心动时刻', '甜蜜时光', '爱的誓言', '幸福相依', '浪漫相守', '真情相伴', '甜蜜回忆'],
+        messages: [
+            '感谢遇见，感谢相爱，感谢每一个有你的日子。',
+            '和你在一起的每一天，都是生命中最美的时光。',
+            '愿我们的爱情如星辰般永恒，如玫瑰般绚烂。',
+            '往后余生，风雪是你，平淡是你，目光所及都是你。',
+            '恋爱纪念日快乐！有你真好~'
+        ]
+    },
+    '情人节': {
+        icons: ['💝', '💘', '💓', '🌹', '💕', '🎁', '✨', '🦋'],
+        names: ['浪漫之礼', '甜蜜心意', '爱意满满', '心动礼物', '真情告白', '浪漫惊喜', '甜蜜邂逅', '永恒承诺'],
+        messages: [
+            '遇见你是我最美的意外，爱上你是我最对的决定。',
+            'Valentines Day，愿爱与你同行。',
+            '这辈子最浪漫的事，就是和你一起慢慢变老。',
+            '有你的日子，每天都是情人节。',
+            '情人节快乐，我爱你！'
+        ]
+    },
+    '520': {
+        icons: ['💗', '💕', '💖', '💘', '🌹', '💝', '✨', '🦋'],
+        names: ['我爱你', '甜蜜暴击', '心动信号', '浪漫满屋', '爱意传递', '真情告白', '幸福时光', '甜蜜相守'],
+        messages: [
+            '520，我爱你！这句话我想说一辈子。',
+            '喜欢你这件事，我从没有犹豫过。',
+            '在这个充满爱的日子里，我想说：遇见你，真好。',
+            '520，愿我们的爱情永远像初恋一样甜蜜。',
+            '520，我爱你，今天明天永远都爱你！'
+        ]
+    },
+    '521': {
+        icons: ['💕', '💖', '💗', '💘', '🌹', '💝', '✨', '🦋'],
+        names: ['我爱你', '甜蜜守护', '真心相待', '浪漫相约', '爱在521', '真情永恒', '幸福相伴', '甜蜜相依'],
+        messages: [
+            '521，我爱你！每一天，每一年，都爱你。',
+            '爱不需要理由，只需要你在我身边。',
+            '521，想告诉你：遇见你，是我最大的幸运。',
+            '愿我们的521，永远像今天一样甜蜜。',
+            '521，我爱你，今天要比昨天更爱你！'
+        ]
+    },
+    '跨年夜': {
+        icons: ['🎆', '✨', '🎉', '🌟', '🎊', '🎁', '💝', '🎈'],
+        names: ['新年礼物', '跨年惊喜', '美好祝愿', '璀璨星光', '幸福相伴', '甜蜜时光', '未来可期', '快乐永恒'],
+        messages: [
+            '跨年夜快乐！愿新的一年，我们一起创造更多美好回忆。',
+            '新的一年，愿我们的爱情更加甜蜜。',
+            '告别过去，迎接未来，有你在身边真好。',
+            '愿新年的钟声，敲响幸福的旋律。',
+            '跨年夜快乐，让我们一起迎接更美好的一年！'
+        ]
+    },
+    '元旦': {
+        icons: ['🎉', '🎊', '✨', '🌟', '🎁', '💝', '🎈', '🎂'],
+        names: ['新年礼物', '元旦祝福', '美好开端', '甜蜜时光', '幸福相伴', '快乐无限', '未来可期', '温暖相随'],
+        messages: [
+            '元旦快乐！新的一年，新的开始，新的希望。',
+            '愿新年的每一天，都像今天一样甜蜜。',
+            '新的一年，愿我们的爱情更加美好。',
+            '新年快乐，我的爱人！',
+            '元旦快乐，愿你每天都开心！'
+        ]
+    },
+    '除夕': {
+        icons: ['🧧', '🏮', '🎊', '✨', '🌟', '🎁', '💝', '🎉'],
+        names: ['除夕礼物', '新年红包', '团圆美满', '幸福安康', '甜蜜时光', '温暖祝福', '新年祝愿', '吉祥如意'],
+        messages: [
+            '除夕快乐！愿新的一年，我们一起度过更多美好时光。',
+            '团圆的日子，有你在身边真好。',
+            '愿新年的钟声，带来无尽的幸福。',
+            '除夕快乐，我的爱人，新的一年请多指教！',
+            '愿新的一年，我们的爱情更加甜蜜美满！'
+        ]
+    },
+    '春节': {
+        icons: ['🏮', '🧧', '🎊', '✨', '🎉', '🎁', '💝', '🌟'],
+        names: ['春节礼物', '新年祝福', '吉祥如意', '幸福美满', '甜蜜时光', '快乐相伴', '温暖祝福', '鸿运当头'],
+        messages: [
+            '春节快乐！愿新的一年，万事如意，心想事成。',
+            '愿我们的爱情，像春节一样红红火火。',
+            '新年快乐，我的爱人，愿你每天都开心！',
+            '愿新年的每一天，都充满幸福和甜蜜。',
+            '春节快乐，新的一年我们要更加相爱！'
+        ]
+    },
+    '元宵节': {
+        icons: ['🏮', '✨', '🎊', '🌟', '🎁', '💝', '🎉', '🥟'],
+        names: ['元宵礼物', '甜蜜汤圆', '团圆美满', '幸福时光', '温暖祝福', '快乐相伴', '美好祝愿', '吉祥如意'],
+        messages: [
+            '元宵节快乐！愿我们的生活像汤圆一样甜蜜圆满。',
+            '月圆人团圆，有你在身边真好。',
+            '愿每一天，都像今天一样甜蜜。',
+            '元宵节快乐，我的爱人！',
+            '愿我们的爱情，像圆月一样圆满！'
+        ]
+    },
+    '妇女节': {
+        icons: ['🌹', '💝', '✨', '🌟', '🎁', '💖', '💗', '🦋'],
+        names: ['女神礼物', '女王节快乐', '最美的你', '甜蜜祝福', '幸福时光', '快乐相伴', '美丽永恒', '光彩照人'],
+        messages: [
+            '妇女节快乐！你是我心中最美的女神。',
+            '愿你每天都像今天一样光彩照人。',
+            '感谢有你，让我的生活如此美好。',
+            '节日快乐，我的女王大人！',
+            '愿你永远年轻，永远美丽！'
+        ]
+    },
+    '劳动节': {
+        icons: ['🌻', '🌿', '✨', '🌟', '🎁', '💝', '🎉', '🎊'],
+        names: ['劳动节礼物', '甜蜜时光', '幸福相伴', '快乐无限', '美好祝愿', '温暖祝福', '轻松一刻', '快乐劳动'],
+        messages: [
+            '劳动节快乐！辛苦啦，今天好好休息一下吧。',
+            '愿你的每一份努力，都有甜蜜的回报。',
+            '辛苦了，我的爱人，今天让我来照顾你。',
+            '劳动节快乐，愿你每天都轻松快乐！',
+            '愿生活，像今天一样轻松愉快！'
+        ]
+    },
+    '儿童节': {
+        icons: ['🎈', '🎂', '🎁', '🎉', '🎊', '🌟', '✨', '🧸'],
+        names: ['儿童礼物', '童趣时光', '快乐童年', '甜蜜回忆', '幸福相伴', '快乐无限', '童心未泯', '童真永恒'],
+        messages: [
+            '儿童节快乐！愿你永远保持一颗童心。',
+            '不管多大，你都是我心中的小朋友。',
+            '愿你的每一天，都像孩子一样快乐。',
+            '儿童节快乐，我的小朋友！',
+            '愿你永远年轻，永远热泪盈眶！'
+        ]
+    },
+    '七夕': {
+        icons: ['🌹', '💖', '💗', '💝', '💕', '✨', '🌟', '🦋'],
+        names: ['七夕礼物', '浪漫惊喜', '甜蜜时光', '幸福相伴', '心动时刻', '爱的告白', '永恒之爱', '甜蜜相守'],
+        messages: [
+            '七夕快乐！愿我们的爱情像牛郎织女一样坚贞不渝。',
+            '鹊桥相会，我们的心永远在一起。',
+            '愿每一天，都像今天一样浪漫。',
+            '七夕快乐，我的爱人！',
+            '愿我们的爱情，永远像七夕一样甜蜜浪漫！'
+        ]
+    },
+    '中秋节': {
+        icons: ['🌕', '🥮', '✨', '🌟', '🎁', '💝', '🏮', '🌙'],
+        names: ['中秋礼物', '甜蜜月饼', '团圆美满', '幸福时光', '温暖祝福', '快乐相伴', '美好祝愿', '月圆人圆'],
+        messages: [
+            '中秋节快乐！愿我们的生活像月亮一样圆满。',
+            '月圆人团圆，有你在身边真好。',
+            '愿每一天，都像今天一样甜蜜。',
+            '中秋节快乐，我的爱人！',
+            '愿我们的爱情，像圆月一样圆满！'
+        ]
+    },
+    '国庆节': {
+        icons: ['🎊', '🎉', '✨', '🌟', '🎁', '💝', '🎈', '🏮'],
+        names: ['国庆礼物', '甜蜜时光', '幸福相伴', '快乐无限', '美好祝愿', '温暖祝福', '普天同庆', '欢乐时光'],
+        messages: [
+            '国庆节快乐！愿祖国繁荣昌盛，愿我们的爱情甜蜜永恒。',
+            '在这个举国欢庆的日子里，有你在身边真好。',
+            '愿每一天，都像今天一样快乐。',
+            '国庆节快乐，我的爱人！',
+            '愿我们的生活，永远像今天一样欢乐！'
+        ]
+    },
+    '圣诞节': {
+        icons: ['🎄', '🎁', '🎅', '⭐', '🔔', '❄️', '✨', '💝'],
+        names: ['圣诞礼物', '惊喜礼物', '甜蜜圣诞', '幸福时光', '快乐相伴', '美好祝愿', '温暖祝福', '圣诞快乐'],
+        messages: [
+            '圣诞节快乐！愿圣诞老人把我的心意带给你。',
+            '有你的圣诞节，才是最完美的。',
+            '愿圣诞的钟声，敲响幸福的旋律。',
+            '圣诞节快乐，我的爱人！',
+            '愿这个圣诞，因为有你而更加温暖！'
+        ]
+    },
+    '平安夜': {
+        icons: ['🍎', '🎄', '🎁', '✨', '🌟', '💝', '🔔', '❄️'],
+        names: ['平安夜礼物', '平安果', '甜蜜祝福', '幸福相伴', '快乐时光', '美好祝愿', '温暖祝福', '平安喜乐'],
+        messages: [
+            '平安夜快乐！愿你一生平安，永远幸福。',
+            '送你一颗平安果，愿你平安快乐每一天。',
+            '有你在身边，就是最平安的夜晚。',
+            '平安夜快乐，我的爱人！',
+            '愿你，永远平安喜乐！'
+        ]
+    },
+    '100天纪念': {
+        icons: ['💕', '💖', '💗', '💝', '🌹', '✨', '🌟', '🦋'],
+        names: ['百天礼物', '甜蜜回忆', '幸福时光', '爱的见证', '美好纪念', '永恒之爱', '甜蜜相守', '幸福相伴'],
+        messages: [
+            '100天纪念日快乐！感谢这100天的陪伴。',
+            '这100天，是我最幸福的时光。',
+            '愿我们的爱情，走过无数个100天。',
+            '100天快乐，我的爱人！',
+            '愿我们的爱情，像这100天一样甜蜜！'
+        ]
+    },
+    'default': {
+        icons: ['🎁', '💝', '✨', '🌟', '🦋', '💕', '🎀', '🌸'],
+        names: ['精美礼物', '心意之礼', '幸福时光', '美好回忆', '甜蜜惊喜', '温暖关怀', '浪漫礼物', '真情相送'],
+        messages: [
+            '小小的礼物，大大的心意，愿你每一天都幸福。',
+            '礼物虽轻，情意却重，愿你感受到我的心意。',
+            '愿这份礼物能带给你一点点快乐，就像你带给我的一样。',
+            '时光静好，与君语；细水流年，与君同。',
+            '愿你每天都开心！'
+        ]
+    }
+};
+
+// 随机生成礼物
+function generateRandomGift(occasion) {
+    const template = giftTemplates[occasion] || giftTemplates['default'];
+    const icon = template.icons[Math.floor(Math.random() * template.icons.length)];
+    const name = template.names[Math.floor(Math.random() * template.names.length)];
+    const message = template.messages[Math.floor(Math.random() * template.messages.length)];
+    
+    return {
+        occasion: occasion || '节日',
+        giftIcon: icon,
+        giftName: name,
+        message: message
+    };
+}
+
+// 检查今日是否有礼物需要发送
+function checkAndSendGiftForToday() {
+    try {
+        // 获取当前日期字符串 YYYY-MM-DD
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        
+        // 获取所有情侣空间
+        const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+        
+        if (couples.length === 0) {
+            console.log('🎁 没有设置情侣空间');
+            return;
+        }
+        
+        // 查找所有未发送的今日礼物
+        for (let couple of couples) {
+            if (!couple.giftReminders || !Array.isArray(couple.giftReminders)) {
+                continue;
+            }
+            
+            for (let reminder of couple.giftReminders) {
+                if (reminder.date === todayStr && !reminder.sent) {
+                    // 找到今日未发送的礼物！
+                    console.log(`🎁 发现今日礼物: ${reminder.occasion}`);
+                    
+                    // 标记为已发送
+                    reminder.sent = true;
+                    reminder.sentAt = Date.now();
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                    
+                    // 发送礼物消息
+                    sendGiftMessage(reminder);
+                    return; // 只发送一个礼物
+                }
+            }
+        }
+        
+        console.log('🎁 今日没有需要发送的礼物');
+    } catch (e) {
+        console.error('❌ 检查今日礼物失败:', e);
+    }
+}
+
+// 发送礼物消息
+function sendGiftMessage(reminder) {
+    if (!currentChatId) {
+        console.log('⚠️ 没有选择聊天，无法发送礼物');
+        return;
+    }
+    
+    const gift = generateRandomGift(reminder.occasion);
+    
+    const giftMessage = {
+        id: Date.now().toString(),
+        type: 'gift',
+        sender: 'ai',
+        content: gift,
+        time: Date.now(),
+        isSent: false
+    };
+    
+    chatMessages.push(giftMessage);
+    
+    // 保存聊天记录
+    saveChatMessages();
+    
+    // 渲染消息
+    renderMessages(true);
+    
+    console.log(`🎁 礼物消息已发送: ${gift.occasion}`);
+}
+
 
 /**
  * 获取世界书内容，按照读取顺序（优先 > 正常 > 最后）
@@ -683,6 +998,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         checkUnreadWhisper();
     }, 500);
+    
+    // 🎁 检查今日是否有节日礼物需要发送
+    setTimeout(() => {
+        checkAndSendGiftForToday();
+    }, 1500);
     
     //  关键修复：DOM 加载后立即强制同步标题（解决缓存问题）
     setTimeout(() => {
@@ -9074,6 +9394,46 @@ function _doRenderMessages() {
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                     <span style="font-size: 14px; color: ${textColor};">语音通话 ${callInfo.duration}</span>
+                </div>
+            `;
+        } else if (msg.type === 'gift') {
+            // 节日礼物消息
+            let gift;
+            try {
+                gift = typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content;
+            } catch (e) {
+                gift = { occasion: '节日', giftIcon: '🎁', giftName: '神秘礼物', message: '节日快乐~' };
+            }
+            
+            messageContent = `
+                <div style="cursor: pointer; transition: transform 0.15s ease; -webkit-tap-highlight-color: transparent;" ontouchend="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.97)'">
+                    <div style="background: linear-gradient(135deg, #FFE8F0 0%, #FFF5F8 100%); border-radius: 16px; padding: 20px; min-width: 260px; max-width: 300px; box-shadow: 0 4px 16px rgba(248, 204, 219, 0.3);">
+                        <!-- 礼物图标 -->
+                        <div style="text-align: center; margin-bottom: 14px;">
+                            <div style="font-size: 72px; animation: giftBounce 0.6s ease-out;">${gift.giftIcon || '🎁'}</div>
+                        </div>
+                        
+                        <!-- 节日标题 -->
+                        <div style="text-align: center; font-size: 18px; font-weight: 700; color: #333; margin-bottom: 6px;">
+                            ${gift.occasion || '节日'}礼物
+                        </div>
+                        
+                        <!-- 副标题 -->
+                        <div style="text-align: center; font-size: 14px; color: #666; margin-bottom: 16px;">
+                            来自${getAIName()}的礼物~
+                        </div>
+                        
+                        <!-- 分隔线 -->
+                        <div style="border-top: 1px dashed rgba(248, 204, 219, 0.5); margin: 12px 0;"></div>
+                        
+                        <!-- 礼物内容 -->
+                        <div style="background: white; border-radius: 12px; padding: 14px; margin-bottom: 12px; text-align: center;">
+                            <div style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 10px;">${gift.giftName || '精美礼物'}</div>
+                            <div style="font-size: 14px; color: #666; line-height: 1.6; font-style: italic;">
+                                "${gift.message || '愿你每天开心~'}"
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         } else {
