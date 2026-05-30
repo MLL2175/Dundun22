@@ -16137,7 +16137,7 @@ function syncSingleChatTitle() {
             const contactName = currentContact.remark || currentContact.name || '聊天';
             const myProfileKey = `persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
-            const altBadge = myProfile.isAlt ? ' 🎭' : '';
+            const altBadge = myProfile.isAlt ? ' [小号]' : '';
             document.getElementById('chat-title').textContent = contactName + altBadge;
             console.log('✅ 单聊标题已同步:', contactName, myProfile.isAlt ? '(小号模式)' : '');
             

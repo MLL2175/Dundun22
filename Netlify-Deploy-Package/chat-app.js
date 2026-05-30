@@ -4209,7 +4209,6 @@ ${recentChatContext}
         if (alts.length === 0) {
             listEl.innerHTML = `
                 <div style="text-align: center; padding: 20px; color: #999; font-size: 13px;">
-                    <div style="font-size: 28px; margin-bottom: 8px;">🎭</div>
                     还没有小号，点击上方按钮创建
                 </div>`;
             return;
@@ -4220,24 +4219,24 @@ ${recentChatContext}
             const isActive = currentId === alt.id;
             const avatarDisplay = isImageUrl(alt.avatar)
                 ? `<img src="${alt.avatar}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
-                : (alt.avatar || '🎭');
+                : (alt.avatar || '');
 
             return `
-                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: ${isActive ? 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))' : '#f9f9f9'}; border-radius: 12px; border: 1px solid ${isActive ? 'rgba(102,126,234,0.3)' : '#eee'}; transition: all 0.2s;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: ${isActive ? '#f0f0f0' : '#f9f9f9'}; border-radius: 12px; border: 1px solid ${isActive ? '#555' : '#eee'}; transition: all 0.2s;">
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; overflow: hidden;">
                         ${avatarDisplay}
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 14px; font-weight: 500; color: #333; display: flex; align-items: center; gap: 6px;">
                             ${alt.name || '小号'}
-                            ${isActive ? '<span style="font-size: 11px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1px 8px; border-radius: 10px;">当前</span>' : ''}
+                            ${isActive ? '<span style="font-size: 11px; background: #555; color: white; padding: 1px 8px; border-radius: 10px;">当前</span>' : ''}
                         </div>
                         <div style="font-size: 12px; color: #999; margin-top: 2px;">角色不认识此身份</div>
                     </div>
                     <div style="display: flex; gap: 6px; flex-shrink: 0;">
                         ${isActive
-                            ? `<button onclick="switchToMain()" style="padding: 4px 10px; background: #52c41a; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切回大号</button>`
-                            : `<button onclick="switchToAlt('${alt.id}')" style="padding: 4px 10px; background: #667eea; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切换</button>`
+                            ? `<button onclick="switchToMain()" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切回大号</button>`
+                            : `<button onclick="switchToAlt('${alt.id}')" style="padding: 4px 10px; background: #555; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">切换</button>`
                         }
                         <button onclick="editAltAccount('${alt.id}')" style="padding: 4px 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">编辑</button>
                         <button onclick="deleteAltAccount('${alt.id}')" style="padding: 4px 10px; background: #fff1f0; color: #ff4d4f; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">删除</button>
