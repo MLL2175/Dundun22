@@ -6782,6 +6782,10 @@ window.videoCall = function() {
         console.error('读取联系人信息失败:', e);
     }
     
+    // 隐藏聊天顶栏
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader) chatHeader.style.display = 'none';
+    
     // 显示通话界面
     document.getElementById('call-contact-name').textContent = contactName;
     document.getElementById('call-status').textContent = '正在呼叫...';
@@ -6817,6 +6821,10 @@ window.acceptIncomingCall = function() {
     // 获取联系人名称和通话类型
     const contactName = window.incomingCallContactName || '对方';
     const callType = window.incomingCallType || 'video'; // 默认视频通话
+    
+    // 隐藏聊天顶栏
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader) chatHeader.style.display = 'none';
     
     // 显示通话界面
     document.getElementById('call-contact-name').textContent = contactName;
@@ -6891,6 +6899,10 @@ window.endVideoCall = async function() {
     
     // 隐藏通话界面
     document.getElementById('video-call-modal').style.display = 'none';
+    
+    // 重新显示聊天顶栏
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader) chatHeader.style.display = 'flex';
     
     // 获取通话时长
     const duration = window.callDurationSeconds || 0;
