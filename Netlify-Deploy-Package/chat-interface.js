@@ -6875,25 +6875,54 @@ window.acceptIncomingCall = function() {
     // 初始化通话时长
     window.callDurationSeconds = 0;
     
-    // 如果是语音通话，隐藏视频画面，显示音频波形
+    // 如果是语音通话，显示双方头像和音频波形
     if (callType === 'voice') {
         const remoteVideo = document.getElementById('remote-video');
         if (remoteVideo) {
+            // 获取用户自己的头像
+            let userAvatar = localStorage.getItem('myAvatar') || '';
+            
             remoteVideo.innerHTML = `
-                <div style="text-align: center; color: rgba(255,255,255,0.7);">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.8;">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                    <div style="font-size: 16px; opacity: 0.9;">语音通话中</div>
-                    <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <div style="width: 4px; height: 20px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite;"></div>
-                        <div style="width: 4px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.1s;"></div>
-                        <div style="width: 4px; height: 25px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.2s;"></div>
-                        <div style="width: 4px; height: 35px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.3s;"></div>
-                        <div style="width: 4px; height: 20px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.4s;"></div>
+                <div style="text-align: center; color: rgba(255,255,255,0.7); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <!-- 双方头像 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 32px;">
+                        <!-- 对方头像 -->
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                                ${contactAvatar ? 
+                                    `<img src="${contactAvatar}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                    `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>`
+                                }
+                            </div>
+                            <div style="font-size: 14px;">${contactName}</div>
+                        </div>
+                        
+                        <!-- 连接符号 -->
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 7h12M4 12h16M8 17h12"></path>
+                        </svg>
+                        
+                        <!-- 用户头像 -->
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                                ${userAvatar ? 
+                                    `<img src="${userAvatar}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                    `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>`
+                                }
+                            </div>
+                            <div style="font-size: 14px;">我</div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 16px; opacity: 0.9; margin-bottom: 24px;">语音通话中</div>
+                    
+                    <!-- 音频波形 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <div style="width: 6px; height: 24px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite;"></div>
+                        <div style="width: 6px; height: 36px; background: rgba(255,255,255,0.7); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.1s;"></div>
+                        <div style="width: 6px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.2s;"></div>
+                        <div style="width: 6px; height: 42px; background: rgba(255,255,255,0.7); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.3s;"></div>
+                        <div style="width: 6px; height: 24px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.4s;"></div>
                     </div>
                 </div>
             `;
@@ -7589,8 +7618,9 @@ window.sendCallMessage = async function() {
 window.voiceCall = function() {
     console.log('📞 用户发起语音通话');
     
-    // 获取联系人名称
+    // 获取联系人信息
     let contactName = '对方';
+    let contactAvatar = '';
     try {
         const currentPersona = localStorage.getItem('currentPersona') || 'default';
         const contactsKey = `persona_${currentPersona}_chatContacts`;
@@ -7598,9 +7628,31 @@ window.voiceCall = function() {
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
             contactName = currentContact.name || currentContact.remark || '对方';
+            contactAvatar = currentContact.avatar || '';
         }
     } catch (e) {
         console.error('读取联系人信息失败:', e);
+    }
+    
+    // 隐藏聊天顶栏
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader) chatHeader.style.display = 'none';
+    
+    // 告诉父窗口隐藏iframe顶栏
+    if (window.parent && window.parent.postMessage) {
+        window.parent.postMessage({ type: 'hideIframeHeader' }, '*');
+    }
+    
+    // 显示头像
+    const avatarImg = document.getElementById('call-avatar');
+    const avatarPlaceholder = document.getElementById('call-avatar-placeholder');
+    if (contactAvatar) {
+        avatarImg.src = contactAvatar;
+        avatarImg.style.display = 'block';
+        avatarPlaceholder.style.display = 'none';
+    } else {
+        avatarImg.style.display = 'none';
+        avatarPlaceholder.style.display = 'block';
     }
     
     // 显示通话界面
@@ -7623,24 +7675,53 @@ window.voiceCall = function() {
         document.getElementById('call-status').textContent = '通话中';
         document.getElementById('call-duration').style.display = 'block';
         
-        // 如果是语音通话，隐藏视频画面，显示音频波形
+        // 如果是语音通话，显示双方头像和音频波形
         const remoteVideo = document.getElementById('remote-video');
         if (remoteVideo) {
+            // 获取用户自己的头像
+            let userAvatar = localStorage.getItem('myAvatar') || '';
+            
             remoteVideo.innerHTML = `
-                <div style="text-align: center; color: rgba(255,255,255,0.7);">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.8;">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                    <div style="font-size: 16px; opacity: 0.9;">语音通话中</div>
-                    <div style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <div style="width: 4px; height: 20px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite;"></div>
-                        <div style="width: 4px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.1s;"></div>
-                        <div style="width: 4px; height: 25px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.2s;"></div>
-                        <div style="width: 4px; height: 35px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.3s;"></div>
-                        <div style="width: 4px; height: 20px; background: rgba(255,255,255,0.6); border-radius: 2px; animation: audioWave 1s ease-in-out infinite 0.4s;"></div>
+                <div style="text-align: center; color: rgba(255,255,255,0.7); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <!-- 双方头像 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 32px;">
+                        <!-- 对方头像 -->
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                                ${contactAvatar ? 
+                                    `<img src="${contactAvatar}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                    `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>`
+                                }
+                            </div>
+                            <div style="font-size: 14px;">${contactName}</div>
+                        </div>
+                        
+                        <!-- 连接符号 -->
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 7h12M4 12h16M8 17h12"></path>
+                        </svg>
+                        
+                        <!-- 用户头像 -->
+                        <div style="text-align: center;">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                                ${userAvatar ? 
+                                    `<img src="${userAvatar}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                    `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>`
+                                }
+                            </div>
+                            <div style="font-size: 14px;">我</div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 16px; opacity: 0.9; margin-bottom: 24px;">语音通话中</div>
+                    
+                    <!-- 音频波形 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <div style="width: 6px; height: 24px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite;"></div>
+                        <div style="width: 6px; height: 36px; background: rgba(255,255,255,0.7); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.1s;"></div>
+                        <div style="width: 6px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.2s;"></div>
+                        <div style="width: 6px; height: 42px; background: rgba(255,255,255,0.7); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.3s;"></div>
+                        <div style="width: 6px; height: 24px; background: rgba(255,255,255,0.6); border-radius: 3px; animation: audioWave 1s ease-in-out infinite 0.4s;"></div>
                     </div>
                 </div>
             `;
