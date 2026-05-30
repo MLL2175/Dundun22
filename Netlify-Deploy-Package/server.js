@@ -35,12 +35,12 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(8080, () => {
+server.listen(8081, () => {
     console.log('========================================');
     console.log('  服务器已启动成功！');
     console.log('========================================');
     console.log('');
-    console.log('  访问地址: http://localhost:8080');
+    console.log('  访问地址: http://localhost:8081');
     console.log('  默认页面: chat-app.html');
     console.log('');
     console.log('  按 Ctrl+C 停止服务器');
