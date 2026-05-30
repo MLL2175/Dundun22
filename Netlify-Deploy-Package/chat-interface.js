@@ -250,3 +250,290 @@ if (document.readyState === 'loading') {
 } else {
     initBlacklistInterceptor();
 }
+
+// ========== 角色自主拉黑功能 ==========
+
+// 角色心情数据
+let characterMood = 70; // 初始心情值 0-100
+let lastMoodUpdate = Date.now();
+
+// 拒绝回复的模板
+const rejectMessages = [
+    "😒 不想说话...",
+    "🙄 今天心情不太好",
+    "😑 换个话题吧",
+    "😐 这个我不想聊",
+    "😤 有点烦...",
+    "🤷‍♂️ 没兴趣",
+    "😶 嗯...",
+    "😪 累了，不想回复",
+    "🤔 这个问题...我不想回答",
+    "😠 别问了"
+];
+
+// 心情影响的emoji
+const moodEmojis = {
+    0-20: "😢",
+    21-40: "😟",
+    41-60: "😐",
+    61-80: "😊",
+    81-100: "😄"
+};
+
+// 保存自主拉黑设置
+function saveAutoRejectEnabled() {
+    const checkbox = document.getElementById('settings-autoreject-enabled');
+    if (!checkbox) return;
+    
+    const chatId = currentChatId;
+    const settingsKey = `role_${chatId}_autoreject`;
+    let settings = JSON.parse(localStorage.getItem(settingsKey) || '{"enabled":false,"probability":10,"mood":70}');
+    
+    settings.enabled = checkbox.checked;
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+    
+    // 更新开关样式
+    const slider = checkbox.previousElementSibling;
+    if (slider) {
+        slider.style.backgroundColor = checkbox.checked ? '#4CAF50' : '#ccc';
+    }
+    
+    console.log('✅ 自主拉黑开关状态已保存:', checkbox.checked);
+}
+
+// 保存拒绝概率
+function saveRejectProbability() {
+    const slider = document.getElementById('settings-reject-probability');
+    if (!slider) return;
+    
+    const chatId = currentChatId;
+    const settingsKey = `role_${chatId}_autoreject`;
+    let settings = JSON.parse(localStorage.getItem(settingsKey) || '{"enabled":false,"probability":10,"mood":70}');
+    
+    settings.probability = parseInt(slider.value);
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+    
+    console.log('✅ 拒绝概率已保存:', slider.value);
+}
+
+// 更新拒绝概率显示
+function updateRejectProbabilityDisplay() {
+    const slider = document.getElementById('settings-reject-probability');
+    const display = document.getElementById('reject-probability-value');
+    if (slider && display) {
+        display.textContent = slider.value + '%';
+    }
+}
+
+// 更新心情显示
+function updateMoodDisplay() {
+    const moodBar = document.getElementById('mood-bar');
+    const moodEmoji = document.getElementById('mood-emoji');
+    if (!moodBar || !moodEmoji) return;
+    
+    moodBar.style.width = characterMood + '%';
+    
+    // 根据心情设置emoji
+    let emoji = '😊';
+    if (characterMood <= 20) emoji = '😢';
+    else if (characterMood <= 40) emoji = '😟';
+    else if (characterMood <= 60) emoji = '😐';
+    else if (characterMood <= 80) emoji = '😊';
+    else emoji = '😄';
+    
+    moodEmoji.textContent = emoji;
+}
+
+// 随机改变心情
+function randomMoodChange() {
+    const change = (Math.random() - 0.5) * 10; // -5 到 +5 之间的随机变化
+    characterMood = Math.max(0, Math.min(100, characterMood + change));
+    
+    // 保存心情
+    const chatId = currentChatId;
+    const settingsKey = `role_${chatId}_autoreject`;
+    let settings = JSON.parse(localStorage.getItem(settingsKey) || '{"enabled":false,"probability":10,"mood":70}');
+    settings.mood = characterMood;
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+    
+    updateMoodDisplay();
+}
+
+// 判断是否拒绝回复
+function shouldRejectMessage(message) {
+    const chatId = currentChatId;
+    const settingsKey = `role_${chatId}_autoreject`;
+    let settings = JSON.parse(localStorage.getItem(settingsKey) || '{"enabled":false,"probability":10,"mood":70}');
+    
+    if (!settings.enabled) return { reject: false };
+    
+    // 加载心情
+    characterMood = settings.mood;
+    
+    // 根据心情调整拒绝概率：心情越差，拒绝概率越高
+    let baseProbability = settings.probability;
+    let moodModifier = (100 - characterMood) / 100; // 心情越差，这个值越高
+    let finalProbability = baseProbability + (baseProbability * moodModifier);
+    
+    // 消息长度影响：越长的消息，越不容易被拒绝
+    let lengthModifier = Math.min(1, message.length / 20); // 超过20字的消息，长度影响减弱
+    finalProbability = finalProbability * (1 - lengthModifier * 0.3);
+    
+    // 随机决定
+    const random = Math.random() * 100;
+    
+    if (random < finalProbability) {
+        // 拒绝回复！随机选择一个拒绝消息
+        const rejectMsg = rejectMessages[Math.floor(Math.random() * rejectMessages.length)];
+        
+        // 拒绝后心情变得更差
+        characterMood = Math.max(0, characterMood - 5);
+        settings.mood = characterMood;
+        localStorage.setItem(settingsKey, JSON.stringify(settings));
+        updateMoodDisplay();
+        
+        return { reject: true, message: rejectMsg };
+    }
+    
+    // 不拒绝，心情稍微变好
+    characterMood = Math.min(100, characterMood + 2);
+    settings.mood = characterMood;
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+    updateMoodDisplay();
+    
+    return { reject: false };
+}
+
+// 显示自主拉黑的提示消息
+function showAutoRejectMessage(rejectMsg) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    
+    // 创建提示消息
+    const blockedMsg = document.createElement('div');
+    blockedMsg.className = 'message-bubble system-message';
+    blockedMsg.style.cssText = 'display: flex; justify-content: center; margin: 16px 0;';
+    blockedMsg.innerHTML = `
+        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 12px; padding: 12px 16px; max-width: 70%; text-align: center; animation: shake 0.5s ease-in-out;">
+            <div style="font-size: 16px;">${rejectMsg}</div>
+        </div>
+    `;
+    
+    container.appendChild(blockedMsg);
+    
+    // 滚动到底部
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 100);
+    
+    console.log('🚫 角色自主拒绝回复:', rejectMsg);
+}
+
+// 加载自主拉黑设置
+function loadAutoRejectSettings() {
+    const chatId = currentChatId;
+    const settingsKey = `role_${chatId}_autoreject`;
+    let settings = JSON.parse(localStorage.getItem(settingsKey) || '{"enabled":false,"probability":10,"mood":70}');
+    
+    // 更新开关状态
+    const enabledCheckbox = document.getElementById('settings-autoreject-enabled');
+    if (enabledCheckbox) {
+        enabledCheckbox.checked = settings.enabled;
+        const slider = enabledCheckbox.previousElementSibling;
+        if (slider) {
+            slider.style.backgroundColor = settings.enabled ? '#4CAF50' : '#ccc';
+        }
+    }
+    
+    // 更新拒绝概率滑块
+    const probabilitySlider = document.getElementById('settings-reject-probability');
+    const probabilityValue = document.getElementById('reject-probability-value');
+    if (probabilitySlider) {
+        probabilitySlider.value = settings.probability;
+        if (probabilityValue) {
+            probabilityValue.textContent = settings.probability + '%';
+        }
+    }
+    
+    // 加载心情
+    characterMood = settings.mood;
+    updateMoodDisplay();
+    
+    // 监听滑块变化
+    if (probabilitySlider) {
+        probabilitySlider.addEventListener('input', updateRejectProbabilityDisplay);
+        probabilitySlider.addEventListener('change', saveRejectProbability);
+    }
+}
+
+// 修改发送消息的拦截函数，添加自主拉黑检查
+const originalHandleSendWithBlacklist = window.handleSendWithBlacklist;
+window.handleSendWithBlacklist = function() {
+    const inputElement = document.querySelector('.chat-input textarea') || 
+                        document.querySelector('.input-area textarea') ||
+                        document.querySelector('#message-input') ||
+                        document.querySelector('textarea');
+    
+    if (!inputElement) {
+        if (typeof handleSendOrReply === 'function') {
+            handleSendOrReply();
+        }
+        return;
+    }
+    
+    const message = inputElement.value.trim();
+    
+    if (!message) {
+        if (typeof handleSendOrReply === 'function') {
+            handleSendOrReply();
+        }
+        return;
+    }
+    
+    // 1. 先检查关键词黑名单
+    const blacklistCheck = checkBlacklist(message);
+    if (blacklistCheck.blocked) {
+        showBlacklistBlockedMessage(blacklistCheck.keywords);
+        return;
+    }
+    
+    // 2. 再检查自主拉黑
+    const autoRejectCheck = shouldRejectMessage(message);
+    if (autoRejectCheck.reject) {
+        showAutoRejectMessage(autoRejectCheck.message);
+        return;
+    }
+    
+    // 通过检查，正常发送
+    if (typeof handleSendOrReply === 'function') {
+        handleSendOrReply();
+    }
+};
+
+// 在初始化时也加载自主拉黑设置
+const originalLoadBlacklistSettings = loadBlacklistSettings;
+loadBlacklistSettings = function() {
+    originalLoadBlacklistSettings();
+    loadAutoRejectSettings();
+};
+
+// 定时更新心情（每30秒）
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        randomMoodChange();
+    }
+}, 30000);
+
+// 添加抖动动画
+if (!document.getElementById('reject-shake-style')) {
+    const style = document.createElement('style');
+    style.id = 'reject-shake-style';
+    style.textContent = `
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+}

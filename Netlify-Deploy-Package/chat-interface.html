@@ -1306,31 +1306,79 @@
                     
                     <!-- 角色黑名单 -->
                     <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色黑名单关键词</label>
-                        <div style="font-size: 12px; color: #999; margin-bottom: 8px;">设置角色不想回复的关键词，当用户发送的消息包含这些词时，角色会拒绝回复</div>
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色自主拉黑</label>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">让角色根据自己的心情和设定自主决定是否回复</div>
                         
-                        <!-- 添加关键词输入框 -->
-                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                            <input type="text" id="settings-blacklist-keyword" placeholder="输入关键词" style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" onkeypress="if(event.key==='enter') addBlacklistKeyword()">
-                            <button onclick="addBlacklistKeyword()" style="padding: 8px 16px; background: #ff4d4f; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; white-space: nowrap;">添加</button>
-                        </div>
-                        
-                        <!-- 黑名单关键词列表 -->
-                        <div id="settings-blacklist-container" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; padding: 8px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px;">
-                            <div style="font-size: 12px; color: #999; width: 100%; text-align: center; padding: 8px;">暂无黑名单关键词</div>
-                        </div>
-                        
-                        <!-- 黑名单开关 -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px;">
+                        <!-- 自主拉黑开关 -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                             <div>
-                                <div style="font-size: 14px; color: #333; font-weight: 500;">启用黑名单</div>
-                                <div style="font-size: 12px; color: #999; margin-top: 2px;">开启后角色会拒绝包含黑名单关键词的消息</div>
+                                <div style="font-size: 14px; color: #333; font-weight: 500;">启用自主拉黑</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 2px;">角色会根据心情和设定自主拒绝回复</div>
                             </div>
                             <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
-                                <input type="checkbox" id="settings-blacklist-enabled" style="opacity: 0; width: 0; height: 0;" onchange="saveBlacklistEnabled()">
+                                <input type="checkbox" id="settings-autoreject-enabled" style="opacity: 0; width: 0; height: 0;" onchange="saveAutoRejectEnabled()">
                                 <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
                                 <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
                             </label>
+                        </div>
+                        
+                        <!-- 拒绝概率 -->
+                        <div style="margin-top: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #333;">拒绝概率</span>
+                                <span id="reject-probability-value" style="font-size: 14px; color: #666;">10%</span>
+                            </div>
+                            <input type="range" id="settings-reject-probability" min="0" max="50" value="10" style="width: 100%;" oninput="updateRejectProbabilityDisplay()">
+                            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                <span style="font-size: 12px; color: #999;">总是回复</span>
+                                <span style="font-size: 12px; color: #999;">偶尔拒绝</span>
+                                <span style="font-size: 12px; color: #999;">经常拒绝</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 心情显示 -->
+                        <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #333; font-weight: 500;">角色心情</span>
+                                <span id="mood-emoji" style="font-size: 24px;">😊</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div id="mood-bar" style="width: 70%; height: 100%; background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%); border-radius: 4px; transition: width 0.5s;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                <span style="font-size: 11px; color: #999;">心情不好</span>
+                                <span style="font-size: 11px; color: #999;">心情很好</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 分隔线 -->
+                        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e0e0e0;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">关键词黑名单</label>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 8px;">设置角色绝对不想回复的关键词</div>
+                            
+                            <!-- 添加关键词输入框 -->
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="text" id="settings-blacklist-keyword" placeholder="输入关键词" style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" onkeypress="if(event.key==='enter') addBlacklistKeyword()">
+                                <button onclick="addBlacklistKeyword()" style="padding: 8px 16px; background: #ff4d4f; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; white-space: nowrap;">添加</button>
+                            </div>
+                            
+                            <!-- 黑名单关键词列表 -->
+                            <div id="settings-blacklist-container" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; padding: 8px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px;">
+                                <div style="font-size: 12px; color: #999; width: 100%; text-align: center; padding: 8px;">暂无黑名单关键词</div>
+                            </div>
+                            
+                            <!-- 关键词黑名单开关 -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px;">
+                                <div>
+                                    <div style="font-size: 14px; color: #333; font-weight: 500;">启用关键词黑名单</div>
+                                    <div style="font-size: 12px; color: #999; margin-top: 2px;">开启后角色会拒绝包含黑名单关键词的消息</div>
+                                </div>
+                                <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                    <input type="checkbox" id="settings-blacklist-enabled" style="opacity: 0; width: 0; height: 0;" onchange="saveBlacklistEnabled()">
+                                    <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                                    <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2531,6 +2579,14 @@
             chatContainer.style.marginTop = '0';
             chatContainer.style.paddingTop = '0';
         }
+        
+        // 尝试加载黑名单设置和自主拉黑设置（延迟加载以确保DOM完全就绪）
+        setTimeout(() => {
+            if (typeof loadBlacklistSettings === 'function') {
+                loadBlacklistSettings();
+                console.log('[chat-interface] 黑名单设置已加载');
+            }
+        }, 2000);
     });
     </script>
 
