@@ -958,77 +958,6 @@
             background: rgba(0,0,0,0.2);
             transform: rotate(90deg);
         }
-        
-        /* 家具和宠物项目 */
-        .furniture-item {
-            background: #f9f9f9;
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .furniture-item:hover {
-            background: #fff;
-            border-color: var(--couple-pink);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(248, 204, 219, 0.3);
-        }
-        
-        .furniture-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 56px;
-        }
-        
-        .furniture-icon svg {
-            width: 48px;
-            height: 48px;
-            image-rendering: pixelated;
-        }
-        
-        .furniture-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .furniture-price {
-            font-size: 12px;
-            color: var(--couple-pink);
-            font-weight: 600;
-        }
-        
-        /* 房间中的家具/宠物 */
-        .room-furniture {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-            transition: transform 0.1s;
-        }
-        
-        .room-furniture:active {
-            transform: scale(1.1);
-        }
-        
-        .room-furniture-icon {
-            font-size: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .room-furniture-icon svg {
-            width: 64px;
-            height: 64px;
-            image-rendering: pixelated;
-        }
     </style>
 </head>
 <body>
@@ -1160,6 +1089,18 @@
                                 </svg>
                             </div>
                             <div class="feature-name">纪念日</div>
+                        </div>
+                        <div class="feature-item" onclick="showGiftSettings()">
+                            <div class="feature-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                                    <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                                    <rect x="2" y="7" width="20" height="5"></rect>
+                                    <line x1="12" y1="22" x2="12" y2="7"></line>
+                                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                </svg>
+                            </div>
+                            <div class="feature-name">节日礼物</div>
                         </div>
                         <div class="feature-item" onclick="breakCoupleRelation(currentCoupleId)" style="margin-top: 20px; border-top: 1px solid #DFE3E2; padding-top: 20px;">
                             <div class="feature-icon">
@@ -2086,6 +2027,163 @@
         </div>
     </div>
 
+    <!-- 节日礼物设置页面 -->
+    <div id="gift-settings-page" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FEFDF8; z-index: 2000; overflow-y: auto; padding-top: 56px;">
+        <!-- 顶部导航 -->
+        <div style="position: sticky; top: 0; background: rgba(254, 253, 248, 0.95); backdrop-filter: blur(10px); padding: 12px 16px; border-bottom: 1px solid #DFE3E2; display: flex; align-items: center; justify-content: space-between; z-index: 100;">
+            <button onclick="closeGiftSettings()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #9FA2A6; padding: 0 8px;">←</button>
+            <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #333;">节日礼物</div>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div style="padding: 20px; max-width: 600px; margin: 0 auto;">
+            <!-- 礼物说明卡片 -->
+            <div style="background: linear-gradient(135deg, #FFE8F0 0%, #FFF5F8 100%); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(248, 204, 219, 0.3); text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🎁</div>
+                <div style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 8px;">节日礼物提醒</div>
+                <div style="font-size: 14px; color: #666; line-height: 1.6;">设置重要的纪念日和节日，到那天角色会主动送你礼物贺卡哦！</div>
+            </div>
+            
+            <!-- 添加礼物提醒 -->
+            <div style="background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">添加礼物提醒</div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">节日名称</label>
+                    <select id="gift-occasion" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #DFE3E2;
+                        border-radius: 12px;
+                        font-size: 15px;
+                        outline: none;
+                        background: white;
+                        transition: border-color 0.3s;
+                    " onfocus="this.style.borderColor='#F8CCDB'" onblur="this.style.borderColor='#DFE3E2'">
+                        <option value="">请选择节日</option>
+                        <option value="生日">生日 🎂</option>
+                        <option value="恋爱纪念日">恋爱纪念日 💕</option>
+                        <option value="情人节">情人节 💝</option>
+                        <option value="520">520 💗</option>
+                        <option value="521">521 💕</option>
+                        <option value="跨年夜">跨年夜 🎆</option>
+                        <option value="元旦">元旦 🎉</option>
+                        <option value="除夕">除夕 🧧</option>
+                        <option value="春节">春节 🏮</option>
+                        <option value="元宵节">元宵节 🏮</option>
+                        <option value="妇女节">妇女节 🌹</option>
+                        <option value="劳动节">劳动节 🌻</option>
+                        <option value="儿童节">儿童节 🎈</option>
+                        <option value="七夕">七夕 🌹</option>
+                        <option value="中秋节">中秋节 🌕</option>
+                        <option value="国庆节">国庆节 🎊</option>
+                        <option value="圣诞节">圣诞节 🎄</option>
+                        <option value="平安夜">平安夜 🍎</option>
+                        <option value="100天纪念">100天纪念 💕</option>
+                        <option value="自定义">自定义...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">日期</label>
+                    <input type="date" id="gift-date" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #DFE3E2;
+                        border-radius: 12px;
+                        font-size: 15px;
+                        outline: none;
+                        transition: border-color 0.3s;
+                    " onfocus="this.style.borderColor='#F8CCDB'" onblur="this.style.borderColor='#DFE3E2'">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">备注（可选）</label>
+                    <input type="text" id="gift-note" placeholder="例如：在一起一周年" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #DFE3E2;
+                        border-radius: 12px;
+                        font-size: 15px;
+                        outline: none;
+                        transition: border-color 0.3s;
+                    " onfocus="this.style.borderColor='#F8CCDB'" onblur="this.style.borderColor='#DFE3E2'">
+                </div>
+                <button onclick="saveGiftReminder()" style="
+                    width: 100%;
+                    padding: 14px;
+                    background: #F8CCDB;
+                    border: none;
+                    color: white;
+                    border-radius: 12px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                ">添加提醒</button>
+            </div>
+            
+            <!-- 已设置的提醒 -->
+            <div style="background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">已设置的提醒</div>
+                <div id="gift-reminders-list">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 礼物盒弹窗 -->
+    <div id="gift-box-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #FFF8F0 0%, #FFF5F8 100%); border-radius: 24px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 48px rgba(248, 204, 219, 0.4);" onclick="event.stopPropagation()">
+            <div style="text-align: center; padding: 40px 30px 30px;">
+                <!-- 礼物盒图标 -->
+                <div id="gift-box-icon" style="font-size: 80px; margin-bottom: 24px; animation: giftBounce 0.6s ease-out;">
+                    🎁
+                </div>
+                
+                <!-- 节日标题 -->
+                <div id="gift-occasion-title" style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 8px;">
+                    节日礼物
+                </div>
+                
+                <!-- 副标题 -->
+                <div id="gift-subtitle" style="font-size: 16px; color: #666; margin-bottom: 24px;">
+                    来自TA的礼物
+                </div>
+                
+                <!-- 礼物内容卡片 -->
+                <div id="gift-content-card" style="background: white; border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                    <!-- 礼物图标 -->
+                    <div id="gift-icon" style="font-size: 64px; margin-bottom: 16px; text-align: center;">
+                        💝
+                    </div>
+                    
+                    <!-- 礼物名称 -->
+                    <div id="gift-name" style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 12px; text-align: center;">
+                        甜蜜礼物
+                    </div>
+                    
+                    <!-- 贺卡内容 -->
+                    <div id="gift-message" style="font-size: 15px; color: #666; line-height: 1.8; text-align: center; font-style: italic;">
+                        "愿你的每一天都充满阳光和笑声，永远幸福快乐！"
+                    </div>
+                </div>
+                
+                <!-- 关闭按钮 -->
+                <button onclick="closeGiftBox()" style="
+                    width: 100%;
+                    padding: 14px;
+                    background: #F8CCDB;
+                    border: none;
+                    color: white;
+                    border-radius: 12px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                ">收下礼物 💕</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 世界书页面 -->
     <div id="worldbook-page" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FEFDF8; z-index: 2000; overflow-y: auto;">
         <!-- 顶部导航 -->
@@ -2479,6 +2577,346 @@
                 daysEl.textContent = diffDays;
             }
         }
+        
+        // ========== 节日礼物功能 ==========
+        
+        // 礼物数据
+        const giftTemplates = {
+            '生日': {
+                icons: ['🎂', '🎁', '🎈', '🎉', '🥳', '🌟', '💝', '🦋'],
+                names: ['甜蜜蛋糕', '心愿礼物盒', '快乐气球束', '幸福香槟', '美好回忆', '璀璨星光', '永恒之爱', '自由蝴蝶'],
+                messages: [
+                    '"祝你生日快乐！愿每一岁都奔走在自己的热爱里。"',
+                    '"愿你的眼睛只看得到笑容，愿你流下的泪都是喜极而泣。"',
+                    '"新的一岁，希望你所有的美好都能如期而至。"',
+                    '"岁月漫长，然而值得等待，愿你永远温柔且坚定。"'
+                ]
+            },
+            '恋爱纪念日': {
+                icons: ['💕', '💖', '💗', '💝', '🌹', '💑', '🦋', '✨'],
+                names: ['永恒的爱', '心动时刻', '甜蜜时光', '爱的誓言', '幸福相依', '浪漫相守', '真情相伴', '甜蜜回忆'],
+                messages: [
+                    '"感谢遇见，感谢相爱，感谢每一个有你的日子。"',
+                    '"和你在一起的每一天，都是生命中最美的时光。"',
+                    '"愿我们的爱情如星辰般永恒，如玫瑰般绚烂。"',
+                    '"往后余生，风雪是你，平淡是你，目光所及都是你。"'
+                ]
+            },
+            '情人节': {
+                icons: ['💝', '💘', '💓', '🌹', '💕', '🎁', '✨', '🦋'],
+                names: ['浪漫之礼', '甜蜜心意', '爱意满满', '心动礼物', '真情告白', '浪漫惊喜', '甜蜜邂逅', '永恒承诺'],
+                messages: [
+                    '"遇见你是我最美的意外，爱上你是我最对的决定。"',
+                    '" Valentines Day，愿爱与你同行。"',
+                    '"这辈子最浪漫的事，就是和你一起慢慢变老。"',
+                    '"有你的日子，每天都是情人节。"'
+                ]
+            },
+            '520': {
+                icons: ['💗', '💕', '💖', '💘', '🌹', '💝', '✨', '🦋'],
+                names: ['我爱您', '甜蜜暴击', '心动信号', '浪漫满屋', '爱意传递', '真情告白', '幸福时光', '甜蜜相守'],
+                messages: [
+                    '"520，我爱你！这句话我想说一辈子。"',
+                    '"喜欢你这件事，我从没有犹豫过。"',
+                    '"在这个充满爱的日子里，我想说：遇见你，真好。"',
+                    '"520，愿我们的爱情永远像初恋一样甜蜜。"'
+                ]
+            },
+            '521': {
+                icons: ['💕', '💖', '💗', '💘', '🌹', '💝', '✨', '🦋'],
+                names: ['我爱你', '甜蜜守护', '真心相待', '浪漫相约', '爱在521', '真情永恒', '幸福相伴', '甜蜜相依'],
+                messages: [
+                    '"521，我爱你！每一天，每一年，都爱你。"',
+                    '"爱不需要理由，只需要你在我身边。"',
+                    '"521，想告诉你：遇见你，是我最大的幸运。"',
+                    '"愿我们的521，永远像今天一样甜蜜。"'
+                ]
+            },
+            'default': {
+                icons: ['🎁', '💝', '✨', '🌟', '🦋', '💕', '🎀', '🌸'],
+                names: ['精美礼物', '心意之礼', '幸福时光', '美好回忆', '甜蜜惊喜', '温暖关怀', '浪漫礼物', '真情相送'],
+                messages: [
+                    '"小小的礼物，大大的心意，愿你每一天都幸福。"',
+                    '"礼物虽轻，情意却重，愿你感受到我的心意。"',
+                    '"愿这份礼物能带给你一点点快乐，就像你带给我的一样。"',
+                    '"时光静好，与君语；细水流年，与君同。"'
+                ]
+            }
+        };
+        
+        // 显示礼物设置页面
+        window.showGiftSettings = function() {
+            if (!currentCoupleId) {
+                showToast('请先选择情侣空间');
+                return;
+            }
+            
+            const page = document.getElementById('gift-settings-page');
+            if (page) {
+                page.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                loadGiftReminders();
+                
+                // 通知父窗口更新顶栏标题为"节日礼物"
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'updateIframeTitle',
+                        title: '节日礼物'
+                    }, '*');
+                }
+            }
+        }
+        
+        // 关闭礼物设置页面
+        window.closeGiftSettings = function() {
+            const page = document.getElementById('gift-settings-page');
+            if (page) {
+                page.style.display = 'none';
+                document.body.style.overflow = '';
+                
+                // 通知父窗口恢复顶栏为"情侣空间"
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'updateIframeTitle',
+                        title: '情侣空间'
+                    }, '*');
+                }
+            }
+        }
+        
+        // 加载礼物提醒列表
+        function loadGiftReminders() {
+            const container = document.getElementById('gift-reminders-list');
+            if (!container) return;
+            
+            if (!currentCoupleId) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">请先选择情侣空间</div>';
+                return;
+            }
+            
+            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const currentCouple = couples.find(c => c.id === currentCoupleId);
+            
+            if (!currentCouple || !currentCouple.giftReminders || currentCouple.giftReminders.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">还没有设置礼物提醒，快来添加吧~</div>';
+                return;
+            }
+            
+            // 按日期排序
+            const sorted = [...currentCouple.giftReminders].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const now = new Date();
+            
+            container.innerHTML = sorted.map(item => {
+                const date = new Date(item.date);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const dateStr = `${year}年${month}月${day}日`;
+                
+                // 计算距离今天多少天
+                const diffTime = date - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const daysText = diffDays > 0 ? `还有 ${diffDays} 天` : (diffDays === 0 ? '今天' : `已过 ${Math.abs(diffDays)} 天`);
+                const daysColor = diffDays > 0 ? '#F8CCDB' : (diffDays === 0 ? '#4CAF50' : '#9FA2A6');
+                
+                return `
+                    <div style="
+                        padding: 16px;
+                        margin-bottom: 12px;
+                        background: ${diffDays === 0 ? 'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)' : '#f9f9f9'};
+                        border-radius: 12px;
+                        border: 2px solid ${diffDays === 0 ? '#4CAF50' : '#eee'};
+                        position: relative;
+                    ">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #333;">🎁 ${item.occasion}</div>
+                            <button onclick='event.stopPropagation(); deleteGiftReminder("${item.id}")' style="
+                                background: #ff4444;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                padding: 4px 10px;
+                                font-size: 12px;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                            ">删除</button>
+                        </div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">${dateStr}</div>
+                        ${item.note ? `<div style="font-size: 13px; color: #999; margin-bottom: 8px;">${item.note}</div>` : ''}
+                        <div style="font-size: 13px; color: ${daysColor}; font-weight: 600;">${daysText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 保存礼物提醒
+        window.saveGiftReminder = function() {
+            const occasionSelect = document.getElementById('gift-occasion');
+            const dateInput = document.getElementById('gift-date');
+            const noteInput = document.getElementById('gift-note');
+            
+            const occasion = occasionSelect.value;
+            const date = dateInput.value;
+            const note = noteInput.value.trim();
+            
+            if (!occasion) {
+                showToast('请选择节日名称');
+                return;
+            }
+            
+            if (!date) {
+                showToast('请选择日期');
+                return;
+            }
+            
+            if (!currentCoupleId) {
+                showToast('请先选择情侣空间');
+                return;
+            }
+            
+            // 保存到 localStorage
+            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const index = couples.findIndex(c => c.id === currentCoupleId);
+            
+            if (index >= 0) {
+                // 初始化 giftReminders 数组
+                if (!couples[index].giftReminders) {
+                    couples[index].giftReminders = [];
+                }
+                
+                // 添加新的礼物提醒
+                const newReminder = {
+                    id: Date.now().toString(),
+                    occasion: occasion,
+                    date: date,
+                    note: note,
+                    createdAt: Date.now(),
+                    sent: false  // 是否已发送过
+                };
+                
+                couples[index].giftReminders.push(newReminder);
+                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                
+                // 清空输入框
+                occasionSelect.value = '';
+                dateInput.value = '';
+                noteInput.value = '';
+                
+                // 更新显示
+                loadGiftReminders();
+                
+                showToast('✅ 礼物提醒已添加');
+            }
+        }
+        
+        // 删除礼物提醒
+        window.deleteGiftReminder = function(reminderId) {
+            if (!currentCoupleId) {
+                showToast('请先选择情侣空间');
+                return;
+            }
+            
+            if (!confirm('确定要删除这个礼物提醒吗？')) {
+                return;
+            }
+            
+            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const index = couples.findIndex(c => c.id === currentCoupleId);
+            
+            if (index >= 0 && couples[index].giftReminders) {
+                couples[index].giftReminders = couples[index].giftReminders.filter(r => r.id !== reminderId);
+                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                
+                loadGiftReminders();
+                showToast('✅ 礼物提醒已删除');
+            }
+        }
+        
+        // 检查今天的礼物并显示
+        function checkAndShowGiftOfTheDay() {
+            if (!currentCoupleId) return;
+            
+            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const currentCouple = couples.find(c => c.id === currentCoupleId);
+            
+            if (!currentCouple || !currentCouple.giftReminders) return;
+            
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            // 查找今天是否有礼物提醒
+            const todayGifts = currentCouple.giftReminders.filter(gift => {
+                return gift.date === todayStr && !gift.sent;
+            });
+            
+            if (todayGifts.length > 0) {
+                // 显示第一个未发送的礼物
+                showGiftBox(todayGifts[0]);
+                
+                // 标记为已发送
+                const index = couples.findIndex(c => c.id === currentCoupleId);
+                const giftIndex = couples[index].giftReminders.findIndex(g => g.id === todayGifts[0].id);
+                if (giftIndex >= 0) {
+                    couples[index].giftReminders[giftIndex].sent = true;
+                    couples[index].giftReminders[giftIndex].sentAt = Date.now();
+                    localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                }
+            }
+        }
+        
+        // 显示礼物盒
+        window.showGiftBox = function(giftReminder) {
+            const modal = document.getElementById('gift-box-modal');
+            if (!modal) return;
+            
+            // 生成随机礼物
+            const template = giftTemplates[giftReminder.occasion] || giftTemplates['default'];
+            const randomIcon = template.icons[Math.floor(Math.random() * template.icons.length)];
+            const randomName = template.names[Math.floor(Math.random() * template.names.length)];
+            const randomMessage = template.messages[Math.floor(Math.random() * template.messages.length)];
+            
+            // 更新礼物内容
+            const iconEl = document.getElementById('gift-icon');
+            const nameEl = document.getElementById('gift-name');
+            const messageEl = document.getElementById('gift-message');
+            const titleEl = document.getElementById('gift-occasion-title');
+            const subtitleEl = document.getElementById('gift-subtitle');
+            
+            if (iconEl) iconEl.textContent = randomIcon;
+            if (nameEl) nameEl.textContent = randomName;
+            if (messageEl) messageEl.textContent = randomMessage;
+            if (titleEl) titleEl.textContent = `${giftReminder.occasion}礼物`;
+            if (subtitleEl) subtitleEl.textContent = giftReminder.note || '来自TA的礼物';
+            
+            // 显示弹窗
+            modal.style.display = 'flex';
+            
+            // 播放动画效果
+            setTimeout(() => {
+                const iconEl = document.getElementById('gift-box-icon');
+                if (iconEl) {
+                    iconEl.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        iconEl.style.transform = 'scale(1)';
+                    }, 200);
+                }
+            }, 100);
+        }
+        
+        // 关闭礼物盒
+        window.closeGiftBox = function() {
+            const modal = document.getElementById('gift-box-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 页面加载时检查今天的礼物
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                checkAndShowGiftOfTheDay();
+            }, 2000); // 延迟2秒检查，确保数据已加载
+        });
         
         // ========== 其他功能 ==========
         // 调用 AI API 的通用函数
