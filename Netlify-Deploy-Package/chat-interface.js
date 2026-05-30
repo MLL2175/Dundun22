@@ -1,5 +1,5 @@
 // 聊天数据
-console.log('chat-interface.js v194 已加载 (节日礼物系统+个性化+动画)');
+console.log('chat-interface.js v195 已加载 (节日礼物系统+个性化+动画+纯色背景)');
 let currentChatId = null;
 let chatMessages = [];
 let apiConfig = null;
@@ -9618,7 +9618,7 @@ function _doRenderMessages() {
             
             messageContent = `
                 <div style="cursor: pointer; transition: transform 0.15s ease; -webkit-tap-highlight-color: transparent;" ontouchend="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.97)'">
-                    <div style="background: linear-gradient(135deg, #FFE8F0 0%, #FFF5F8 100%); border-radius: 16px; padding: 20px; min-width: 260px; max-width: 300px; box-shadow: 0 4px 16px rgba(248, 204, 219, 0.3);">
+                    <div style="background: #FFE8F0; border-radius: 16px; padding: 20px; min-width: 260px; max-width: 300px; box-shadow: 0 4px 16px rgba(248, 204, 219, 0.3);">
                         <!-- 礼物图标 -->
                         <div style="text-align: center; margin-bottom: 14px;">
                             <div style="font-size: 72px; display: inline-block; animation: giftBounce 0.6s ease-out, giftSparkle 2s ease-in-out infinite;">${gift.giftIcon || '🎁'}</div>
