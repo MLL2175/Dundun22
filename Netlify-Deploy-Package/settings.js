@@ -1533,3 +1533,258 @@ window.toggleBannerNotification = async function() {
         if (window.showToast) showToast('横幅通知已关闭', 'success');
     }
 };
+
+// ========== 语言切换 ==========
+
+const LANGUAGES = {
+    'zh-CN': {
+        name: '简体中文',
+        settings: '设置',
+        language: '界面语言',
+        languageDesc: '选择应用界面的显示语言',
+        apiPreset: 'API预设管理',
+        coreApi: '核心API配置',
+        ttsConfig: '语音合成 (TTS) 配置',
+        imageConfig: 'AI生图配置',
+        advancedApi: '高级API设置',
+        notification: '消息与通知设置',
+        desktop: '桌面设置',
+        font: '字体设置',
+        beautify: '全局美化',
+        scheme: '方案管理',
+        shop: '商城',
+        save: '保存',
+        cancel: '取消',
+        delete: '删除',
+        close: '关闭',
+        confirm: '确认',
+        search: '搜索',
+        loading: '加载中...',
+        noData: '暂无数据',
+        success: '操作成功',
+        error: '操作失败',
+        chat: '聊天',
+        send: '发送',
+        inputPlaceholder: '输入消息...',
+        voiceCall: '语音通话',
+        videoCall: '视频通话',
+        gift: '礼物',
+        holiday: '节日',
+        birthday: '生日',
+        anniversary: '纪念日',
+    },
+    'zh-TW': {
+        name: '繁體中文',
+        settings: '設定',
+        language: '介面語言',
+        languageDesc: '選擇應用介面的顯示語言',
+        apiPreset: 'API預設管理',
+        coreApi: '核心API配置',
+        ttsConfig: '語音合成 (TTS) 配置',
+        imageConfig: 'AI生圖配置',
+        advancedApi: '進階API設定',
+        notification: '訊息與通知設定',
+        desktop: '桌面設定',
+        font: '字型設定',
+        beautify: '全局美化',
+        scheme: '方案管理',
+        shop: '商城',
+        save: '儲存',
+        cancel: '取消',
+        delete: '刪除',
+        close: '關閉',
+        confirm: '確認',
+        search: '搜尋',
+        loading: '載入中...',
+        noData: '暫無資料',
+        success: '操作成功',
+        error: '操作失敗',
+        chat: '聊天',
+        send: '傳送',
+        inputPlaceholder: '輸入訊息...',
+        voiceCall: '語音通話',
+        videoCall: '視訊通話',
+        gift: '禮物',
+        holiday: '節日',
+        birthday: '生日',
+        anniversary: '紀念日',
+    },
+    'en': {
+        name: 'English',
+        settings: 'Settings',
+        language: 'Language',
+        languageDesc: 'Select the display language',
+        apiPreset: 'API Presets',
+        coreApi: 'Core API Config',
+        ttsConfig: 'TTS Config',
+        imageConfig: 'AI Image Config',
+        advancedApi: 'Advanced API',
+        notification: 'Notifications',
+        desktop: 'Desktop',
+        font: 'Font Settings',
+        beautify: 'Custom CSS',
+        scheme: 'Theme Manager',
+        shop: 'Shop',
+        save: 'Save',
+        cancel: 'Cancel',
+        delete: 'Delete',
+        close: 'Close',
+        confirm: 'Confirm',
+        search: 'Search',
+        loading: 'Loading...',
+        noData: 'No data',
+        success: 'Success',
+        error: 'Error',
+        chat: 'Chat',
+        send: 'Send',
+        inputPlaceholder: 'Type a message...',
+        voiceCall: 'Voice Call',
+        videoCall: 'Video Call',
+        gift: 'Gift',
+        holiday: 'Holiday',
+        birthday: 'Birthday',
+        anniversary: 'Anniversary',
+    },
+    'ja': {
+        name: '日本語',
+        settings: '設定',
+        language: '言語',
+        languageDesc: '表示言語を選択',
+        apiPreset: 'APIプリセット',
+        coreApi: 'API設定',
+        ttsConfig: '音声合成設定',
+        imageConfig: '画像生成設定',
+        advancedApi: '詳細API設定',
+        notification: '通知設定',
+        desktop: 'デスクトップ',
+        font: 'フォント設定',
+        beautify: 'カスタムCSS',
+        scheme: 'テーマ管理',
+        shop: 'ショップ',
+        save: '保存',
+        cancel: 'キャンセル',
+        delete: '削除',
+        close: '閉じる',
+        confirm: '確認',
+        search: '検索',
+        loading: '読み込み中...',
+        noData: 'データなし',
+        success: '成功',
+        error: 'エラー',
+        chat: 'チャット',
+        send: '送信',
+        inputPlaceholder: 'メッセージを入力...',
+        voiceCall: '音声通話',
+        videoCall: 'ビデオ通話',
+        gift: 'ギフト',
+        holiday: '祝日',
+        birthday: '誕生日',
+        anniversary: '記念日',
+    },
+    'ko': {
+        name: '한국어',
+        settings: '설정',
+        language: '언어',
+        languageDesc: '표시 언어 선택',
+        apiPreset: 'API 프리셋',
+        coreApi: 'API 설정',
+        ttsConfig: '음성 합성 설정',
+        imageConfig: '이미지 생성 설정',
+        advancedApi: '고급 API 설정',
+        notification: '알림 설정',
+        desktop: '데스크톱',
+        font: '글꼴 설정',
+        beautify: '커스텀 CSS',
+        scheme: '테마 관리',
+        shop: '상점',
+        save: '저장',
+        cancel: '취소',
+        delete: '삭제',
+        close: '닫기',
+        confirm: '확인',
+        search: '검색',
+        loading: '로딩 중...',
+        noData: '데이터 없음',
+        success: '성공',
+        error: '오류',
+        chat: '채팅',
+        send: '보내기',
+        inputPlaceholder: '메시지 입력...',
+        voiceCall: '음성 통화',
+        videoCall: '영상 통화',
+        gift: '선물',
+        holiday: '공휴일',
+        birthday: '생일',
+        anniversary: '기념일',
+    }
+};
+
+// 获取当前语言
+function getCurrentLanguage() {
+    return localStorage.getItem('app-language') || 'zh-CN';
+}
+
+// 获取翻译文本
+function t(key) {
+    const lang = getCurrentLanguage();
+    return LANGUAGES[lang]?.[key] || LANGUAGES['zh-CN']?.[key] || key;
+}
+
+// 应用语言到界面
+function applyLanguage(lang) {
+    localStorage.setItem('app-language', lang);
+    document.documentElement.lang = lang;
+
+    // 更新设置页面标题
+    const titleEl = document.querySelector('.app-page-title');
+    if (titleEl) titleEl.textContent = t('settings');
+
+    // 更新 section-title
+    const sectionTitles = document.querySelectorAll('.section-title');
+    const titleMap = {
+        '显示语言': 'language',
+        'API预设管理': 'apiPreset',
+        '核心API配置': 'coreApi',
+        '语音合成 (TTS) 配置': 'ttsConfig',
+        'AI生图配置': 'imageConfig',
+        '高级API设置': 'advancedApi',
+        '消息与通知设置': 'notification',
+        '桌面设置': 'desktop',
+        '字体设置': 'font',
+        '全局美化': 'beautify',
+        '方案管理': 'scheme',
+    };
+    sectionTitles.forEach(el => {
+        const text = el.textContent.trim();
+        if (titleMap[text]) {
+            el.textContent = t(titleMap[text]);
+        }
+    });
+
+    // 更新语言选择器标签
+    const langLabel = document.querySelector('#app-language')?.closest('.settings-item')?.querySelector('.item-label');
+    if (langLabel) langLabel.textContent = t('language');
+    const langDesc = document.querySelector('#app-language')?.closest('.settings-item')?.querySelector('.item-desc');
+    if (langDesc) langDesc.textContent = t('languageDesc');
+
+    // 通知其他页面语言已更改
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));
+}
+
+// 初始化语言选择器
+document.addEventListener('DOMContentLoaded', function() {
+    const langSelect = document.getElementById('app-language');
+    if (langSelect) {
+        langSelect.value = getCurrentLanguage();
+        langSelect.addEventListener('change', function() {
+            applyLanguage(this.value);
+            if (window.showToast) showToast(t('success'), 'success');
+        });
+        applyLanguage(langSelect.value);
+    }
+});
+
+// 导出全局函数
+window.getCurrentLanguage = getCurrentLanguage;
+window.t = t;
+window.applyLanguage = applyLanguage;

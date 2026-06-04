@@ -493,6 +493,24 @@
       </div>
       <div class="app-page-content">
         <div class="settings-container">
+    <!-- 显示语言 -->
+    <div>
+        <div class="section-title">显示语言</div>
+        <div class="settings-section">
+            <div class="settings-item">
+                <label class="item-label">界面语言</label>
+                <span class="item-desc">选择应用界面的显示语言</span>
+                <select id="app-language" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 15px; background: #f5f5f7; color: var(--text-primary); outline: none; margin-top: 8px; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23999%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;">
+                    <option value="zh-CN">简体中文</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- 新增：API预设分组管理 -->
     <div>
         <div class="section-title">API预设管理</div>
@@ -973,7 +991,7 @@
   </div>
 
   <!-- 固定引入顺序 -->
-  <script src="settings.js?v=2"></script>
+  <script src="settings.js?v=3"></script>
   <script src="beautify.js?v=7"></script>
   <script src="worldbook.js"></script>
   
