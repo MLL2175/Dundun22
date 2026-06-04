@@ -1531,7 +1531,6 @@ async function settingsKeepAliveRequest(endpoint, method = 'GET', body = null) {
 window.syncToKeepAlive = async function() {
     const status = await settingsKeepAliveRequest('/status');
     if (!status) {
-        if (window.showToast) showToast('无法连接保活服务', 'error');
         return;
     }
 
@@ -1671,19 +1670,14 @@ window.toggleKeepAlive = async function() {
         });
 
         if (result && result.success) {
-            if (window.showToast) showToast('后台保活已启动', 'success');
             await window.syncToKeepAlive();
         } else {
-            if (window.showToast) showToast('启动保活服务失败', 'error');
             if (keepSwitch) keepSwitch.classList.remove('active');
             const keepaliveSection = document.getElementById('keepalive-detail-section');
             if (keepaliveSection) keepaliveSection.style.display = 'none';
         }
     } else {
         const result = await settingsKeepAliveRequest('/stop', 'POST');
-        if (result && result.success) {
-            if (window.showToast) showToast('后台保活已停止', 'success');
-        }
     }
 };
 

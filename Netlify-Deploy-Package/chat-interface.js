@@ -1283,12 +1283,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     
     setTimeout(() => {
-        if (typeof checkKeepAliveStatusSilent === 'function') {
-            checkKeepAliveStatusSilent();
-        }
-        if (typeof pullKeepAliveMessages === 'function') {
-            pullKeepAliveMessages();
-        }
         if (typeof loadNotificationSetting === 'function') {
             loadNotificationSetting();
         }
@@ -20586,20 +20580,15 @@ async function toggleKeepAlive() {
         });
 
         if (result && result.success) {
-            if (window.showToast) showToast('后台保活已启动', 'success');
             updateKeepAliveUI(true);
             await syncToKeepAlive();
             if (typeof startNotificationPoll === 'function') startNotificationPoll();
         } else {
-            if (window.showToast) showToast('启动保活服务失败', 'error');
             checkbox.checked = false;
             updateKeepAliveUI(false);
         }
     } else {
         const result = await keepAliveRequest('/stop', 'POST');
-        if (result && result.success) {
-            if (window.showToast) showToast('后台保活已停止', 'success');
-        }
         if (typeof stopNotificationPoll === 'function') stopNotificationPoll();
         updateKeepAliveUI(false);
     }
@@ -20608,7 +20597,6 @@ async function toggleKeepAlive() {
 async function syncToKeepAlive() {
     const status = await keepAliveRequest('/status');
     if (!status) {
-        if (window.showToast) showToast('无法连接保活服务', 'error');
         return;
     }
 
@@ -20765,7 +20753,6 @@ async function pullKeepAliveMessages() {
     }
 
     if (newMsgCount > 0) {
-        if (window.showToast) showToast(`从保活服务拉取了 ${newMsgCount} 条新消息`, 'success');
         if (typeof loadChatData === 'function') await loadChatData();
         if (typeof renderMessages === 'function') renderMessages();
     }
