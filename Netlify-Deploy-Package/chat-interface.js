@@ -1283,8 +1283,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     
     setTimeout(() => {
-        if (typeof checkKeepAliveStatus === 'function') {
-            checkKeepAliveStatus();
+        if (typeof checkKeepAliveStatusSilent === 'function') {
+            checkKeepAliveStatusSilent();
         }
         if (typeof pullKeepAliveMessages === 'function') {
             pullKeepAliveMessages();
@@ -20716,6 +20716,15 @@ function updateKeepAliveUI(running) {
         statusText.textContent = running ? '运行中' : '已停止';
         statusText.style.color = running ? '#52c41a' : '#999';
     }
+}
+
+async function checkKeepAliveStatusSilent() {
+    const status = await keepAliveRequest('/status');
+    if (!status) {
+        return;
+    }
+    const checkbox = document.getElementById('settings-keepalive-enabled');
+    if (checkbox) checkbox.checked = status.enabled;
 }
 
 async function pullKeepAliveMessages() {
