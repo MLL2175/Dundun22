@@ -20680,7 +20680,6 @@ async function checkKeepAliveStatus() {
         if (statsEl) statsEl.style.display = 'none';
         const checkbox = document.getElementById('settings-keepalive-enabled');
         if (checkbox) checkbox.checked = false;
-        if (window.showToast) showToast('保活服务未运行，请先执行: node keepalive-worker.js', 'error');
         return;
     }
 

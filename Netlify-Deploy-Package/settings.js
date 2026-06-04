@@ -1597,7 +1597,6 @@ window.checkKeepAliveStatus = async function() {
         }
         if (statusDot) statusDot.style.background = '#ff4d4f';
         if (statsEl) statsEl.style.display = 'none';
-        if (window.showToast) showToast('保活服务未运行，请先执行: node keepalive-worker.js', 'error');
         return;
     }
 
