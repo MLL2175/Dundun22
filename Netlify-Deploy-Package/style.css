@@ -94,9 +94,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0;
-    overflow-y: hidden;  /* 移除滚动条 */
-    overscroll-behavior: contain;  /* 阻止滚动传播 */
-    transform: translateY(-40px);  /* 整个页面上移 */
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 /* 页面指示器 */
@@ -306,28 +305,26 @@ body {
 
 /* 时间天气组件 - 新样式 */
 #time-weather-widget {
-    grid-column: 1 / 5 !important;  /* 横跨4列 */
+    grid-column: 1 / 5 !important;
     grid-row: 1 !important;
     display: flex;
-    flex-direction: row;  /* 横向布局 */
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 12px 0 !important;
     border-radius: 24px;
     background: transparent !important;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: none !important;  /* 去掉外框线 */
+    border: none !important;
     box-shadow: none !important;
-    height: 380px;
-    width: auto !important;
-    min-width: auto !important;
-    margin-top: 0px;  /* 时间组件不移动 */
+    height: auto;
+    width: 100% !important;
+    margin-top: 0px;
     max-width: none !important;
     box-sizing: border-box !important;
     position: relative;
     overflow: visible;
-    align-self: stretch !important;  /* 强制撑满 grid 列 */
 }
 
 .time-left-new {
@@ -420,12 +417,12 @@ body {
 }
 
 .time-display-large {
-    font-size: 64px;
+    font-size: 56px;
     font-weight: 600;
     color: #555;
     letter-spacing: 2px;
     line-height: 1;
-    margin-top: -60px;
+    margin-top: 10px;
 }
 
 .time-right-section {
@@ -1829,6 +1826,59 @@ body {
     #phone-container {
         max-width: 100%;
         max-height: 100vh;
+    }
+    
+    .time-display-large {
+        font-size: 48px !important;
+    }
+    
+    #time-weather-widget {
+        padding: 8px 0 !important;
+    }
+    
+    #app-grid, .app-grid {
+        grid-auto-rows: 70px;
+    }
+    
+    .app-icon-box {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .app-name {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 320px) {
+    .time-display-large {
+        font-size: 40px !important;
+    }
+    
+    #app-grid, .app-grid {
+        grid-auto-rows: 60px;
+        gap: 2px 2px;
+    }
+    
+    .app-icon-box {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .app-icon-box svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (max-height: 667px) {
+    #home-screen {
+        padding-bottom: 80px;
+    }
+    
+    #dock {
+        height: 80px;
+        bottom: 10px;
     }
 }
 /* API预设列表样式 */
