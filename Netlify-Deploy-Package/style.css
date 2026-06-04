@@ -21,6 +21,14 @@
     user-select: none;
 }
 
+/* 响应式基础变量 */
+:root {
+    --base-font-size: 16px;
+    --header-height: 44px;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--bg-primary);
@@ -1547,6 +1555,221 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+}
+
+/* ========== 响应式设计 ========== */
+
+/* 小屏幕手机 (320px - 374px) - iPhone SE等 */
+@media only screen and (max-width: 374px) {
+    :root {
+        --base-font-size: 14px;
+        --header-height: 40px;
+    }
+    
+    body {
+        font-size: 14px;
+    }
+    
+    #status-bar {
+        height: 40px;
+        padding: 0 12px;
+    }
+    
+    .status-time {
+        font-size: 13px;
+    }
+    
+    #home-screen {
+        padding: 50px 0 90px;
+    }
+    
+    .desktop-page {
+        padding: 0 12px;
+    }
+    
+    .app-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+    
+    .app-name {
+        font-size: 11px;
+    }
+    
+    .app-page-header {
+        height: calc(40px + env(safe-area-inset-top));
+        font-size: 15px;
+        padding: 0 8px;
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .app-page-content {
+        padding-top: calc(40px + env(safe-area-inset-top));
+    }
+}
+
+/* 中等屏幕手机 (375px - 413px) - iPhone 6/7/8/X/11等 */
+@media only screen and (min-width: 375px) and (max-width: 413px) {
+    :root {
+        --base-font-size: 15px;
+        --header-height: 44px;
+    }
+    
+    body {
+        font-size: 15px;
+    }
+    
+    #status-bar {
+        height: 44px;
+        padding: 0 16px;
+    }
+    
+    .status-time {
+        font-size: 14px;
+    }
+    
+    .app-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 30px;
+    }
+    
+    .app-name {
+        font-size: 12px;
+    }
+}
+
+/* 大屏幕手机 (414px - 480px) - iPhone Plus/Max系列 */
+@media only screen and (min-width: 414px) and (max-width: 480px) {
+    :root {
+        --base-font-size: 16px;
+        --header-height: 48px;
+    }
+    
+    body {
+        font-size: 16px;
+    }
+    
+    #status-bar {
+        height: 48px;
+        padding: 0 20px;
+    }
+    
+    .status-time {
+        font-size: 16px;
+    }
+    
+    .app-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 34px;
+    }
+    
+    .app-name {
+        font-size: 13px;
+    }
+    
+    .app-page-header {
+        height: calc(48px + env(safe-area-inset-top));
+        font-size: 17px;
+    }
+    
+    .app-page-content {
+        padding-top: calc(48px + env(safe-area-inset-top));
+    }
+}
+
+/* 平板及更大屏幕 (481px+) */
+@media only screen and (min-width: 481px) {
+    :root {
+        --base-font-size: 17px;
+        --header-height: 52px;
+    }
+    
+    body {
+        font-size: 17px;
+    }
+    
+    #phone-container {
+        max-width: 480px;
+        margin: 0 auto;
+        box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        border-radius: 40px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    #status-bar {
+        height: 52px;
+        padding: 0 24px;
+    }
+    
+    .status-time {
+        font-size: 17px;
+    }
+    
+    .app-icon {
+        width: 76px;
+        height: 76px;
+        font-size: 38px;
+    }
+    
+    .app-name {
+        font-size: 14px;
+    }
+    
+    .app-page-header {
+        height: calc(52px + env(safe-area-inset-top));
+        font-size: 18px;
+    }
+    
+    .app-page-content {
+        padding-top: calc(52px + env(safe-area-inset-top));
+    }
+}
+
+/* 高屏幕手机 (长屏幕) */
+@media only screen and (min-height: 800px) {
+    .app-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 36px;
+    }
+}
+
+/* 短屏幕手机 */
+@media only screen and (max-height: 667px) {
+    .app-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 26px;
+    }
+    
+    .app-name {
+        font-size: 10px;
+    }
+    
+    #home-screen {
+        padding: 50px 0 85px;
+    }
+}
+
+/* 横屏模式 */
+@media screen and (orientation: landscape) {
+    #phone-container {
+        max-width: 600px;
+    }
+    
+    .app-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .app-name {
+        font-size: 10px;
+    }
 }
 
 /* 编辑模式工具栏 */
