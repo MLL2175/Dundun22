@@ -1168,8 +1168,6 @@ window.showToast = function(msg, type = 'success') {
 
 // 初始化
 window.addEventListener('DOMContentLoaded', async () => {
-    console.log('聊天界面已加载');
-    
     // 初始化token显示栏（动态创建，解决缓存问题）
     initTokenCountBar();
     
@@ -1179,7 +1177,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const filteredContacts = contacts.filter(c => c.id !== 'test_role_001');
     if (filteredContacts.length !== contacts.length) {
         localStorage.setItem(contactsKey, JSON.stringify(filteredContacts));
-        console.log('️ 已删除自动回复测试角色');
     }
     
     // 🛡️ 请求通知权限
@@ -1188,10 +1185,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 初始化 IndexedDB
     try {
         await window.ChatDB.init();
-        console.log('✓ IndexedDB 初始化完成');
     } catch (e) {
-        console.warn('⚠️ IndexedDB 初始化失败，将使用 localStorage:', e);
+        // 静默降级到 localStorage
     }
+    
+    // 初始化输入框事件
+    initInputKeyboardEvents();
     
     await loadChatData();
     renderMessages();
@@ -2994,7 +2993,7 @@ function requestNotificationPermission() {
 }
 
 // 监听输入框键盘事件
-document.addEventListener('DOMContentLoaded', () => {
+function initInputKeyboardEvents() {
     const input = document.getElementById('chat-input');
     if (input) {
         input.addEventListener('keydown', (event) => {
@@ -3019,7 +3018,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sendBtn.title = '发送';
         }
     }
-});
+}
 
 // 处理键盘事件
 window.handleInputKeydown = function(event) {
