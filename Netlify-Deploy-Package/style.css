@@ -1262,8 +1262,7 @@ body {
     align-items: center;
     padding: 0 16px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    margin-top: 44px;
-    /* 背景色完全由全局美化 CSS 控制，不设置默认值 */
+    margin-top: 60px;
     flex-shrink: 0;
     position: relative;
 }
@@ -1401,7 +1400,7 @@ body {
     align-items: center;
     padding: 0 4px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    margin-top: 44px;
+    margin-top: 60px;
     background-color: var(--bg-primary);
 }
 
