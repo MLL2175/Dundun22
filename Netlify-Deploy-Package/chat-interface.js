@@ -11165,11 +11165,15 @@ window.showMessageMenu = function(event, msgId, type) {
         position: fixed;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        padding: 8px 0;
+        padding: 8px;
         z-index: 9999;
-        min-width: 120px;
+        min-width: 360px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
     `;
     
     // 菜单位置
@@ -11177,25 +11181,25 @@ window.showMessageMenu = function(event, msgId, type) {
     const isSent = type === 'sent';
     
     let top = rect.top - 10;
-    let left = isSent ? rect.left - 130 : rect.right + 10;
+    let left = isSent ? rect.left - 370 : rect.right + 10;
     
     // 确保不超出屏幕
     if (left < 10) left = 10;
-    if (left + 130 > window.innerWidth) left = window.innerWidth - 140;
-    if (top + 200 > window.innerHeight) top = window.innerHeight - 210;
+    if (left + 370 > window.innerWidth) left = window.innerWidth - 380;
+    if (top + 140 > window.innerHeight) top = window.innerHeight - 150;
     
     menu.style.top = top + 'px';
     menu.style.left = left + 'px';
     
     menu.innerHTML = `
-        <div onclick="patMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">拍一拍</div>
-        <div onclick="quoteMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">引用</div>
-        <div onclick="editMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">编辑</div>
-        <div onclick="translateSingleMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">设置翻译</div>
-        <div onclick="collectMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">收藏</div>
-        <div onclick="recallMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">撤回</div>
-        <div onclick="multiSelectMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #333; font-size: 14px; border-bottom: 1px solid #f0f0f0;">多选</div>
-        <div onclick="deleteMessage('${msgId}')" style="padding: 12px 16px; cursor: pointer; color: #ff4444; font-size: 14px;">删除</div>
+        <div onclick="patMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">拍一拍</div>
+        <div onclick="quoteMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">引用</div>
+        <div onclick="editMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">编辑</div>
+        <div onclick="translateSingleMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">设置翻译</div>
+        <div onclick="collectMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">收藏</div>
+        <div onclick="recallMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">撤回</div>
+        <div onclick="multiSelectMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #333; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">多选</div>
+        <div onclick="deleteMessage('${msgId}')" style="padding: 10px 12px; cursor: pointer; color: #ff4444; font-size: 13px; text-align: center; border-radius: 6px; transition: background 0.2s; flex: 1 1 auto; min-width: 70px;" onmouseover="this.style.background='#fff0f0'" onmouseout="this.style.background='transparent'">删除</div>
     `;
     
     document.body.appendChild(menu);
