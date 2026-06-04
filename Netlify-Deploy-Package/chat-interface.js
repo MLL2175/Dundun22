@@ -20554,7 +20554,6 @@ async function toggleKeepAlive() {
     if (enabled) {
         const status = await keepAliveRequest('/status');
         if (!status) {
-            if (window.showToast) showToast('无法连接保活服务，请先运行 node keepalive-worker.js', 'error');
             checkbox.checked = false;
             updateKeepAliveUI(false);
             return;

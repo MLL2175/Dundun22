@@ -1633,7 +1633,6 @@ window.toggleKeepAlive = async function() {
     if (enabled) {
         const status = await settingsKeepAliveRequest('/status');
         if (!status) {
-            if (window.showToast) showToast('保活服务未启动。需在服务器运行 node keepalive-worker.js，且页面需通过 http://localhost 访问', 'error');
             if (keepSwitch) keepSwitch.classList.remove('active');
             const keepaliveSection = document.getElementById('keepalive-detail-section');
             if (keepaliveSection) keepaliveSection.style.display = 'none';
