@@ -1265,8 +1265,13 @@ body {
     border-bottom: 1px solid rgba(0,0,0,0.1);
     margin-top: 0;
     flex-shrink: 0;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
     height: calc(44px + env(safe-area-inset-top));
+    background-color: var(--bg-primary, #ffffff);
 }
 
 .iframe-back-btn {
@@ -1406,6 +1411,11 @@ body {
     margin-top: 0;
     background-color: var(--bg-primary);
     height: calc(44px + env(safe-area-inset-top));
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 }
 
 .back-btn {
@@ -1436,6 +1446,7 @@ body {
     flex: 1;
     width: 100%;
     overflow-y: auto;
+    padding-top: calc(44px + env(safe-area-inset-top));
 }
 
 /* 聊天页面样式 */
