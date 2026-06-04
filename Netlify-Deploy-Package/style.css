@@ -1262,7 +1262,7 @@ body {
     align-items: center;
     padding: 0 16px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    margin-top: 60px;
+    margin-top: 20px;
     flex-shrink: 0;
     position: relative;
 }
@@ -1400,7 +1400,7 @@ body {
     align-items: center;
     padding: 0 4px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    margin-top: 60px;
+    margin-top: 20px;
     background-color: var(--bg-primary);
 }
 
