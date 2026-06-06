@@ -9734,7 +9734,7 @@ function _doRenderMessages() {
                                             const minutes = String(date.getMinutes()).padStart(2, '0');
                                             const seconds = String(date.getSeconds()).padStart(2, '0');
                                             const timeStr = `${hours}:${minutes}:${seconds}`;
-                                            return `<div style="position: absolute; bottom: -30px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
+                                            return `<div style="position: absolute; bottom: -50px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
                                         }
                                     }
                                 } catch (e) {}
@@ -9759,7 +9759,7 @@ function _doRenderMessages() {
                                             const minutes = String(date.getMinutes()).padStart(2, '0');
                                             const seconds = String(date.getSeconds()).padStart(2, '0');
                                             const timeStr = `${hours}:${minutes}:${seconds}`;
-                                            return `<div style="position: absolute; bottom: -30px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
+                                            return `<div style="position: absolute; bottom: -50px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
                                         }
                                     }
                                 } catch (e) {}
@@ -9784,7 +9784,7 @@ function _doRenderMessages() {
                                             const minutes = String(date.getMinutes()).padStart(2, '0');
                                             const seconds = String(date.getSeconds()).padStart(2, '0');
                                             const timeStr = `${hours}:${minutes}:${seconds}`;
-                                            return `<div style="position: absolute; bottom: -30px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
+                                            return `<div style="position: absolute; bottom: -50px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
                                         }
                                     }
                                 } catch (e) {}
@@ -9817,7 +9817,7 @@ function _doRenderMessages() {
                                         const minutes = String(date.getMinutes()).padStart(2, '0');
                                         const seconds = String(date.getSeconds()).padStart(2, '0');
                                         const timeStr = `${hours}:${minutes}:${seconds}`;
-                                        return `<div style="position: absolute; bottom: -30px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
+                                        return `<div style="position: absolute; bottom: -50px; right: 4px; font-size: 11px; color: #999; white-space: nowrap;">${timeStr}</div>`;
                                     }
                                 }
                             } catch (e) {}
