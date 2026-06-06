@@ -99,8 +99,7 @@ body {
     width: 50%;
     height: 100%;
     padding: 0 20px;
-    padding-top: -60px;
-    margin-top: -60px;
+    margin-top: -30px;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -142,7 +141,7 @@ body {
     grid-auto-flow: row;
     grid-auto-rows: auto;  /* 根据内容自动调整行高 */
     gap: 0px;  /* 网格间距为0 */
-    margin-top: -80px;  /* 组件区整体往上移 */
+    margin-top: -40px;  /* 组件区整体往上移 */
 }
 
 #widget-area-page2 {
@@ -1126,7 +1125,7 @@ body {
     grid-auto-rows: 80px;
     gap: 2px 4px;  /* 行间距2px，列间距4px */
     min-height: auto;
-    margin-top: -80px !important;  /* APP图标往上移 */
+    margin-top: -40px !important;  /* APP图标往上移 */
 }
 
 /* widget-area 中的图标行高覆盖 */
