@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>消息推送设置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            min-height: 100dvh;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        .status-granted {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-denied {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-default {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #07C160;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #007AFF;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .test-notification-btn {
+            background: #007AFF;
+            color: white;
+        }
+
+        .test-notification-btn:hover {
+            background: #0056b3;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007AFF;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 消息推送设置</h1>
+            <p>管理您的消息通知偏好</p>
+        </div>
+
+        <!-- 通知权限状态 -->
+        <div class="card">
+            <div class="card-title">
+                📱 通知权限状态
+            </div>
+            <div class="card-content">
+                <p>当前权限状态：</p>
+                <div id="permissionStatus" class="status-badge status-default">检查中...</div>
+                
+                <button id="requestPermissionBtn" class="btn btn-primary" style="display: none;">
+                    请求通知权限
+                </button>
+                
+                <div class="info-box">
+                    💡 开启通知后，即使切换到其他应用（如抖音），也能收到新消息提醒
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能说明 -->
+        <div class="card">
+            <div class="card-title">
+                ✨ 推送功能说明
+            </div>
+            <div class="card-content">
+                <ul class="feature-list">
+                    <li>AI 回复完成时自动推送通知</li>
+                    <li>后台运行时保持消息同步</li>
+                    <li>点击通知快速跳转到对应聊天</li>
+                    <li>支持离线消息队列处理</li>
+                    <li>智能心跳保活机制</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 测试通知 -->
+        <div class="card">
+            <div class="card-title">
+                🧪 测试通知
+            </div>
+            <div class="card-content">
+                <p>发送一条测试通知，验证推送是否正常工作</p>
+                <button id="testNotificationBtn" class="btn test-notification-btn">
+                    发送测试通知
+                </button>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <div class="card-title">
+                📖 使用提示
+            </div>
+            <div class="card-content">
+                <div class="info-box">
+                    <strong>重要提示：</strong><br>
+                    • 网页版推送需要浏览器标签页保持打开<br>
+                    • 如果完全关闭浏览器，将无法接收推送<br>
+                    • 建议使用 Chrome/Edge/Safari 等现代浏览器<br>
+                    • 手机端建议将网页添加到主屏幕以获得更好体验
+                </div>
+                
+                <button onclick="window.location.href='chat-app.html'" class="btn btn-secondary">
+                    返回聊天首页
+                </button>
+            </div>
+        </div>
+
+        <a href="chat-app.html" class="back-link">← 返回聊天</a>
+    </div>
+
+    <script>
+        // 检查通知权限状态
+        function checkPermissionStatus() {
+            const statusEl = document.getElementById('permissionStatus');
+            const requestBtn = document.getElementById('requestPermissionBtn');
+            
+            if (!('Notification' in window)) {
+                statusEl.textContent = '不支持';
+                statusEl.className = 'status-badge status-denied';
+                return;
+            }
+            
+            const permission = Notification.permission;
+            console.log('当前通知权限:', permission);
+            
+            switch (permission) {
+                case 'granted':
+                    statusEl.textContent = '已授权 ✓';
+                    statusEl.className = 'status-badge status-granted';
+                    requestBtn.style.display = 'none';
+                    break;
+                    
+                case 'denied':
+                    statusEl.textContent = '已拒绝 ✗';
+                    statusEl.className = 'status-badge status-denied';
+                    requestBtn.style.display = 'block';
+                    requestBtn.textContent = '前往浏览器设置开启';
+                    requestBtn.onclick = () => {
+                        alert('请在浏览器设置中允许此网站的通知权限');
+                    };
+                    break;
+                    
+                case 'default':
+                default:
+                    statusEl.textContent = '未设置';
+                    statusEl.className = 'status-badge status-default';
+                    requestBtn.style.display = 'block';
+                    requestBtn.textContent = '请求通知权限';
+                    requestBtn.onclick = requestPermission;
+                    break;
+            }
+        }
+
+        // 请求通知权限
+        async function requestPermission() {
+            try {
+                const result = await Notification.requestPermission();
+                console.log('权限请求结果:', result);
+                
+                if (result === 'granted') {
+                    alert('✅ 通知权限已开启！\n\n您现在可以接收消息推送了。');
+                    checkPermissionStatus();
+                } else {
+                    alert('⚠️ 通知权限被拒绝\n\n您将无法收到消息推送。');
+                    checkPermissionStatus();
+                }
+            } catch (error) {
+                console.error('请求权限失败:', error);
+                alert('❌ 请求权限失败: ' + error.message);
+            }
+        }
+
+        // 发送测试通知
+        function sendTestNotification() {
+            if (!('Notification' in window)) {
+                alert('您的浏览器不支持通知功能');
+                return;
+            }
+            
+            if (Notification.permission !== 'granted') {
+                alert('请先授予通知权限');
+                return;
+            }
+            
+            const notification = new Notification('测试通知', {
+                body: '这是一条测试消息推送，如果您看到了这条通知，说明推送功能正常工作！',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+                tag: 'test-notification',
+                requireInteraction: false,
+                silent: false
+            });
+            
+            notification.onclick = function() {
+                window.focus();
+                notification.close();
+            };
+            
+            console.log('测试通知已发送');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPermissionStatus();
+            
+            document.getElementById('testNotificationBtn').addEventListener('click', sendTestNotification);
+        });
+    </script>
+</body>
+</html>

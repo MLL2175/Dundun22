@@ -1,0 +1,50 @@
+/* ============================================
+   QQ风格 - 界面自定义CSS
+   ============================================ */
+
+/* 整体背景色 */
+body .chat-container {
+    background-color: #f2f2f2 !important;
+}
+
+/* 顶栏样式 - QQ风格 */
+body .chat-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+}
+
+body .chat-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+}
+
+/* 消息气泡 - QQ风格 */
+body .message-item.sent .message-bubble {
+    background: #0099ff !important;
+    color: #ffffff !important;
+    border-radius: 18px !important;
+}
+
+body .message-item.received .message-bubble {
+    background: #ffffff !important;
+    color: #333333 !important;
+    border-radius: 18px !important;
+}
+
+/* 输入框 - QQ风格 */
+body .chat-input {
+    font-size: 15px !important;
+}
+
+body .input-wrapper {
+    background: #ffffff !important;
+    border-radius: 18px !important;
+    border: 1px solid #e5e5e5 !important;
+}
+
+/* 发送按钮 */
+body .send-btn {
+    background: #0099ff !important;
+    border-radius: 18px !important;
+}

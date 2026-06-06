@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商城</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #FFFFFF;
+            color: #4f4742;
+            height: 100dvh;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e5e5;
+            padding: 16px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4f4742;
+        }
+
+        .header-back {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f29344;
+        }
+
+        .header-ai-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f29344;
+            transition: all 0.2s;
+        }
+
+        .header-ai-btn:hover {
+            color: #d47a30;
+            transform: scale(1.1);
+        }
+
+        .header-ai-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid rgba(229, 229, 229, 0.5);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 4px 0 calc(6px + env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+        }
+
+        .tab-item.active {
+            color: #f29344;
+        }
+
+        .tab-item:not(.active) {
+            color: #9FA2A6;
+        }
+
+        .tab-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+        }
+
+        /* 购物车Tab特殊样式 */
+        .tab-item.cart-tab {
+            position: relative;
+            top: -20px;
+        }
+
+        .tab-item.cart-tab .tab-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: rgba(242, 147, 68, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(242, 147, 68, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .tab-item.cart-tab .tab-icon-wrapper:hover {
+            transform: scale(1.05);
+            background: rgba(242, 147, 68, 0.85);
+            box-shadow: 0 4px 12px rgba(242, 147, 68, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .tab-item.cart-tab .tab-icon {
+            width: 28px;
+            height: 28px;
+            color: white;
+            margin-left: -3px;
+        }
+
+        .tab-item.cart-tab .tab-label {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #4f4742;
+        }
+
+        .tab-item.cart-tab .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #C55A5A;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(197, 90, 90, 0.3);
+        }
+
+        /* 内容区域 */
+        .content {
+            position: fixed;
+            top: 64px;
+            bottom: 72px;
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #4f4742;
+        }
+
+        .search-box input::placeholder {
+            color: #9FA2A6;
+        }
+
+        .search-btn {
+            background: #f29344;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background: #e08535;
+            transform: scale(1.05);
+        }
+
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 分类标签 */
+        .category-tags {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+
+        .category-tags::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-tag {
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #e5e5e5;
+            transition: all 0.2s;
+        }
+
+        .category-tag.active {
+            background: #f29344;
+            color: white;
+            border-color: #f29344;
+        }
+
+        /* 商品网格 */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 160px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #9FA2A6;
+            font-weight: 400;
+            text-align: center;
+            padding: 12px;
+            line-height: 1.6;
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .product-desc {
+            font-size: 12px;
+            color: #9FA2A6;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #C55A5A;
+        }
+
+        .product-price::before {
+            content: '¥';
+            font-size: 12px;
+        }
+
+        /* 购物车商品样式 */
+        .cart-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #9FA2A6;
+            font-weight: 400;
+            flex-shrink: 0;
+            text-align: center;
+            padding: 6px;
+            line-height: 1.5;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-desc {
+            font-size: 12px;
+            color: #9FA2A6;
+            margin-bottom: 8px;
+        }
+
+        .cart-item-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #C55A5A;
+        }
+
+        .cart-item-price::before {
+            content: '¥';
+            font-size: 12px;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quantity-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #f29344;
+        }
+
+        .quantity-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .quantity-value {
+            font-size: 15px;
+            font-weight: 500;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* 购物车操作按钮 */
+        .cart-item-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .cart-action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #9FA2A6;
+            transition: all 0.2s;
+        }
+
+        .cart-action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .cart-action-btn.delete-btn:hover {
+            border-color: #C55A5A;
+            color: #C55A5A;
+        }
+
+        .cart-action-btn.forward-btn:hover {
+            border-color: #f29344;
+            color: #f29344;
+        }
+
+        /* 购物车底部结算栏 */
+        .cart-footer {
+            position: fixed;
+            bottom: 72px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 99;
+        }
+
+        .cart-total {
+            font-size: 14px;
+            color: #9FA2A6;
+        }
+
+        .cart-total-price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #C55A5A;
+        }
+
+        .cart-total-price::before {
+            content: '¥';
+            font-size: 14px;
+        }
+
+        .checkout-btn {
+            padding: 12px 32px;
+            background: #f29344;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkout-btn:hover {
+            background: #d47a30;
+        }
+
+        .checkout-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9FA2A6;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .contact-item {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .contact-item:hover {
+            background: #f5f5f5;
+        }
+
+        .contact-avatar {
+            width: 44px;
+            height: 44px;
+            background: #f29344;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .contact-desc {
+            font-size: 12px;
+            color: #9FA2A6;
+        }
+
+        /* 商品卡片添加购物车按钮 */
+        .product-card {
+            position: relative;
+        }
+
+        .add-cart-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: #f29344;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .add-cart-btn:hover {
+            background: #d47a30;
+            transform: scale(1.1);
+        }
+
+        .add-cart-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 订单页面样式 */
+        .order-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F5F3EF;
+        }
+
+        .order-id {
+            font-size: 12px;
+            color: #9FA2A6;
+        }
+
+        .order-status {
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .order-status.paid {
+            background: #F1CC74;
+            color: white;
+        }
+
+        .order-status.pending {
+            background: #E2DED6;
+            color: #8B7355;
+        }
+
+        .order-body {
+            display: flex;
+            gap: 12px;
+        }
+
+        .order-icon {
+            width: 60px;
+            height: 60px;
+            background: #F5F3EF;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .order-desc {
+            font-size: 12px;
+            color: #9FA2A6;
+            margin-bottom: 8px;
+        }
+
+        .order-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: #C55A5A;
+        }
+
+        .order-amount::before {
+            content: '¥';
+            font-size: 12px;
+        }
+
+        .order-remark {
+            font-size: 12px;
+            color: #9FA2A6;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #F5F3EF;
+        }
+
+        .order-time {
+            font-size: 11px;
+            color: #9FA2A6;
+            margin-top: 4px;
+        }
+
+        /* 外卖样式 */
+        .restaurant-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .restaurant-img {
+            width: 80px;
+            height: 80px;
+            background: #F5F3EF;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #9FA2A6;
+            font-weight: 400;
+            text-align: center;
+            padding: 8px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .restaurant-info {
+            flex: 1;
+        }
+
+        .restaurant-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .restaurant-meta {
+            font-size: 12px;
+            color: #9FA2A6;
+            margin-bottom: 4px;
+        }
+
+        .restaurant-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .restaurant-tag {
+            padding: 3px 8px;
+            background: #F5F3EF;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #8B7355;
+        }
+
+        /* 二手买卖 */
+        .secondhand-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .secondhand-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .secondhand-image {
+            width: 120px;
+            height: 120px;
+            background: #F5F3EF;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #9FA2A6;
+            font-weight: 400;
+            text-align: center;
+            padding: 12px;
+            line-height: 1.6;
+            flex-shrink: 0;
+        }
+
+        .secondhand-info {
+            flex: 1;
+        }
+
+        .secondhand-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .secondhand-condition {
+            font-size: 12px;
+            color: #4A7C59;
+            margin-bottom: 6px;
+        }
+
+        .secondhand-price {
+            font-size: 20px;
+            font-weight: 600;
+            color: #C55A5A;
+        }
+
+        .secondhand-price::before {
+            content: '¥';
+            font-size: 14px;
+        }
+
+        .secondhand-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #E2DED6;
+        }
+
+        .seller-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .seller-avatar {
+            width: 28px;
+            height: 28px;
+            background: #E2DED6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #9FA2A6;
+            font-weight: 500;
+        }
+
+        .seller-name {
+            font-size: 12px;
+            color: #9FA2A6;
+        }
+
+        .secondhand-time {
+            font-size: 12px;
+            color: #9FA2A6;
+        }
+
+        /* 我的主页 */
+        .profile-header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: #e5e5e5;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #9FA2A6;
+            font-weight: 500;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .profile-id {
+            font-size: 13px;
+            color: #9FA2A6;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f29344;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #9FA2A6;
+        }
+
+        .menu-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .menu-item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #f9f9f9;
+        }
+
+        .menu-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f29344;
+        }
+
+        .menu-text {
+            font-size: 15px;
+        }
+
+        .menu-arrow {
+            color: #9FA2A6;
+            font-size: 18px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9FA2A6;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+        }
+
+        /* 提示动画 */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <button class="header-back" onclick="closeShop()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <div class="header-title">商城</div>
+        <button class="header-ai-btn" onclick="generateByAI()" title="AI生成">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 商城 -->
+        <div class="tab-content active" id="tab-shop">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#9FA2A6" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <input type="text" placeholder="搜索商品" id="shop-search-input" onkeypress="if(event.key==='Enter')searchShop()">
+                <button class="search-btn" onclick="searchShop()">搜索</button>
+            </div>
+
+            <div class="category-tags">
+                <div class="category-tag active">全部</div>
+                <div class="category-tag">电子产品</div>
+                <div class="category-tag">服饰</div>
+                <div class="category-tag">生活用品</div>
+                <div class="category-tag">食品</div>
+                <div class="category-tag">图书</div>
+                <div class="category-tag">家装</div>
+                <div class="category-tag">情趣</div>
+            </div>
+
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-image">红色礼盒包装
+精美丝带装饰
+礼盒装</div>
+                    <div class="product-info">
+                        <div class="product-name">精选礼盒</div>
+                        <div class="product-desc">精美包装 送礼首选</div>
+                        <div class="product-price">99</div>
+                    </div>
+                    <button class="add-cart-btn" onclick="addToCart('红色礼盒', '精选礼盒', '精美包装 送礼首选', 99)" title="加入购物车">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">银色金属表带
+黑色圆表盘
+智能手表</div>
+                    <div class="product-info">
+                        <div class="product-name">智能手表</div>
+                        <div class="product-desc">多功能运动监测</div>
+                        <div class="product-price">299</div>
+                    </div>
+                    <button class="add-cart-btn" onclick="addToCart('银色手表', '智能手表', '多功能运动监测', 299)" title="加入购物车">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">白色头戴式
+柔软耳罩
+无线耳机</div>
+                    <div class="product-info">
+                        <div class="product-name">无线耳机</div>
+                        <div class="product-desc">降噪 高音质</div>
+                        <div class="product-price">199</div>
+                    </div>
+                    <button class="add-cart-btn" onclick="addToCart('白色耳机', '无线耳机', '降噪 高音质', 199)" title="加入购物车">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">黑色双肩包
+防水面料
+时尚背包</div>
+                    <div class="product-info">
+                        <div class="product-name">时尚背包</div>
+                        <div class="product-desc">大容量 防水</div>
+                        <div class="product-price">159</div>
+                    </div>
+                    <button class="add-cart-btn" onclick="addToCart('黑色背包', '时尚背包', '大容量 防水', 159)" title="加入购物车">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 外卖 -->
+        <div class="tab-content" id="tab-delivery">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#9FA2A6" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <input type="text" placeholder="搜索餐厅或菜品" id="delivery-search-input" onkeypress="if(event.key==='Enter')searchDelivery()">
+                <button class="search-btn" onclick="searchDelivery()">搜索</button>
+            </div>
+
+            <div class="category-tags">
+                <div class="category-tag active">全部</div>
+                <div class="category-tag">快餐</div>
+                <div class="category-tag">奶茶</div>
+                <div class="category-tag">中餐</div>
+                <div class="category-tag">西餐</div>
+                <div class="category-tag">日韩料理</div>
+            </div>
+
+            <div id="restaurant-list">
+                <div class="restaurant-card">
+                    <div class="restaurant-img">金色汉堡包
+可乐薯条
+快餐</div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">美味汉堡店</div>
+                        <div class="restaurant-meta">月售1000+ | 30分钟送达</div>
+                        <div class="restaurant-meta">起送价 ¥20 | 配送费 ¥3</div>
+                        <div class="restaurant-tags">
+                            <span class="restaurant-tag">满减</span>
+                            <span class="restaurant-tag">新客立减</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="restaurant-card">
+                    <div class="restaurant-img">热气腾腾
+手工面条
+面馆</div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">手工面馆</div>
+                        <div class="restaurant-meta">月售800+ | 25分钟送达</div>
+                        <div class="restaurant-meta">起送价 ¥15 | 配送费 ¥2</div>
+                        <div class="restaurant-tags">
+                            <span class="restaurant-tag">招牌</span>
+                            <span class="restaurant-tag">好评如潮</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 购物车 -->
+        <div class="tab-content" id="tab-cart">
+            <div id="cart-list">
+                <!-- 购物车商品列表 -->
+            </div>
+            <div id="cart-empty" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+                <div class="empty-text">购物车是空的</div>
+            </div>
+        </div>
+
+        <!-- 选择联系人弹窗 -->
+        <div id="contact-modal" class="modal" style="display: none;">
+            <div class="modal-overlay" onclick="closeContactModal()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">选择转发联系人</div>
+                    <button class="modal-close" onclick="closeContactModal()">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="contact-list">
+                        <!-- 联系人列表 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 二手买卖 -->
+        <div class="tab-content" id="tab-secondhand">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#9FA2A6" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                </svg>
+                <input type="text" placeholder="搜索二手商品" id="secondhand-search-input" onkeypress="if(event.key==='Enter')searchSecondhand()">
+                <button class="search-btn" onclick="searchSecondhand()">搜索</button>
+            </div>
+
+            <div class="category-tags">
+                <div class="category-tag active">全部</div>
+                <div class="category-tag">数码</div>
+                <div class="category-tag">服饰</div>
+                <div class="category-tag">图书</div>
+                <div class="category-tag">家具</div>
+                <div class="category-tag">运动</div>
+            </div>
+
+            <div id="secondhand-list">
+                <div class="secondhand-card">
+                    <div class="secondhand-header">
+                        <div class="secondhand-image">黑色机身
+6.1寸屏幕
+手机</div>
+                        <div class="secondhand-info">
+                            <div class="secondhand-title">iPhone 13 128G</div>
+                            <div class="secondhand-condition">95成新 | 使用3个月</div>
+                            <div class="secondhand-price">3999</div>
+                        </div>
+                    </div>
+                    <div class="secondhand-footer">
+                        <div class="seller-info">
+                            <div class="seller-avatar">用户</div>
+                            <div class="seller-name">小明</div>
+                        </div>
+                        <div class="secondhand-time">2小时前</div>
+                    </div>
+                </div>
+                <div class="secondhand-card">
+                    <div class="secondhand-header">
+                        <div class="secondhand-image">深空灰色
+14寸屏幕
+电脑</div>
+                        <div class="secondhand-info">
+                            <div class="secondhand-title">MacBook Pro 2021</div>
+                            <div class="secondhand-condition">9成新 | 使用1年</div>
+                            <div class="secondhand-price">8999</div>
+                        </div>
+                    </div>
+                    <div class="secondhand-footer">
+                        <div class="seller-info">
+                            <div class="seller-avatar">用户</div>
+                            <div class="seller-name">小红</div>
+                        </div>
+                        <div class="secondhand-time">5小时前</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的主页 -->
+        <div class="tab-content" id="tab-profile">
+            <!-- 主页内容 -->
+            <div id="profile-main">
+                <div class="profile-header">
+                    <div class="profile-avatar">用户</div>
+                    <div class="profile-name">用户昵称</div>
+                    <div class="profile-id">ID: 10001</div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="orders-count">0</div>
+                        <div class="stat-label">我的订单</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">在售商品</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">28</div>
+                        <div class="stat-label">收藏</div>
+                    </div>
+                </div>
+
+                <div class="menu-list">
+                    <div class="menu-item" onclick="showOrders()">
+                        <div class="menu-left">
+                            <svg class="menu-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                            <div class="menu-text">我的订单</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                <div class="menu-item">
+                    <div class="menu-left">
+                        <svg class="menu-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <path d="M12 8v8"></path>
+                            <path d="M8 12h8"></path>
+                        </svg>
+                        <div class="menu-text">我的钱包</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-left">
+                        <svg class="menu-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        <div class="menu-text">我的收藏</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-left">
+                        <svg class="menu-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <div class="menu-text">收货地址</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-left">
+                        <svg class="menu-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <div class="menu-text">设置</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </div>
+            </div>
+            <!-- 订单页面 -->
+            <div id="profile-orders" style="display: none;">
+                <div class="profile-header" style="position: relative;">
+                    <button onclick="backToProfile()" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8B7355;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <div style="font-size: 18px; font-weight: 600; color: #333;">我的订单</div>
+                </div>
+                <div id="orders-list" style="padding: 16px;">
+                    <!-- 订单列表 -->
+                </div>
+                <div id="orders-empty" class="empty-state" style="display: none;">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <div class="empty-text">暂无订单</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部Tab栏 -->
+    <div class="tab-bar">
+        <button class="tab-item active" onclick="switchTab('shop')">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span class="tab-label">商品</span>
+        </button>
+        <button class="tab-item" onclick="switchTab('delivery')">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+            <span class="tab-label">外卖</span>
+        </button>
+        <button class="tab-item cart-tab" onclick="switchTab('cart')">
+            <div class="tab-icon-wrapper">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            </div>
+            <span class="tab-label">购物车</span>
+            <span id="cart-badge" class="cart-badge" style="display: none;">0</span>
+        </button>
+        <button class="tab-item" onclick="switchTab('secondhand')">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span class="tab-label">二手</span>
+        </button>
+        <button class="tab-item" onclick="switchTab('profile')">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="tab-label">我的</span>
+        </button>
+    </div>
+
+    <script>
+        let currentTab = 'shop';
+        let cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+
+        // 初始化购物车
+        function initCart() {
+            updateCartBadge();
+            renderCart();
+            // renderOrders()在后面定义，使用setTimeout延迟调用
+            setTimeout(() => {
+                if (typeof renderOrders === 'function') {
+                    renderOrders();
+                }
+            }, 0);
+        }
+
+        // 添加到购物车
+        window.addToCart = function(icon, name, desc, price) {
+            const existingItem = cart.find(item => item.name === name);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    icon: icon,
+                    name: name,
+                    desc: desc,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCartBadge();
+            showToast('已加入购物车', false, true);
+        }
+
+        // 从购物车移除
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+
+        // 更新商品数量
+        window.updateQuantity = function(index, delta) {
+            cart[index].quantity += delta;
+            
+            if (cart[index].quantity <= 0) {
+                removeFromCart(index);
+                return;
+            }
+            
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+
+        // 保存购物车到localStorage
+        function saveCart() {
+            localStorage.setItem('shopCart', JSON.stringify(cart));
+        }
+
+        // 更新购物车徽章
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-badge');
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (totalCount > 0) {
+                badge.textContent = totalCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // 渲染购物车
+        window.renderCart = function() {
+            const cartList = document.getElementById('cart-list');
+            const cartEmpty = document.getElementById('cart-empty');
+            
+            if (cart.length === 0) {
+                cartList.style.display = 'none';
+                cartEmpty.style.display = 'block';
+                return;
+            }
+            
+            cartList.style.display = 'block';
+            cartEmpty.style.display = 'none';
+            
+            let html = '';
+            let totalPrice = 0;
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                totalPrice += itemTotal;
+                
+                html += `
+                    <div class="cart-item">
+                        <div class="cart-item-image">${item.icon}</div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-desc">${item.desc}</div>
+                            <div class="cart-item-bottom">
+                                <div class="cart-item-price">${itemTotal}</div>
+                                <div class="cart-item-quantity">
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                                    <span class="quantity-value">${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="cart-item-actions">
+                                <button class="cart-action-btn delete-btn" onclick="deleteCartItem(${index})">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                    删除
+                                </button>
+                                <button class="cart-action-btn forward-btn" onclick="forwardToPay(${index})">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                    转发代付
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 添加结算栏
+            html += `
+                <div class="cart-footer">
+                    <div>
+                        <div class="cart-total">合计</div>
+                        <div class="cart-total-price">${totalPrice}</div>
+                    </div>
+                    <button class="checkout-btn" onclick="checkout()">去结算</button>
+                </div>
+            `;
+            
+            cartList.innerHTML = html;
+        }
+
+        // 渲染订单
+        window.renderOrders = function() {
+            const ordersList = document.getElementById('orders-list');
+            const ordersEmpty = document.getElementById('orders-empty');
+            const ordersCount = document.getElementById('orders-count');
+            
+            const orders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+            
+            // 更新订单数量
+            if (ordersCount) {
+                ordersCount.textContent = orders.length;
+            }
+            
+            if (orders.length === 0) {
+                ordersList.style.display = 'none';
+                ordersEmpty.style.display = 'block';
+                return;
+            }
+            
+            ordersList.style.display = 'block';
+            ordersEmpty.style.display = 'none';
+            
+            // 按时间倒序
+            orders.sort((a, b) => b.time - a.time);
+            
+            ordersList.innerHTML = orders.map(order => {
+                const date = new Date(order.time);
+                const timeStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                
+                return `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <div class="order-id">订单号：${order.id}</div>
+                            <div class="order-status ${order.status}">${order.status === 'paid' ? '已代付' : '待支付'}</div>
+                        </div>
+                        <div class="order-body">
+                            <div class="order-icon">🛒</div>
+                            <div class="order-info">
+                                <div class="order-name">${escapeHtml(order.itemName)}</div>
+                                <div class="order-bottom">
+                                    <div class="order-amount">${order.amount}</div>
+                                </div>
+                                ${order.remark ? `<div class="order-remark">${escapeHtml(order.remark)}</div>` : ''}
+                                <div class="order-time">${timeStr}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示订单页面
+        window.showOrders = function() {
+            document.getElementById('profile-main').style.display = 'none';
+            document.getElementById('profile-orders').style.display = 'block';
+            renderOrders();
+        }
+
+        // 返回主页
+        window.backToProfile = function() {
+            document.getElementById('profile-main').style.display = 'block';
+            document.getElementById('profile-orders').style.display = 'none';
+        }
+
+        // 结算
+        window.checkout = function() {
+            if (cart.length === 0) {
+                showToast('购物车是空的', false, true);
+                return;
+            }
+            
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            showToast(`结算成功！共¥${totalPrice}`, false, true);
+            
+            // 清空购物车
+            cart = [];
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+
+        // 删除购物车商品
+        window.deleteCartItem = function(index) {
+            const item = cart[index];
+            removeFromCart(index);
+            showToast(`已删除「${item.name}」`, false, true);
+        }
+
+        // 转发代付
+        let forwardItemIndex = null;
+        window.forwardToPay = function(index) {
+            forwardItemIndex = index;
+            const item = cart[index];
+            
+            // 获取联系人列表
+            const currentPersona = localStorage.getItem('currentPersona') || 'default';
+            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+            
+            if (contacts.length === 0) {
+                showToast('暂无联系人', false, true);
+                return;
+            }
+            
+            // 显示联系人选择弹窗
+            showContactModal(contacts, item);
+        }
+
+        // 显示联系人弹窗
+        window.showContactModal = function(contacts, item) {
+            const modal = document.getElementById('contact-modal');
+            const contactList = document.getElementById('contact-list');
+            
+            contactList.innerHTML = contacts.map(contact => `
+                <div class="contact-item" onclick="selectContactForPay('${contact.id}', '${contact.name}')">
+                    <div class="contact-avatar">${contact.name.charAt(0)}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${escapeHtml(contact.name)}</div>
+                        <div class="contact-desc">请求代付 ¥${item.price * item.quantity}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            modal.style.display = 'block';
+        }
+
+        // 关闭联系人弹窗
+        window.closeContactModal = function() {
+            const modal = document.getElementById('contact-modal');
+            modal.style.display = 'none';
+            forwardItemIndex = null;
+        }
+
+        // 选择联系人代付
+        window.selectContactForPay = async function(contactId, contactName) {
+            if (forwardItemIndex === null) return;
+            
+            const item = cart[forwardItemIndex];
+            const totalAmount = item.price * item.quantity;
+            
+            // 构建代付消息（压缩格式，与ChatDB一致）
+            const messageData = {
+                id: `msg_${Date.now()}`,
+                t: 'pay-request',
+                c: JSON.stringify({
+                    type: 'pay-request',
+                    itemName: item.name,
+                    itemDesc: item.desc,
+                    amount: totalAmount,
+                    quantity: item.quantity,
+                    timestamp: Date.now()
+                }),
+                s: 'user',
+                tm: Date.now()
+            };
+            
+            try {
+                // 优先使用 IndexedDB (ChatDB)
+                if (window.ChatDB) {
+                    // 加载现有消息
+                    const existingMessages = await window.ChatDB.loadMessages(contactId) || [];
+                    // 添加新消息
+                    existingMessages.push(messageData);
+                    // 保存所有消息
+                    await window.ChatDB.saveMessages(contactId, existingMessages);
+                    console.log('✅ 代付消息已保存到 IndexedDB:', messageData);
+                } else {
+                    // 降级到 localStorage（也使用压缩格式）
+                    const chatMessages = JSON.parse(localStorage.getItem(`chat_${contactId}`) || '[]');
+                    chatMessages.push(messageData);
+                    localStorage.setItem(`chat_${contactId}`, JSON.stringify(chatMessages));
+                    console.log('✅ 代付消息已保存到 localStorage:', messageData);
+                }
+                
+                // 关闭弹窗
+                closeContactModal();
+                
+                showToast(`已转发给${contactName}代付`, false, true);
+            } catch (error) {
+                console.error('❌ 保存代付消息失败:', error);
+                showToast('转发失败', false, true);
+            }
+        }
+
+        // 渲染AI生成的商品
+        function renderShopProducts(products) {
+            if (!Array.isArray(products) || products.length === 0) {
+                showToast('生成结果为空', false, true);
+                return;
+            }
+            
+            const grid = document.querySelector('#tab-shop .product-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-image">${escapeHtml(p.imageDesc || p.name)}</div>
+                    <div class="product-info">
+                        <div class="product-name">${escapeHtml(p.name)}</div>
+                        <div class="product-desc">${escapeHtml(p.desc)}</div>
+                        <div class="product-price">${p.price}</div>
+                    </div>
+                    <button class="add-cart-btn" onclick="addToCart('${escapeHtml(p.name)}', '${escapeHtml(p.name)}', '${escapeHtml(p.desc)}', ${p.price})" title="加入购物车">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 渲染AI生成的餐厅
+        function renderRestaurants(restaurants) {
+            if (!Array.isArray(restaurants) || restaurants.length === 0) {
+                showToast('生成结果为空', false, true);
+                return;
+            }
+            
+            const grid = document.querySelector('#tab-delivery .restaurant-list');
+            grid.innerHTML = restaurants.map(r => `
+                <div class="restaurant-card">
+                    <div class="restaurant-img">${escapeHtml(r.imageDesc || r.name)}</div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">${escapeHtml(r.name)}</div>
+                        <div class="restaurant-stats">
+                            <span>${escapeHtml(r.sales)}</span>
+                            <span>${escapeHtml(r.time)}</span>
+                        </div>
+                        <div class="restaurant-meta">
+                            <span>起送¥${r.minPrice}</span>
+                            <span>配送¥${r.delivery}</span>
+                        </div>
+                        <div class="restaurant-tags">
+                            ${(r.tags || []).map(tag => `<span class="restaurant-tag">${escapeHtml(tag)}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染AI生成的二手商品
+        function renderSecondhandItems(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                showToast('生成结果为空', false, true);
+                return;
+            }
+            
+            const grid = document.querySelector('#tab-secondhand .secondhand-list');
+            grid.innerHTML = items.map(item => `
+                <div class="secondhand-card">
+                    <div class="secondhand-header">
+                        <div class="secondhand-image">${escapeHtml(item.imageDesc || item.title)}</div>
+                        <div class="secondhand-info">
+                            <div class="secondhand-title">${escapeHtml(item.title)}</div>
+                            <div class="secondhand-condition">${escapeHtml(item.condition)}</div>
+                            <div class="secondhand-price">${item.price}</div>
+                        </div>
+                    </div>
+                    <div class="secondhand-footer">
+                        <div class="seller-info">
+                            <div class="seller-avatar">用户</div>
+                            <span class="seller-name">${escapeHtml(item.seller)}</span>
+                        </div>
+                        <span class="secondhand-time">${escapeHtml(item.time)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 切换Tab
+        window.switchTab = function(tabName) {
+            currentTab = tabName;
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 取消所有Tab激活状态
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示对应内容
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // 激活对应Tab
+            event.currentTarget.classList.add('active');
+            
+            // 切换到购物车时重新渲染
+            if (tabName === 'cart') {
+                renderCart();
+            }
+            
+            // 切换到我的页面时更新订单数量
+            if (tabName === 'profile') {
+                renderOrders();
+            }
+        }
+
+        // AI生成当前tab内容
+        window.generateByAI = async function() {
+            const loadingTexts = {
+                'shop': 'AI正在为您生成精选商品...',
+                'delivery': 'AI正在为您推荐优质餐厅...',
+                'secondhand': 'AI正在为您匹配二手好物...',
+                'profile': 'AI正在为您优化个人主页...'
+            };
+            
+            const successTexts = {
+                'shop': '商品生成成功！',
+                'delivery': '餐厅推荐成功！',
+                'secondhand': '二手商品生成成功！',
+                'profile': '主页优化成功！'
+            };
+            
+            // 获取API配置
+            const config = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+            if (!config.mainApi?.url || !config.mainApi?.token) {
+                showToast('请先配置API', false, true);
+                return;
+            }
+            
+            // 显示加载提示
+            showToast(loadingTexts[currentTab], true);
+            
+            try {
+                // 根据当前tab生成不同提示词
+                let prompt = '';
+                if (currentTab === 'shop') {
+                    prompt = `请为我生成6个商城商品，每个商品包含：
+- name: 商品名称
+- desc: 简短描述
+- price: 价格（整数元）
+- imageDesc: 商品图片的灰色文字描述（3行，每行10字以内，描述商品外观、颜色、材质、品牌等特征）
+
+按JSON格式返回，格式为：[{"name":"商品名","desc":"描述","price":价格,"imageDesc":"第一行\\n第二行\\n第三行"}]。只返回JSON，不要其他内容。`;
+                } else if (currentTab === 'delivery') {
+                    prompt = `请为我生成4个外卖餐厅，每个餐厅包含：
+- name: 餐厅名称
+- sales: 月销量
+- time: 配送时间
+- minPrice: 起送价（整数）
+- delivery: 配送费（整数）
+- tags: 标签数组
+- imageDesc: 餐厅图片的灰色文字描述（3行，每行10字以内，描述菜品、颜色、类型等）
+
+按JSON格式返回，格式为：[{"name":"餐厅名","sales":"月销量","time":"配送时间","minPrice":起送价,"delivery":配送费,"tags":["标签1","标签2"],"imageDesc":"第一行\\n第二行\\n第三行"}]。只返回JSON，不要其他内容。`;
+                } else if (currentTab === 'secondhand') {
+                    prompt = `请为我生成4个二手商品，每个商品包含：
+- title: 商品标题
+- condition: 新旧程度和使用情况
+- price: 价格（整数）
+- seller: 卖家昵称
+- time: 发布时间
+- imageDesc: 商品图片的灰色文字描述（3行，每行10字以内，描述外观、颜色、品牌、型号等）
+
+按JSON格式返回，格式为：[{"title":"标题","condition":"新旧|使用情况","price":价格,"seller":"卖家","time":"时间","imageDesc":"第一行\\n第二行\\n第三行"}]。只返回JSON，不要其他内容。`;
+                } else if (currentTab === 'profile') {
+                    // 主页优化不需要API
+                    generateProfile();
+                    showToast(successTexts[currentTab], false, true);
+                    return;
+                }
+                
+                // 调用API
+                const response = await fetch(config.mainApi.url + '/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.mainApi.token}`
+                    },
+                    body: JSON.stringify({
+                        model: config.model || 'gpt-3.5-turbo',
+                        messages: [
+                            { role: 'system', content: '你是一个商城内容生成助手，请严格按照要求的JSON格式返回数据。' },
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1000
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const aiContent = data.choices?.[0]?.message?.content;
+                
+                if (!aiContent) {
+                    throw new Error('AI未返回内容');
+                }
+                
+                // 解析JSON
+                let parsedData;
+                try {
+                    // 尝试提取JSON部分
+                    const jsonMatch = aiContent.match(/\[[\s\S]*\]/);
+                    if (jsonMatch) {
+                        parsedData = JSON.parse(jsonMatch[0]);
+                    } else {
+                        parsedData = JSON.parse(aiContent);
+                    }
+                } catch (e) {
+                    console.error('JSON解析失败:', aiContent);
+                    throw new Error('AI返回格式错误');
+                }
+                
+                // 渲染生成结果
+                if (currentTab === 'shop') {
+                    renderShopProducts(parsedData);
+                } else if (currentTab === 'delivery') {
+                    renderRestaurants(parsedData);
+                } else if (currentTab === 'secondhand') {
+                    renderSecondhandItems(parsedData);
+                }
+                
+                showToast(successTexts[currentTab], false, true);
+            } catch (error) {
+                console.error('AI生成失败:', error);
+                showToast('生成失败: ' + error.message, false, true);
+            }
+        }
+
+        // 生成商城商品
+        function generateShopProducts() {
+            const products = [
+                { icon: '🎁', name: '精选礼盒', desc: '精美包装 送礼首选', price: '99' },
+                { icon: '⌚', name: '智能手表', desc: '多功能运动监测', price: '299' },
+                { icon: '🎧', name: '无线耳机', desc: '降噪 高音质', price: '199' },
+                { icon: '🎒', name: '时尚背包', desc: '大容量 防水', price: '159' },
+                { icon: '👟', name: '运动鞋', desc: '轻便舒适 透气', price: '249' },
+                { icon: '📷', name: '数码相机', desc: '高清画质 便携', price: '1299' }
+            ];
+            
+            const grid = document.querySelector('#tab-shop .product-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-image">${p.icon}</div>
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-desc">${p.desc}</div>
+                        <div class="product-price">${p.price}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 生成外卖餐厅
+        function generateRestaurants() {
+            const restaurants = [
+                { icon: '🍔', name: '美味汉堡店', sales: '1000+', time: '30分钟', minPrice: '20', delivery: '3', tags: ['满减', '新客立减'] },
+                { icon: '🍜', name: '手工面馆', sales: '800+', time: '25分钟', minPrice: '15', delivery: '2', tags: ['招牌', '好评如潮'] },
+                { icon: '🍕', name: '意式披萨', sales: '600+', time: '35分钟', minPrice: '30', delivery: '5', tags: ['进口食材', '特色'] },
+                { icon: '🍣', name: '日式寿司', sales: '500+', time: '40分钟', minPrice: '50', delivery: '8', tags: ['新鲜', '日式'] }
+            ];
+            
+            const list = document.getElementById('restaurant-list');
+            list.innerHTML = restaurants.map(r => `
+                <div class="restaurant-card">
+                    <div class="restaurant-img">${r.icon}</div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">${r.name}</div>
+                        <div class="restaurant-meta">月售${r.sales} | ${r.time}送达</div>
+                        <div class="restaurant-meta">起送价 ¥${r.minPrice} | 配送费 ¥${r.delivery}</div>
+                        <div class="restaurant-tags">
+                            ${r.tags.map(t => `<span class="restaurant-tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 生成二手商品
+        function generateSecondhandItems() {
+            const items = [
+                { icon: '📱', title: 'iPhone 13 128G', condition: '95成新 | 使用3个月', price: '3999', seller: '小明', time: '2小时前' },
+                { icon: '💻', title: 'MacBook Pro 2021', condition: '9成新 | 使用1年', price: '8999', seller: '小红', time: '5小时前' },
+                { icon: '📚', title: '经济学原理', condition: '8成新 | 无笔记', price: '29', seller: '小李', time: '1天前' },
+                { icon: '🚲', title: '山地自行车', condition: '85成新 | 骑行500km', price: '599', seller: '小王', time: '3天前' }
+            ];
+            
+            const list = document.getElementById('secondhand-list');
+            list.innerHTML = items.map(item => `
+                <div class="secondhand-card">
+                    <div class="secondhand-header">
+                        <div class="secondhand-image">${item.icon}</div>
+                        <div class="secondhand-info">
+                            <div class="secondhand-title">${item.title}</div>
+                            <div class="secondhand-condition">${item.condition}</div>
+                            <div class="secondhand-price">${item.price}</div>
+                        </div>
+                    </div>
+                    <div class="secondhand-footer">
+                        <div class="seller-info">
+                            <div class="seller-avatar">👤</div>
+                            <div class="seller-name">${item.seller}</div>
+                        </div>
+                        <div class="secondhand-time">${item.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 生成个人主页
+        function generateProfile() {
+            // 模拟优化个人主页
+            const stats = document.querySelectorAll('.stat-value');
+            stats.forEach(stat => {
+                const newValue = Math.floor(Math.random() * 50) + 10;
+                stat.textContent = newValue;
+            });
+        }
+
+        // 显示提示
+        function showToast(message, isLoading = false, isSuccess = false) {
+            // 移除已有提示
+            const existing = document.querySelector('.shop-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'shop-toast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${isLoading ? 'rgba(0,0,0,0.7)' : (isSuccess ? '#4A7C59' : '#C55A5A')};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: fadeInOut 2s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 搜索商品
+        window.searchShop = async function() {
+            const input = document.getElementById('shop-search-input');
+            const keyword = input.value.trim();
+            
+            if (!keyword) {
+                showToast('请输入搜索关键词', false, false);
+                return;
+            }
+            
+            const searchBtn = input.parentElement.querySelector('.search-btn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = '搜索中...';
+            
+            try {
+                // 调用AI API搜索商品
+                const result = await searchWithAI(keyword, 'shop');
+                
+                if (result && result.products && result.products.length > 0) {
+                    renderSearchResults(result.products, 'tab-shop', 'product-grid');
+                    showToast(`找到 ${result.products.length} 个商品`, false, true);
+                } else {
+                    showToast('未找到相关商品', false, false);
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                showToast('搜索失败，请检查API配置', false, false);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '搜索';
+            }
+        }
+
+        // 搜索外卖
+        window.searchDelivery = async function() {
+            const input = document.getElementById('delivery-search-input');
+            const keyword = input.value.trim();
+            
+            if (!keyword) {
+                showToast('请输入搜索关键词', false, false);
+                return;
+            }
+            
+            const searchBtn = input.parentElement.querySelector('.search-btn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = '搜索中...';
+            
+            try {
+                const result = await searchWithAI(keyword, 'delivery');
+                
+                if (result && result.restaurants && result.restaurants.length > 0) {
+                    renderSearchResults(result.restaurants, 'tab-delivery', 'restaurant-list');
+                    showToast(`找到 ${result.restaurants.length} 家餐厅`, false, true);
+                } else {
+                    showToast('未找到相关餐厅', false, false);
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                showToast('搜索失败，请检查API配置', false, false);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '搜索';
+            }
+        }
+
+        // 搜索二手商品
+        window.searchSecondhand = async function() {
+            const input = document.getElementById('secondhand-search-input');
+            const keyword = input.value.trim();
+            
+            if (!keyword) {
+                showToast('请输入搜索关键词', false, false);
+                return;
+            }
+            
+            const searchBtn = input.parentElement.querySelector('.search-btn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = '搜索中...';
+            
+            try {
+                const result = await searchWithAI(keyword, 'secondhand');
+                
+                if (result && result.items && result.items.length > 0) {
+                    renderSearchResults(result.items, 'tab-secondhand', 'secondhand-list');
+                    showToast(`找到 ${result.items.length} 个商品`, false, true);
+                } else {
+                    showToast('未找到相关商品', false, false);
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                showToast('搜索失败，请检查API配置', false, false);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '搜索';
+            }
+        }
+
+        // AI搜索功能
+        async function searchWithAI(keyword, type) {
+            // 读取API配置
+            const apiConfig = JSON.parse(localStorage.getItem('apiConfig') || '{}');
+            const apiKey = apiConfig.apiKey || 'demo-key';
+            const apiBaseUrl = apiConfig.baseUrl || 'https://api.gemai.cc/v1';
+            const model = apiConfig.model || 'glm-4';
+            
+            // 构建搜索提示词
+            const prompts = {
+                shop: `请根据关键词"${keyword}"搜索商品，返回JSON格式：{"products":[{"icon":"emoji","name":"商品名","desc":"描述","price":"价格"}]}`,  
+                delivery: `请根据关键词"${keyword}"搜索餐厅，返回JSON格式：{"restaurants":[{"icon":"emoji","name":"餐厅名","sales":"销量","time":"配送时间","minPrice":"起送价","delivery":"配送费","tags":["标签"]}]}`,  
+                secondhand: `请根据关键词"${keyword}"搜索二手商品，返回JSON格式：{"items":[{"icon":"emoji","title":"标题","condition":"成色","price":"价格","seller":"卖家","time":"发布时间"}]}`  
+            };
+            
+            const response = await fetch(`${apiBaseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompts[type]
+                        }
+                    ],
+                    temperature: 0.7
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API请求失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const content = data.choices[0].message.content;
+            
+            // 解析JSON响应
+            try {
+                return JSON.parse(content);
+            } catch (e) {
+                console.error('解析AI响应失败:', e);
+                throw new Error('AI响应格式错误');
+            }
+        }
+
+        // 渲染搜索结果
+        function renderSearchResults(results, tabId, containerClass) {
+            const tab = document.getElementById(tabId);
+            const container = tab.querySelector(`.${containerClass}`);
+            
+            if (!container) return;
+            
+            // 根据类型渲染不同样式
+            if (containerClass === 'product-grid') {
+                container.innerHTML = results.map(p => `
+                    <div class="product-card">
+                        <div class="product-image">${p.icon}</div>
+                        <div class="product-info">
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-desc">${p.desc}</div>
+                            <div class="product-price">${p.price}</div>
+                        </div>
+                        <button class="add-cart-btn" onclick="addToCart('${p.icon}', '${p.name}', '${p.desc}', ${p.price})" title="加入购物车">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            } else if (containerClass === 'restaurant-list') {
+                container.innerHTML = results.map(r => `
+                    <div class="restaurant-card">
+                        <div class="restaurant-img">${r.icon}</div>
+                        <div class="restaurant-info">
+                            <div class="restaurant-name">${r.name}</div>
+                            <div class="restaurant-meta">
+                                <span>月售${r.sales}</span>
+                                <span>${r.time}</span>
+                            </div>
+                            <div class="restaurant-tags">
+                                ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="restaurant-price">
+                            <div>起送${r.minPrice}</div>
+                            <div>配送${r.delivery}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (containerClass === 'secondhand-list') {
+                container.innerHTML = results.map(item => `
+                    <div class="secondhand-card">
+                        <div class="secondhand-header">
+                            <div class="secondhand-image">${item.icon}</div>
+                            <div class="secondhand-info">
+                                <div class="secondhand-title">${item.title}</div>
+                                <div class="secondhand-condition">${item.condition}</div>
+                                <div class="secondhand-price">${item.price}</div>
+                            </div>
+                        </div>
+                        <div class="secondhand-footer">
+                            <div class="seller-info">
+                                <div class="seller-avatar">👤</div>
+                                <div class="seller-name">${item.seller}</div>
+                            </div>
+                            <div class="secondhand-time">${item.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 🛍️ 显示商品详情弹窗
+        window.showProductDetail = function(product) {
+            console.log('🛍️ 显示商品详情:', product);
+            
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.2s ease;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: #fff;
+                    border-radius: 16px;
+                    width: 90%;
+                    max-width: 400px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                ">
+                    <!-- 商品图片 -->
+                    <div style="
+                        width: 100%;
+                        height: 200px;
+                        background: #F5F5F5;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 16px 16px 0 0;
+                    ">
+                        <div style="font-size: 14px; color: #999; text-align: center; padding: 20px; line-height: 1.6;">
+                            ${(product.imageDesc || product.name).replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    
+                    <!-- 商品信息 -->
+                    <div style="padding: 20px;">
+                        <!-- 名称 -->
+                        <div style="font-size: 20px; color: #333; font-weight: 600; margin-bottom: 8px;">
+                            ${product.name}
+                        </div>
+                        
+                        <!-- 描述 -->
+                        <div style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px;">
+                            ${product.desc || '暂无描述'}
+                        </div>
+                        
+                        <!-- 价格 -->
+                        <div style="
+                            font-size: 24px;
+                            color: #F29344;
+                            font-weight: 600;
+                            margin-bottom: 20px;
+                        ">
+                            ￥${parseFloat(product.price).toFixed(2)}
+                        </div>
+                        
+                        <!-- 按钮 -->
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="window.addToCartFromDetail('${encodeURIComponent(JSON.stringify(product))}')"
+                                style="
+                                    flex: 1;
+                                    padding: 12px;
+                                    background: #F29344;
+                                    color: #fff;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                ">
+                                加入购物车
+                            </button>
+                            <button onclick="this.closest('div[style*=\'position: fixed\']').remove()"
+                                style="
+                                    padding: 12px 20px;
+                                    background: #F5F5F5;
+                                    color: #666;
+                                    border: none;
+                                    border-radius: 8px;
+                                    font-size: 16px;
+                                    cursor: pointer;
+                                ">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            document.body.appendChild(modal);
+        };
+        
+        // 🛒 从详情页添加到购物车
+        window.addToCartFromDetail = function(encodedProduct) {
+            try {
+                const product = JSON.parse(decodeURIComponent(encodedProduct));
+                console.log(' 添加到购物车:', product);
+                
+                // 调用现有的添加购物车函数
+                if (typeof window.addToCart === 'function') {
+                    window.addToCart(
+                        product.imageDesc || product.name,  // icon
+                        product.name,                        // name
+                        product.desc || '',                  // desc
+                        product.price                        // price
+                    );
+                    showToast('已加入购物车', 'success');
+                    
+                    // 关闭弹窗
+                    const modal = document.querySelector('div[style*="position: fixed"]');
+                    if (modal) modal.remove();
+                } else {
+                    showToast('添加失败', false, true);
+                }
+            } catch (e) {
+                console.error('添加到购物车失败:', e);
+                showToast('添加失败', false, true);
+            }
+        };
+
+        // 返回桌面
+        window.closeShop = function() {
+            // 尝试调用父窗口的关闭函数
+            try {
+                if (window.parent && window.parent.closeShopModal) {
+                    window.parent.closeShopModal();
+                    return;
+                }
+            } catch (e) {
+                // 跨域访问被阻止，使用备用方案
+                console.log('跨域访问被阻止，使用备用方案');
+            }
+            
+            // 备用方案：尝试通过 postMessage 通知父窗口
+            try {
+                window.parent.postMessage({ action: 'closeShopModal' }, '*');
+            } catch (e) {
+                // 如果 postMessage 也失败，直接隐藏当前页面
+                console.log('postMessage 失败');
+            }
+            
+            // 最终方案：隐藏整个页面内容
+            document.body.style.display = 'none';
+        }
+
+        // 分类标签点击
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const parent = this.parentElement;
+                parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 页面加载时初始化购物车
+        console.log('🏪 商城页面加载成功');
+        console.log('📦 当前Tab:', currentTab);
+        console.log('🛒 购物车商品数量:', cart.length);
+        
+        // 🛍️ 检查URL参数，是否有从聊天卡片传来的商品或外卖订单
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productParam = urlParams.get('product');
+            const tabParam = urlParams.get('tab');
+            const orderParam = urlParams.get('order');
+            
+            if (productParam) {
+                // 有商品参数，显示商品详情
+                const product = JSON.parse(decodeURIComponent(productParam));
+                console.log('🛍️ 从聊天卡片打开商品:', product);
+                // 显示商品详情弹窗
+                setTimeout(() => {
+                    showProductDetail(product);
+                }, 500);
+            }
+            
+            if (tabParam === 'delivery' && orderParam) {
+                // 有外卖订单参数，切换到外卖标签并显示订单
+                const delivery = JSON.parse(decodeURIComponent(orderParam));
+                console.log('🚚 从聊天卡片打开外卖订单:', delivery);
+                // 切换到外卖标签
+                setTimeout(() => {
+                    switchTab('delivery');
+                    showToast(`已打开外卖订单：${delivery.restaurant}`);
+                }, 500);
+            }
+        } catch (e) {
+            console.error('解析URL参数失败:', e);
+        }
+        
+        // 📨 监听来自父窗口的postMessage（iframe模式）
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            
+            if (data.type === 'openShopWithProduct') {
+                // 打开商城并显示商品
+                const product = data.product;
+                console.log('📨 收到商品消息:', product);
+                showProductDetail(product);
+            } else if (data.type === 'openDeliveryWithOrder') {
+                // 打开外卖页面并显示订单
+                const delivery = data.delivery;
+                console.log('📨 收到外卖订单消息:', delivery);
+                switchTab('delivery');
+                showToast(`已打开外卖订单：${delivery.restaurant}`);
+            }
+        });
+        
+        // 使用DOMContentLoaded确保DOM完全加载
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCart);
+        } else {
+            initCart();
+        }
+    </script>
+    
+    <!-- 引入 IndexedDB 存储模块 -->
+    <script src="chat-storage.js"></script>
+</body>
+</html>

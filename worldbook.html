@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界书</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #F5F3EF;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(245, 243, 239, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2DED6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9FA2A6;
+            padding: 0 8px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .add-btn {
+            background: #C4BEB4;
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 分类筛选 */
+        .category-filter {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid #E2DED6;
+            background: white;
+            color: #666;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: #C4BEB4;
+            color: white;
+            border-color: #C4BEB4;
+            font-weight: 600;
+        }
+
+        /* 世界书列表 */
+        .worldbook-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .worldbook-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .worldbook-item:hover {
+            box-shadow: 0 4px 12px rgba(196, 190, 180, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #9FA2A6;
+            font-size: 20px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #C4BEB4;
+            color: white;
+        }
+
+        .book-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            padding-right: 32px;
+        }
+
+        .book-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .tag-custom {
+            background: linear-gradient(135deg, #E2DED6 0%, #C4BEB4 100%);
+            color: #333;
+        }
+
+        .tag-priority-high {
+            background: #C4BEB4;
+        }
+
+        .tag-priority-normal {
+            background: #9FA2A6;
+        }
+
+        .tag-priority-low {
+            background: #E2DED6;
+            color: #666;
+        }
+
+        .book-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 12px;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .book-date {
+            font-size: 12px;
+            color: #9FA2A6;
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9FA2A6;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #E2DED6;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E2DED6;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #C4BEB4;
+        }
+
+        .form-textarea {
+            min-height: 200px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #E2DED6;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel {
+            border: 2px solid #E2DED6;
+            background: white;
+            color: #9FA2A6;
+        }
+
+        .btn-save {
+            border: none;
+            background: #C4BEB4;
+            color: white;
+        }
+
+        /* 详情弹窗 */
+        .detail-modal {
+            background: linear-gradient(135deg, #F5F3EF 0%, #E2DED6 100%);
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .detail-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .detail-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #666;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .close-detail-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9FA2A6;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-detail-btn:hover {
+            background: #F8CCDB;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div class="header-title">世界书</div>
+        <button class="add-btn" onclick="showAddModal()">+ 添加</button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 分类筛选 -->
+        <div class="category-filter" id="category-filter">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 世界书列表 -->
+        <div class="worldbook-list" id="worldbook-list">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 添加世界书弹窗 -->
+    <div class="modal-overlay" id="add-modal" onclick="closeAddModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">添加世界书</div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">书名 *</label>
+                    <input type="text" class="form-input" id="book-title" placeholder="请输入书名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分类</label>
+                    <input type="text" class="form-input" id="book-category" placeholder="输入分类名称（如：角色设定、世界观等）">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">读取顺序</label>
+                    <select class="form-select" id="book-priority">
+                        <option value="high">优先读取</option>
+                        <option value="normal" selected>正常读取</option>
+                        <option value="low">最后读取</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">世界书内容 *</label>
+                    <textarea class="form-textarea" id="book-content" placeholder="请输入世界书内容..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeAddModal()">取消</button>
+                <button class="btn btn-save" onclick="saveBook()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detail-modal" onclick="closeDetailModal(event)">
+        <div class="modal detail-modal" onclick="event.stopPropagation()" style="position: relative;">
+            <button class="close-detail-btn" onclick="closeDetailModal()">×</button>
+            <div class="detail-content">
+                <div class="detail-title" id="detail-title"></div>
+                <div class="detail-tags" id="detail-tags"></div>
+                <div class="detail-text" id="detail-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前选中的分类
+        let currentCategory = 'all';
+
+        // 获取所有分类
+        function getAllCategories() {
+            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const categories = new Set();
+            worldBooks.forEach(book => {
+                if (book.category) {
+                    categories.add(book.category);
+                }
+            });
+            return Array.from(categories);
+        }
+
+        // 渲染分类筛选按钮
+        function renderCategoryFilter() {
+            const categories = getAllCategories();
+            const filterEl = document.getElementById('category-filter');
+            
+            let html = `<button class="category-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all', this)">全部</button>`;
+            
+            categories.forEach(category => {
+                html += `<button class="category-btn ${currentCategory === category ? 'active' : ''}" onclick="filterByCategory('${escapeHtml(category)}', this)">${escapeHtml(category)}</button>`;
+            });
+            
+            filterEl.innerHTML = html;
+        }
+
+        // 返回桌面
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // 显示添加弹窗
+        function showAddModal() {
+            document.getElementById('add-modal').classList.add('active');
+            document.getElementById('book-title').value = '';
+            document.getElementById('book-category').value = '';
+            document.getElementById('book-priority').value = 'normal';
+            document.getElementById('book-content').value = '';
+        }
+
+        // 关闭添加弹窗
+        function closeAddModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('add-modal').classList.remove('active');
+        }
+
+        // 保存世界书
+        function saveBook() {
+            const title = document.getElementById('book-title').value.trim();
+            const category = document.getElementById('book-category').value;
+            const priority = document.getElementById('book-priority').value;
+            const content = document.getElementById('book-content').value.trim();
+
+            if (!title) {
+                alert('请输入书名');
+                return;
+            }
+
+            if (!content) {
+                alert('请输入世界书内容');
+                return;
+            }
+
+            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            
+            const newBook = {
+                id: Date.now().toString(),
+                title: title,
+                category: category,
+                priority: priority,
+                content: content,
+                createdAt: Date.now()
+            };
+
+            worldBooks.unshift(newBook);
+            localStorage.setItem('worldBooks', JSON.stringify(worldBooks));
+
+            closeAddModal();
+            loadWorldBookList();
+            alert('世界书已添加');
+        }
+
+        // 加载世界书列表
+        function loadWorldBookList() {
+            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const listEl = document.getElementById('worldbook-list');
+
+            // 更新分类筛选按钮
+            renderCategoryFilter();
+
+            const priorityNames = {
+                high: '优先',
+                normal: '正常',
+                low: '最后'
+            };
+
+            // 根据分类筛选
+            let filteredBooks = worldBooks;
+            if (currentCategory !== 'all') {
+                filteredBooks = worldBooks.filter(book => book.category === currentCategory);
+            }
+
+            if (filteredBooks.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        <div>还没有世界书，点击右上角添加吧~</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // 按读取顺序排序：优先 > 正常 > 最后
+            const priorityOrder = { high: 0, normal: 1, low: 2 };
+            filteredBooks.sort((a, b) => {
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+
+            listEl.innerHTML = filteredBooks.map(book => {
+                const dateStr = new Date(book.createdAt).toLocaleDateString();
+                return `
+                    <div class="worldbook-item" onclick="showDetail('${book.id}')">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteBook('${book.id}')">×</button>
+                        <div class="book-title">${escapeHtml(book.title)}</div>
+                        <div class="book-tags">
+                            <span class="tag tag-custom">${escapeHtml(book.category)}</span>
+                            <span class="tag tag-priority-${book.priority}">${priorityNames[book.priority]}读取</span>
+                        </div>
+                        <div class="book-content">${escapeHtml(book.content)}</div>
+                        <div class="book-date">${dateStr}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 按分类筛选
+        function filterByCategory(category, btn) {
+            currentCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            
+            loadWorldBookList();
+        }
+
+        // 显示详情
+        function showDetail(bookId) {
+            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const book = worldBooks.find(b => b.id === bookId);
+            if (!book) return;
+
+            const priorityNames = {
+                high: '优先',
+                normal: '正常',
+                low: '最后'
+            };
+
+            document.getElementById('detail-title').textContent = book.title;
+            document.getElementById('detail-tags').innerHTML = `
+                <span class="tag tag-custom">${escapeHtml(book.category)}</span>
+                <span class="tag tag-priority-${book.priority}">${priorityNames[book.priority]}读取</span>
+            `;
+            document.getElementById('detail-text').textContent = book.content;
+
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        // 关闭详情
+        function closeDetailModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        // 删除世界书
+        function deleteBook(bookId) {
+            if (!confirm('确定要删除这个世界书吗？')) {
+                return;
+            }
+
+            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const index = worldBooks.findIndex(book => book.id === bookId);
+            
+            if (index >= 0) {
+                worldBooks.splice(index, 1);
+                localStorage.setItem('worldBooks', JSON.stringify(worldBooks));
+                loadWorldBookList();
+                alert('已删除');
+            }
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 初始化
+        loadWorldBookList();
+        
+        // 📱 监听角色查手机标志
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'phone_being_checked' && e.newValue === 'true') {
+                console.log('📱 [世界书] 检测到角色查手机标志');
+                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                console.log('📱 角色名称:', checkerName);
+                
+                // 跳转到 chat-app.html
+                if (!window.location.href.includes('chat-app.html')) {
+                    console.log('📱 跳转到 chat-app.html');
+                    window.location.href = 'chat-app.html?autoBrowse=true&roleName=' + encodeURIComponent(checkerName);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IF 线 - 平行故事</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9FA2A6;
+            padding: 0 8px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .add-btn {
+            background: #4A4A4A !important;
+            border: none;
+            color: white !important;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            writing-mode: horizontal-tb !important;
+            text-orientation: mixed !important;
+            display: inline-block !important;
+        }
+
+        .add-btn:hover {
+            background: #333333;
+            transform: scale(1.05);
+        }
+
+        /* Tab 切换 */
+        .tab-container {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #999;
+        }
+
+        .tab-item.active {
+            background: #4A4A4A;
+            color: white;
+        }
+
+        .tab-item:hover:not(.active) {
+            background: #F5F5F5;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* IF 线列表 */
+        .if-line-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .if-line-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .if-line-item:hover {
+            box-shadow: 0 4px 12px rgba(196, 190, 180, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .if-line-item.active {
+            border: 2px solid #4A4A4A;
+            box-shadow: 0 4px 16px rgba(74, 74, 74, 0.15);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #9FA2A6;
+            font-size: 20px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #FFE5E5;
+            color: #FF4444;
+        }
+
+        .line-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            padding-right: 32px;
+        }
+
+        .line-character {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .character-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .character-avatar-default {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #666666;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .character-name {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .line-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .line-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-active {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .status-inactive {
+            background: #F5F5F5;
+            color: #999;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .empty-hint {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* 使用提示 */
+        .usage-tip {
+            background: #4A4A4A;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 74, 74, 0.15);
+        }
+
+        .usage-tip-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .usage-tip-content {
+            font-size: 12px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        /* 创建/编辑弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #F5F5F5;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #FAFAFA;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #4A4A4A;
+            background: white;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #FAFAFA;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #4A4A4A;
+            background: white;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #F5F5F5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #E0E0E0;
+        }
+
+        .btn-primary {
+            background: #4A4A4A;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+            transform: scale(1.02);
+        }
+
+        /* 详情页面 */
+        .detail-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #F5F3EF;
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .detail-page.show {
+            display: block;
+        }
+
+        .detail-content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .detail-header {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .detail-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn-edit {
+            background: #4A4A4A;
+            color: white;
+        }
+
+        .action-btn-edit:hover {
+            background: #333333;
+        }
+
+        .action-btn-switch {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .action-btn-switch:hover {
+            background: #C8E6C9;
+        }
+
+        .action-btn-switch.active {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        /* 分支节点 */
+        .branch-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .branch-timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .branch-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #E0E0E0;
+        }
+
+        .branch-node {
+            position: relative;
+            padding: 16px;
+            background: #FAFAFA;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .branch-node:hover {
+            border-color: #4A4A4A;
+            background: white;
+        }
+
+        .branch-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4A4A4A;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #4A4A4A;
+        }
+
+        .node-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .node-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .node-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .add-node-btn {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #E0E0E0;
+            background: transparent;
+            border-radius: 12px;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .add-node-btn:hover {
+            border-color: #4A4A4A;
+            color: #4A4A4A;
+            background: rgba(74, 74, 74, 0.05);
+        }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 主页面 -->
+    <div id="main-page">
+        <div class="content" style="margin-top: 0; padding-top: 16px;">
+            <!-- 使用提示 -->
+            <div class="usage-tip">
+                <div class="usage-tip-title">如何使用 IF 线对话</div>
+                <div class="usage-tip-content">
+                    1. 点击任意 IF 线卡片查看详情<br>
+                    2. 点击"进入对话"按钮开始平行故事对话<br>
+                    3. AI 会根据 IF 线的设定来回应你<br>
+                    4. 对话历史会保存在该 IF 线下，可随时返回继续
+                </div>
+            </div>
+
+            <!-- Tab 切换 -->
+            <div class="tab-container">
+                <div class="tab-item active" data-type="online" onclick="switchTab('online')">线上</div>
+                <div class="tab-item" data-type="offline" onclick="switchTab('offline')">线下</div>
+            </div>
+
+            <div id="if-line-list" class="if-line-list">
+                <!-- IF 线列表将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情页面 -->
+    <div id="detail-page" class="detail-page">
+        <div class="detail-content" style="padding-top: 16px;">
+            <div class="detail-header">
+                <div id="detail-title" class="detail-title"></div>
+                <div id="detail-description" class="detail-description"></div>
+                <div id="detail-meta" class="line-meta"></div>
+                <div class="detail-actions">
+                    <button class="action-btn action-btn-edit" onclick="editCurrentLine()">编辑</button>
+                    <button id="switch-btn" class="action-btn action-btn-switch" onclick="toggleActiveLine()">切换为主線</button>
+                    <button class="action-btn" style="background: #95EC69; color: #07C160;" onclick="enterChat()">进入对话</button>
+                </div>
+            </div>
+
+            <div class="branch-section">
+                <div class="section-title">
+                    <span>剧情分支</span>
+                    <button class="add-btn" onclick="showAddNodeModal()" style="padding: 4px 12px; font-size: 12px;">+ 添加节点</button>
+                </div>
+                <div id="branch-timeline" class="branch-timeline">
+                    <!-- 分支节点将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑弹窗 -->
+    <div id="create-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">新建 IF 线</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">标题</label>
+                    <input type="text" id="line-title-input" class="form-input" placeholder="例如：如果当初选择了另一条路...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <textarea id="line-description-input" class="form-textarea" placeholder="描述这个平行故事的背景和设定..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">类型</label>
+                    <select id="line-type-select" class="form-select">
+                        <option value="online">线上</option>
+                        <option value="offline">线下</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">关联角色</label>
+                    <select id="line-character-select" class="form-select">
+                        <option value="">选择角色（可选）</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveLine()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加节点弹窗 -->
+    <div id="node-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">添加剧情节点</div>
+                <button class="modal-close" onclick="closeNodeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">节点标题</label>
+                    <input type="text" id="node-title-input" class="form-input" placeholder="例如：关键抉择点">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">节点内容</label>
+                    <textarea id="node-content-input" class="form-textarea" placeholder="描述这个节点发生的事件..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNodeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveNode()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // 数据存储
+        let ifLines = JSON.parse(localStorage.getItem('if_lines') || '[]');
+        let currentLineId = null;
+        let editingLineId = null;
+        let currentTab = 'online'; // 当前选中的 Tab
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderIfLines();
+            loadCharacters();
+            
+            // 监听父页面传来的消息（iframe 右侧按钮点击）
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'callIframeFunction') {
+                    const funcName = event.data.funcName;
+                    console.log('[IF线] 收到父页面调用:', funcName);
+                    if (funcName === 'showCreateModal' && typeof window.showCreateModal === 'function') {
+                        window.showCreateModal();
+                    }
+                }
+            });
+        });
+
+        // 切换 Tab
+        function switchTab(type) {
+            currentTab = type;
+            
+            // 更新 Tab 样式
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // 重新渲染列表
+            renderIfLines();
+        }
+
+        // 渲染 IF 线列表
+        function renderIfLines() {
+            const listContainer = document.getElementById('if-line-list');
+            
+            // 根据当前 Tab 过滤数据
+            const filteredLines = ifLines.filter(line => line.type === currentTab || (!line.type && currentTab === 'online'));
+            
+            if (filteredLines.length === 0) {
+                const emptyText = currentTab === 'online' ? '还没有线上 IF 线' : '还没有线下 IF 线';
+                const emptyHint = currentTab === 'online' 
+                    ? '点击右上角"+ 新建"创建你的第一个线上平行故事' 
+                    : '点击右上角"+ 新建"创建你的第一个线下平行故事';
+                
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-text">${emptyText}</div>
+                        <div class="empty-hint">${emptyHint}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = filteredLines.map(line => {
+                const isActive = line.id === localStorage.getItem('active_if_line');
+                const nodeCount = line.nodes ? line.nodes.length : 0;
+                const createdDate = new Date(line.createdAt).toLocaleDateString('zh-CN');
+                
+                // 获取角色信息
+                let characterHtml = '';
+                if (line.character) {
+                    try {
+                        const personaId = localStorage.getItem('currentPersonaId') || 'default';
+                        const contacts = JSON.parse(localStorage.getItem(`persona_${personaId}_chatContacts`) || '[]');
+                        const character = contacts.find(c => c.id === line.character);
+                        if (character) {
+                            const charName = character.remark || character.name || '未知角色';
+                            const avatarUrl = character.avatar || character.imageUrl || '';
+                            if (avatarUrl) {
+                                characterHtml = `<div class="line-character"><img class="character-avatar" src="${avatarUrl}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="character-avatar-default" style="display:none;">${charName.charAt(0)}</div><span class="character-name">${escapeHtml(charName)}</span></div>`;
+                            } else {
+                                characterHtml = `<div class="line-character"><div class="character-avatar-default">${charName.charAt(0)}</div><span class="character-name">${escapeHtml(charName)}</span></div>`;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('获取角色信息失败:', e);
+                    }
+                }
+                
+                return `
+                    <div class="if-line-item ${isActive ? 'active' : ''}" onclick="openDetail('${line.id}')">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteLine('${line.id}')">×</button>
+                        <div class="line-title">${escapeHtml(line.title || '无标题')}</div>
+                        ${characterHtml}
+                        <div class="line-description">${escapeHtml(line.description || '暂无描述')}</div>
+                        <div class="line-meta">
+                            <div class="meta-item">📅 ${createdDate}</div>
+                            <div class="meta-item">🔀 ${nodeCount} 个节点</div>
+                        </div>
+                        ${isActive ? '<div class="status-badge status-active">当前主线</div>' : '<div class="status-badge status-inactive">未激活</div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示创建弹窗
+        function showCreateModal() {
+            editingLineId = null;
+            document.getElementById('modal-title').textContent = '新建 IF 线';
+            document.getElementById('line-title-input').value = '';
+            document.getElementById('line-description-input').value = '';
+            document.getElementById('line-type-select').value = currentTab; // 默认使用当前 Tab 的类型
+            document.getElementById('line-character-select').value = '';
+            document.getElementById('create-modal').classList.add('show');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('create-modal').classList.remove('show');
+        }
+
+        // 保存 IF 线
+        function saveLine() {
+            const title = document.getElementById('line-title-input').value.trim();
+            const description = document.getElementById('line-description-input').value.trim();
+            const type = document.getElementById('line-type-select').value;
+            const character = document.getElementById('line-character-select').value;
+
+            if (!title) {
+                showToast('请输入标题');
+                return;
+            }
+
+            if (editingLineId) {
+                // 编辑模式
+                const line = ifLines.find(l => l.id === editingLineId);
+                if (line) {
+                    line.title = title;
+                    line.description = description;
+                    line.type = type;
+                    line.character = character;
+                    line.updatedAt = new Date().toISOString();
+                }
+                showToast('更新成功');
+            } else {
+                // 新建模式
+                const newLine = {
+                    id: 'if_' + Date.now(),
+                    title: title,
+                    description: description,
+                    type: type,
+                    character: character,
+                    nodes: [],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                ifLines.unshift(newLine);
+                showToast('创建成功');
+            }
+
+            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            renderIfLines();
+            closeModal();
+        }
+
+        // 删除 IF 线
+        function deleteLine(id) {
+            if (!confirm('确定要删除这条 IF 线吗？')) {
+                return;
+            }
+
+            ifLines = ifLines.filter(l => l.id !== id);
+            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            
+            if (localStorage.getItem('active_if_line') === id) {
+                localStorage.removeItem('active_if_line');
+            }
+            
+            renderIfLines();
+            showToast('已删除');
+        }
+
+        // 打开详情页面
+        function openDetail(id) {
+            currentLineId = id;
+            const line = ifLines.find(l => l.id === id);
+            if (!line) return;
+
+            document.getElementById('detail-title').textContent = line.title;
+            document.getElementById('detail-description').textContent = line.description || '暂无描述';
+            
+            const createdDate = new Date(line.createdAt).toLocaleDateString('zh-CN');
+            const nodeCount = line.nodes ? line.nodes.length : 0;
+            document.getElementById('detail-meta').innerHTML = `
+                <div class="meta-item">📅 创建于 ${createdDate}</div>
+                <div class="meta-item">🔀 ${nodeCount} 个节点</div>
+            `;
+
+            const isActive = id === localStorage.getItem('active_if_line');
+            const switchBtn = document.getElementById('switch-btn');
+            if (isActive) {
+                switchBtn.textContent = '取消主线';
+                switchBtn.classList.add('active');
+            } else {
+                switchBtn.textContent = '切换为主线';
+                switchBtn.classList.remove('active');
+            }
+
+            renderBranchNodes(line);
+            document.getElementById('detail-page').classList.add('show');
+        }
+
+        // 关闭详情页面
+        function closeDetail() {
+            document.getElementById('detail-page').classList.remove('show');
+            currentLineId = null;
+        }
+
+        // 渲染分支节点
+        function renderBranchNodes(line) {
+            const timeline = document.getElementById('branch-timeline');
+            
+            if (!line.nodes || line.nodes.length === 0) {
+                timeline.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 12px; opacity: 0.5;">🌱</div>
+                        <div style="font-size: 14px;">还没有剧情节点</div>
+                        <div style="font-size: 12px; margin-top: 8px;">点击"添加节点"开始创作</div>
+                    </div>
+                `;
+                return;
+            }
+
+            timeline.innerHTML = line.nodes.map((node, index) => {
+                const nodeTime = new Date(node.createdAt).toLocaleString('zh-CN');
+                return `
+                    <div class="branch-node">
+                        <div class="node-title">${escapeHtml(node.title)}</div>
+                        <div class="node-content">${escapeHtml(node.content)}</div>
+                        <div class="node-time">${nodeTime}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示添加节点弹窗
+        function showAddNodeModal() {
+            document.getElementById('node-title-input').value = '';
+            document.getElementById('node-content-input').value = '';
+            document.getElementById('node-modal').classList.add('show');
+        }
+
+        // 关闭节点弹窗
+        function closeNodeModal() {
+            document.getElementById('node-modal').classList.remove('show');
+        }
+
+        // 保存节点
+        function saveNode() {
+            const title = document.getElementById('node-title-input').value.trim();
+            const content = document.getElementById('node-content-input').value.trim();
+
+            if (!title || !content) {
+                showToast('请填写完整信息');
+                return;
+            }
+
+            const line = ifLines.find(l => l.id === currentLineId);
+            if (!line) return;
+
+            if (!line.nodes) {
+                line.nodes = [];
+            }
+
+            line.nodes.push({
+                id: 'node_' + Date.now(),
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString()
+            });
+
+            line.updatedAt = new Date().toISOString();
+            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            
+            renderBranchNodes(line);
+            renderIfLines();
+            closeNodeModal();
+            showToast('节点已添加');
+        }
+
+        // 编辑当前 IF 线
+        function editCurrentLine() {
+            const line = ifLines.find(l => l.id === currentLineId);
+            if (!line) return;
+
+            editingLineId = currentLineId;
+            document.getElementById('modal-title').textContent = '编辑 IF 线';
+            document.getElementById('line-title-input').value = line.title;
+            document.getElementById('line-description-input').value = line.description || '';
+            document.getElementById('line-type-select').value = line.type || 'online';
+            document.getElementById('line-character-select').value = line.character || '';
+            document.getElementById('create-modal').classList.add('show');
+        }
+
+        // 切换主线
+        function toggleActiveLine() {
+            const activeId = localStorage.getItem('active_if_line');
+            
+            if (activeId === currentLineId) {
+                // 取消主线
+                localStorage.removeItem('active_if_line');
+                showToast('已取消主线');
+            } else {
+                // 设置为主线
+                localStorage.setItem('active_if_line', currentLineId);
+                showToast('已切换为主线');
+            }
+
+            openDetail(currentLineId);
+            renderIfLines();
+        }
+
+        // 加载角色列表
+        function loadCharacters() {
+            const select = document.getElementById('line-character-select');
+            
+            // 清空现有选项（保留第一个默认选项）
+            select.innerHTML = '<option value="">选择角色（可选）</option>';
+            
+            try {
+                // 读取当前人设的通讯录
+                const personaId = localStorage.getItem('currentPersonaId') || 'default';
+                const contactsKey = `persona_${personaId}_chatContacts`;
+                const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+                
+                console.log('加载角色列表:', contactsKey, '数量:', contacts.length);
+                
+                // 过滤出非群聊的角色
+                const characters = contacts.filter(c => !c.id.startsWith('group_'));
+                
+                characters.forEach(contact => {
+                    const option = document.createElement('option');
+                    option.value = contact.id;
+                    option.textContent = contact.remark || contact.name || '未命名角色';
+                    select.appendChild(option);
+                });
+                
+                console.log('已加载', characters.length, '个角色');
+            } catch (e) {
+                console.error('加载角色列表失败:', e);
+            }
+        }
+
+        // 返回按钮
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // 进入对话
+        function enterChat() {
+            if (!currentLineId) return;
+            const line = ifLines.find(l => l.id === currentLineId);
+            if (!line) return;
+            
+            // 优先使用标题，如果为空则使用关联角色名字
+            let displayName = line.title;
+            if (!displayName && line.character) {
+                try {
+                    const personaId = localStorage.getItem('currentPersonaId') || 'default';
+                    const contactsKey = `persona_${personaId}_chatContacts`;
+                    const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+                    const character = contacts.find(c => c.id === line.character);
+                    if (character) {
+                        displayName = character.remark || character.name || 'IF 线对话';
+                    }
+                } catch (e) {
+                    console.error('获取角色名字失败:', e);
+                }
+            }
+            if (!displayName) {
+                displayName = 'IF 线对话';
+            }
+            
+            // 跳转到聊天界面，传递 IF 线信息
+            window.location.href = `chat-interface.html?ifline=${currentLineId}&title=${encodeURIComponent(displayName)}&type=${line.type || 'online'}`;
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 点击遮罩层关闭弹窗
+        document.getElementById('create-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('node-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNodeModal();
+            }
+        });
+    </script>
+</body>
+</html>

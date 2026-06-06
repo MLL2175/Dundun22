@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>聊天</title>
+    <meta name="theme-color" content="#f5f5f7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23007AFF' width='512' height='512' rx='100'/><text x='256' y='320' font-size='280' text-anchor='middle' fill='white'>AI</text></svg>">
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-chat: #ffffff;
+            --bg-bubble-sent: #95EC69;
+            --bg-bubble-received: #FFFFFF;
+            --text-primary: #000000;
+            --text-secondary: #7D7D7D;
+            --border-color: #E5E5E5;
+            --accent-green: #07C160;
+            --header-height: 80px;
+            --input-area-height: 56px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 优化触摸事件性能 */
+        html, body {
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 滚动容器优化 */
+        .chat-messages {
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #ededed;
+            height: 100dvh;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        /* IF 线模式专属样式 */
+        body.ifline-mode {
+            background: #f8f8f8;
+        }
+
+        body.ifline-mode .chat-container {
+            background: transparent;
+        }
+
+        body.ifline-mode .chat-header {
+            background: #ffffff !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+        }
+
+        body.ifline-mode .chat-title {
+            color: #333 !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.5px;
+        }
+
+        body.ifline-mode .back-btn,
+        body.ifline-mode .settings-btn {
+            color: #333 !important;
+        }
+
+        body.ifline-mode .chat-messages {
+            background: #ffffff !important;
+        }
+
+        body.ifline-mode .input-area {
+            background: #ffffff !important;
+            border-top: 1px solid #e0e0e0 !important;
+        }
+
+        /* 线下叙事模式 - 像书一样的阅读体验 */
+        body.ifline-offline-mode .chat-input-area {
+            display: none !important;
+        }
+
+        body.ifline-offline-mode .chat-messages {
+            padding: 40px 24px !important;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        /* 线下模式：消息改为段落样式，不显示气泡 */
+        body.ifline-offline-mode .message-wrapper {
+            max-width: 100% !important;
+            margin-bottom: 24px !important;
+        }
+
+        body.ifline-offline-mode .message-bubble {
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+        }
+
+        body.ifline-offline-mode .message-content {
+            font-size: 16px !important;
+            line-height: 2 !important;
+            color: #333 !important;
+            text-align: justify;
+        }
+
+        body.ifline-offline-mode .message-avatar {
+            display: none !important;
+        }
+
+        body.ifline-offline-mode .message-time {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin: 20px 0;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            background: #ededed;
+            overflow: hidden;
+        }
+
+        /* 头部 */
+        .chat-header {
+            height: var(--header-height) !important;
+            background: #ffffff !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-bottom: 1px solid #d0d0d0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px !important;
+            padding-top: env(safe-area-inset-top) !important;
+            flex-shrink: 0;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            max-width: 100% !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .chat-title {
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .chat-title-wrapper {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 60%;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: absolute;
+            right: 16px;
+            z-index: 1;
+        }
+        
+        .settings-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .settings-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .settings-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* 多选模式工具栏 */
+        .multi-select-toolbar {
+            height: 50px;
+            background: #F5F5F5;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selected-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .toolbar-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .toolbar-btn.danger {
+            color: #FF3B30;
+        }
+
+        .toolbar-btn.danger:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        /* 转发联系人列表样式 */
+        .forward-contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .forward-contact-item:hover {
+            background: #f5f5f5;
+        }
+
+        .forward-contact-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .forward-contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .forward-contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .forward-contact-name {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .forward-contact-desc {
+            font-size: 13px;
+            color: #999;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-btn {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #000;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* 开关样式 */
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #07C160 !important;
+        }
+
+        .toggle-switch input:checked + .toggle-slider .toggle-knob,
+        .toggle-switch input:checked + .toggle-slider + .toggle-knob {
+            transform: translateX(24px);
+        }
+
+        .toggle-switch input:focus + .toggle-slider {
+            box-shadow: 0 0 1px #07C160;
+        }
+
+        /* 聊天内容区 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 8px;
+            padding-top: calc(var(--header-height) + 16px + env(safe-area-inset-top));
+            background: var(--bg-chat);
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            min-height: 0;
+        }
+
+        .message-item {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .message-item.sent {
+            flex-direction: row-reverse;
+        }
+
+        /* 多选复选框 */
+        .message-checkbox {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .message-item.sent .message-checkbox {
+            margin-right: 0;
+            margin-left: 8px;
+        }
+
+        .message-checkbox svg {
+            transition: all 0.2s;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+            overflow: hidden;
+            margin: 0 12px;
+        }
+
+        .message-content {
+            max-width: calc(100% - 56px);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .message-item.sent .message-content {
+            align-items: flex-end;
+        }
+
+        .message-bubble {
+            padding: 8px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            position: relative;
+            max-width: 100%;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        /* 图片和表情包消息减少内边距 */
+        .message-item.sent .message-bubble img,
+        .message-item.received .message-bubble img {
+            display: block;
+            margin: 0;
+        }
+
+        .message-item.received .message-bubble {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-item.sent .message-bubble {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #1a1a1a;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+            border-radius: 18px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        /* 输入区域 */
+        .chat-input-area {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: none;
+            padding: 8px 12px 16px 12px;
+            flex-shrink: 0;
+            border-radius: 0;
+            margin: 0;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .input-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .tool-btn:active {
+            transform: scale(0.9);
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .tool-btn.active {
+            background: var(--accent-green) !important;
+            color: white;
+        }
+
+        .tool-btn.active svg {
+            stroke: white !important;
+        }
+
+        .tool-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke: #000;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+            position: relative;
+            gap: 8px;
+        }
+
+        .plus-menu-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .plus-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .voice-input-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .chat-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            max-height: 100px;
+            overflow-y: auto;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.5;
+            padding: 0 50px 0 0;
+            margin: 0;
+            background: transparent;
+            flex: 1;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .send-btn:active {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+        }
+
+        /* 发送图标（默认显示） */
+        .send-btn .icon-send {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        .send-btn .icon-reply {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0.5);
+        }
+
+        /* 有文字时切换到回复图标 */
+        .send-btn.has-text .icon-send {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.5);
+        }
+
+        .send-btn.has-text .icon-reply {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        .send-btn.has-text {
+            background: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .send-btn.has-text:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state-icon svg {
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* 系统消息 */
+        .system-message {
+            text-align: center;
+            padding: 12px;
+            margin: 16px 0;
+        }
+
+        .system-message span {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 错误消息 */
+        .system-error-message {
+            text-align: center;
+            padding: 12px;
+            margin: 16px 0;
+        }
+
+        .system-error-message span {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #ff3b30;
+            font-weight: 500;
+        }
+
+        /* 线下长文本叙事 */
+        .offline-narrative-message {
+            text-align: center;
+            padding: 16px 24px;
+            margin: 12px 0;
+        }
+
+        .offline-narrative-content {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #888;
+            line-height: 1.8;
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 正在输入动画 */
+        @keyframes typing-bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 18px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing-bounce 1.4s infinite;
+            opacity: 0.6;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 头部 -->
+        <div class="chat-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <!-- 群聊头像和名称（水平布局，放在左边） -->
+                <div id="group-header-info" style="display: none; flex-direction: row; align-items: center; margin-left: 8px;">
+                    <!-- 自定义群聊头像（单个） -->
+                    <div id="group-avatar-header" style="width: 44px; height: 44px; border-radius: 8px; overflow: hidden; display: none;"></div>
+                    <!-- 默认成员头像拼接（QQ群样式） -->
+                    <div id="group-avatars" style="display: none; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; position: relative; background: #f0f0f0;"></div>
+                    <div class="chat-title" id="group-chat-title" style="font-size: 16px; margin-left: 10px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">群聊</div>
+                </div>
+            </div>
+            <div class="chat-title-wrapper">
+                <div class="chat-title" id="chat-title">聊天</div>
+            </div>
+            <div class="header-right">
+                <!-- 聊天设置按钮 -->
+                <button class="menu-btn" onclick="showChatSettings()" title="聊天设置">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 群公告栏 -->
+        <div id="group-announcement-bar" style="display: none; padding: 8px 16px; background: #fff8e1; border-bottom: 1px solid #ffe082; cursor: pointer;" onclick="showAnnouncementDetail()">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2" style="flex-shrink: 0;">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span id="announcement-bar-text" style="font-size: 13px; color: #e65100; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;"></span>
+            </div>
+        </div>
+
+        <!-- 多选模式工具栏 -->
+        <div class="multi-select-toolbar" id="multi-select-toolbar" style="display: none;">
+            <div class="toolbar-left">
+                <button class="toolbar-btn" onclick="exitMultiSelectMode()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <span class="selected-count" id="selected-count">已选择 0 条消息</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="selectAllMessages()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                    </svg>
+                    <span>全选</span>
+                </button>
+                <button class="toolbar-btn" onclick="forwardSelectedMessages()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 17 15 12 9 7"></polyline>
+                        <path d="M20 18v-2a4 4 0 00-4-4H4"></path>
+                    </svg>
+                    <span>转发</span>
+                </button>
+                <button class="toolbar-btn danger" onclick="deleteSelectedMessages()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                    </svg>
+                    <span>删除</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="chat-messages" id="chat-messages">
+            <div class="empty-state">
+                <svg class="empty-state-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <div class="empty-state-text">开始聊天吧</div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="chat-input-area" data-version="2">
+            <!-- Token数显示栏 -->
+            <div id="token-count-bar" style="display: none; padding: 6px 16px; background: #f8f9fa; border-top: 1px solid #e5e5e5; text-align: right; font-size: 12px; color: #999;">
+                <span id="token-count-text">0 tokens</span>
+            </div>
+            
+            <div class="input-row">
+                <!-- + 按钮 -->
+                <button type="button" class="plus-menu-btn" onclick="togglePlusMenu(); return false;" title="更多">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                
+                <div class="input-wrapper">
+                    <!-- 语音按钮 - 输入框内左侧 -->
+                    <button class="voice-input-btn" onclick="toggleVoiceInput()" title="语音输入">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
+                    
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input" 
+                        placeholder="发消息..." 
+                        rows="1"
+                        onkeydown="handleInputKeydown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <!-- 旁白按钮 - 输入框内右侧 -->
+                    <button id="narration-btn" onclick="toggleNarrationInput()" title="旁白描写" style="display: none; width: 32px; height: 32px; border-radius: 6px; background: rgba(165, 214, 167, 0.2); border: none; cursor: pointer; flex-shrink: 0; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background='rgba(165, 214, 167, 0.3)'" onmouseout="this.style.background='rgba(165, 214, 167, 0.2)'">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#A5D6A7" stroke-width="2">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button class="send-btn" id="send-btn" onclick="handleSendOrReply()" title="发送">
+                    <!-- 发送图标 -->
+                    <svg class="icon-send" viewBox="0 0 24 24">
+                        <path d="M22 2L11 13"></path>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                    </svg>
+                    <!-- 回复图标 -->
+                    <svg class="icon-reply" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                        <path d="M12 6a6 6 0 0 0-6 6h2a4 4 0 0 1 4-4V6z"></path>
+                        <path d="M12 18a6 6 0 0 0 6-6h-2a4 4 0 0 1-4 4v2z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 加号菜单 - 微信风格在输入框下方展开 -->
+            <div id="plus-menu-bottom" style="display: none; background: #f7f7f7; border-top: 1px solid #e5e5e5; padding-bottom: 54px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 100%; margin: 0 auto; padding: 16px 12px 0 12px; justify-items: center;">
+                    <div onclick="videoCall(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">视频通话</span>
+                    </div>
+                    <div onclick="voiceCall(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">语音通话</span>
+                    </div>
+                    <div onclick="sendLocation(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">定位</span>
+                    </div>
+                    <div style="position: relative;">
+                        <div onclick="event.stopPropagation(); showOfflineModeSubmenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                            <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                            </div>
+                            <span style="font-size: 12px; color: #888;">线下模式</span>
+                        </div>
+                        
+                        <div id="offline-mode-submenu" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 8px 0; min-width: 160px; z-index: 10000; margin-bottom: 8px;">
+                            <div onclick="startOfflineMode('long-text'); hideOfflineModeSubmenu();" style="padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                <span style="font-size: 14px; color: #333;">长文本</span>
+                            </div>
+                            <div style="height: 1px; background: #e5e5e5; margin: 4px 0;"></div>
+                            <div onclick="startOfflineMode('narration'); hideOfflineModeSubmenu();" style="padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    <line x1="8" y1="8" x2="16" y2="8"></line>
+                                    <line x1="8" y1="12" x2="13" y2="12"></line>
+                                </svg>
+                                <span style="font-size: 14px; color: #333;">旁白</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="regenerateAIResponse(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                                <path d="M12 6a6 6 0 0 0-6 6h2a4 4 0 0 1 4-4V6z"></path>
+                                <path d="M12 18a6 6 0 0 0 6-6h-2a4 4 0 0 1-4 4v2z"></path>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">重回</span>
+                    </div>
+                    <div onclick="sendEmoji(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">表情</span>
+                    </div>
+                    <div onclick="sendImage(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">图片</span>
+                    </div>
+                    <div onclick="transferMoney(); togglePlusMenu();" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; cursor: pointer;">
+                        <div style="width: 60px; height: 60px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 0 auto;">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="2">
+                                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                                <circle cx="12" cy="12" r="2"></circle>
+                                <path d="M6 12h.01M18 12h.01"></path>
+                            </svg>
+                        </div>
+                        <span style="font-size: 12px; color: #888;">转账</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- END chat-container -->
+
+    <!-- 旁白输入弹窗 -->
+    <div id="narration-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000;">
+        <div style="background: white; width: 90%; max-width: 400px; margin: 20vh auto; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+            <!-- 弹窗头部 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; background: #f5f5f5;">
+                <h2 style="font-size: 17px; font-weight: 600; margin: 0;">✍️ 旁白描写</h2>
+                <button onclick="closeNarrationModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            
+            <!-- 弹窗内容 -->
+            <div style="padding: 20px;">
+                <p style="font-size: 13px; color: #999; margin: 0 0 12px 0; line-height: 1.6;">
+                    描写场景、动作、心理等，旁白将以灰色斜体居中显示
+                </p>
+                <textarea 
+                    id="narration-input" 
+                    placeholder="例如：他轻轻叹了口气，看向窗外..." 
+                    style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; box-sizing: border-box;"
+                    onfocus="this.style.borderColor='#A5D6A7'" 
+                    onblur="this.style.borderColor='#e0e0e0'"
+                ></textarea>
+            </div>
+            
+            <!-- 弹窗底部按钮 -->
+            <div style="display: flex; gap: 12px; padding: 16px 20px; border-top: 1px solid #e5e5e5; background: #f5f5f5;">
+                <button onclick="closeNarrationModal()" style="flex: 1; padding: 10px; background: #D3D3D3; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">取消</button>
+                <button onclick="confirmNarration()" style="flex: 1; padding: 10px; background: #A5D6A7; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天设置弹窗 -->
+    <div id="chat-settings-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000;">
+        <div style="background: white; width: 100%; max-width: 500px; margin: 20px auto; border-radius: 16px; overflow: hidden; max-height: calc(100vh - 40px); display: flex; flex-direction: column;">
+            <!-- 设置头部 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; background: #f5f5f5;">
+                <h2 style="font-size: 17px; font-weight: 600; margin: 0;">聊天设置</h2>
+                <button onclick="closeChatSettings()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            
+            <!-- 设置内容 -->
+            <div style="flex: 1; overflow-y: auto; padding: 0;">
+                <!-- 群聊设置 (仅群聊显示) -->
+                <div id="group-chat-settings" style="display: none;">
+                    <!-- 群聊信息 -->
+                    <div style="margin: 0; padding: 20px; background: white;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">群聊信息</h3>
+                        
+                        <!-- 群聊头像 -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">群聊头像</label>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div id="settings-group-avatar-preview" style="width: 60px; height: 60px; border-radius: 8px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; flex-shrink: 0;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                                        <circle cx="17" cy="7" r="3"/>
+                                        <path d="M21 21v-1.5a3 3 0 0 0-2-2.83"/>
+                                    </svg>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                    <div style="display: flex; gap: 8px;">
+                                        <button onclick="uploadGroupAvatar()" style="flex: 1; padding: 8px 16px; background: #007AFF; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">上传头像</button>
+                                        <button onclick="clearGroupAvatar()" style="flex: 1; padding: 8px 16px; background: #f0f0f0; color: #666; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">清除头像</button>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" id="group-avatar-url-input" style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none; box-sizing: border-box;" placeholder="输入头像URL地址">
+                                        <button onclick="applyGroupAvatarUrl()" style="padding: 8px 16px; background: #34C759; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">应用</button>
+                                    </div>
+                                    <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                        <button onclick="setGroupAvatarShape('square')" id="group-avatar-shape-square" style="flex: 1; padding: 4px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">方形</button>
+                                        <button onclick="setGroupAvatarShape('circle')" id="group-avatar-shape-circle" style="flex: 1; padding: 4px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">圆形</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="file" id="group-avatar-input" accept="image/*" style="display: none;" onchange="handleGroupAvatarUpload(event)">
+                        </div>
+                        
+                        <!-- 群聊名称 -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">群聊名称</label>
+                            <input type="text" id="settings-group-name" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;" placeholder="请输入群聊名称">
+                        </div>
+                        
+                        <!-- 群公告 -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">群公告</label>
+                            <textarea id="settings-group-announcement" rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; resize: vertical; font-family: inherit; box-sizing: border-box;" placeholder="请输入群公告"></textarea>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button onclick="saveGroupAnnouncement()" style="flex: 1; padding: 8px 12px; background: white; color: #07C160; border: 1px solid #07C160; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">保存</button>
+                                <button onclick="removeGroupAnnouncement()" style="flex: 1; padding: 8px 12px; background: white; color: #ff6b6b; border: 1px solid #ff6b6b; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">移除</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 世界书绑定 -->
+                        <div>
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">绑定世界书</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <select id="settings-worldbook-select" style="flex: 1; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white;">
+                                    <option value="">不绑定世界书</option>
+                                </select>
+                                <button onclick="openWorldbookManager()" style="padding: 10px 16px; background: white; color: #007AFF; border: 1px solid #007AFF; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap;">管理世界书</button>
+                            </div>
+                            <div style="font-size: 12px; color: #999; margin-top: 8px;">绑定后，群聊将使用指定的世界书设定</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 群成员管理 -->
+                    <div style="margin: 0; padding: 20px; background: white; border-top: 8px solid #f5f5f5;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">群成员 (<span id="group-member-count">0</span>)</h3>
+                        
+                        <div id="group-members-list" style="max-height: 400px; overflow-y: auto;">
+                            <!-- 群成员列表将在这里动态生成 -->
+                        </div>
+                        
+                        <!-- 群主操作按钮 -->
+                        <div id="owner-actions" style="display: none; margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+                            <div style="font-size: 13px; color: #666; margin-bottom: 10px; font-weight: 500;">群主操作</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="inviteGroupMembers()" style="flex: 1; padding: 10px; background: white; color: #333; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">邀请成员</button>
+                                <button onclick="toggleGroupMute()" id="mute-btn" style="flex: 1; padding: 10px; background: white; color: #f59e0b; border: 1px solid #f59e0b; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">禁言群聊</button>
+                                <button onclick="dismissGroup()" style="flex: 1; padding: 10px; background: white; color: #ff4d4f; border: 1px solid #ffcccc; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">解散群聊</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 储存管理 (群聊也有) -->
+                    <div style="margin: 0; padding: 20px; background: white; border-top: 8px solid #f5f5f5;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">储存管理</h3>
+                        
+                        <!-- 聊天记录管理 -->
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">聊天记录</div>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 12px;">当前聊天包含 <span id="chat-message-count-group" style="color: #333;">0</span> 条消息</div>
+                            <button onclick="clearChatMessages()" style="width: 100%; padding: 10px; background: #f0f0f0; color: #666; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">清空聊天记录</button>
+                        </div>
+                        
+                        <!-- 数据备份 -->
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">数据备份</div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <button onclick="exportChatData()" style="flex: 1; padding: 10px; background: white; color: #07C160; border: 1px solid #07C160; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">导出数据</button>
+                                <button onclick="importChatData()" style="flex: 1; padding: 10px; background: white; color: #007AFF; border: 1px solid #007AFF; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">导入数据</button>
+                            </div>
+                            <div style="font-size: 11px; color: #999; line-height: 1.5;">导出聊天记录到本地文件，或从备份文件恢复数据</div>
+                        </div>
+                        
+                        <!-- 全部清空 -->
+                        <div>
+                            <button onclick="clearAllChatData()" style="width: 100%; padding: 10px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">清空所有聊天数据</button>
+                            <div style="font-size: 11px; color: #999; margin-top: 8px;">注意：此操作将清空当前聊天的所有消息和设置，且不可恢复</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 单聊设置 (仅单聊显示) -->
+                <div id="single-chat-settings">
+                <!-- 角色信息 -->
+                <div style="padding: 20px; border-bottom: 8px solid #f5f5f5;">
+                    <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">角色信息</h3>
+                    
+                    <!-- 角色头像 -->
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div id="settings-role-avatar-preview" style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; margin-right: 16px; flex-shrink: 0;">
+                            <img id="settings-role-avatar" src="" alt="头像" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #999; margin-bottom: 4px;">角色头像</div>
+                            <button onclick="changeRoleAvatar()" style="padding: 6px 12px; background: #a0a0a0; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; margin-bottom: 8px;">更换头像</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="setAvatarShape('square')" id="avatar-shape-square" style="padding: 4px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">方形</button>
+                                <button onclick="setAvatarShape('circle')" id="avatar-shape-circle" style="padding: 4px 12px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">圆形</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 角色名称 -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色名称</label>
+                        <input type="text" id="settings-role-name" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" placeholder="请输入角色名称">
+                    </div>
+                    
+                    <!-- 聊天备注 -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">聊天备注</label>
+                        <input type="text" id="settings-chat-remark" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" placeholder="请输入聊天备注">
+                    </div>
+                    
+                    <!-- 角色设定 -->
+                    <div>
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色设定</label>
+                        <textarea id="settings-role-setting" rows="4" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; resize: vertical; font-family: inherit;" placeholder="请输入角色设定"></textarea>
+                    </div>
+                    
+                    <!-- 表情包分类绑定 -->
+                    <div style="margin-top: 16px;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">表情包分类</label>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 8px;">选择表情包分类，角色将可以使用该分类下的所有表情</div>
+                        <div style="position: relative;">
+                            <select id="settings-role-emoji-category" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white; cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none;" onchange="updateSettingsEmojiPreview()">
+                                <option value="">不绑定表情包</option>
+                            </select>
+                            <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div id="settings-emoji-preview" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; min-height: 36px; padding: 6px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 6px;">
+                            <div style="font-size: 12px; color: #999; width: 100%; text-align: center; padding: 6px;">未绑定</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 角色黑名单 -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色自主拉黑</label>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">让角色根据自己的心情和设定自主决定是否回复</div>
+                        
+                        <!-- 自主拉黑开关 -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: 14px; color: #333; font-weight: 500;">启用自主拉黑</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 2px;">角色会根据心情和设定自主拒绝回复</div>
+                            </div>
+                            <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                <input type="checkbox" id="settings-autoreject-enabled" style="opacity: 0; width: 0; height: 0;" onchange="saveAutoRejectEnabled()">
+                                <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                                <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- 拒绝概率 -->
+                        <div style="margin-top: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #333;">拒绝概率</span>
+                                <span id="reject-probability-value" style="font-size: 14px; color: #666;">10%</span>
+                            </div>
+                            <input type="range" id="settings-reject-probability" min="0" max="50" value="10" style="width: 100%;" oninput="updateRejectProbabilityDisplay()">
+                            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                <span style="font-size: 12px; color: #999;">总是回复</span>
+                                <span style="font-size: 12px; color: #999;">偶尔拒绝</span>
+                                <span style="font-size: 12px; color: #999;">经常拒绝</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 心情显示 -->
+                        <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #333; font-weight: 500;">角色心情</span>
+                                <span id="mood-emoji" style="font-size: 24px;">😊</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div id="mood-bar" style="width: 70%; height: 100%; background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%); border-radius: 4px; transition: width 0.5s;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                                <span style="font-size: 11px; color: #999;">心情不好</span>
+                                <span style="font-size: 11px; color: #999;">心情很好</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 分隔线 -->
+                        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e0e0e0;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">关键词黑名单</label>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 8px;">设置角色绝对不想回复的关键词</div>
+                            
+                            <!-- 添加关键词输入框 -->
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="text" id="settings-blacklist-keyword" placeholder="输入关键词" style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" onkeypress="if(event.key==='enter') addBlacklistKeyword()">
+                                <button onclick="addBlacklistKeyword()" style="padding: 8px 16px; background: #ff4d4f; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; white-space: nowrap;">添加</button>
+                            </div>
+                            
+                            <!-- 黑名单关键词列表 -->
+                            <div id="settings-blacklist-container" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; padding: 8px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px;">
+                                <div style="font-size: 12px; color: #999; width: 100%; text-align: center; padding: 8px;">暂无黑名单关键词</div>
+                            </div>
+                            
+                            <!-- 关键词黑名单开关 -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px;">
+                                <div>
+                                    <div style="font-size: 14px; color: #333; font-weight: 500;">启用关键词黑名单</div>
+                                    <div style="font-size: 12px; color: #999; margin-top: 2px;">开启后角色会拒绝包含黑名单关键词的消息</div>
+                                </div>
+                                <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                    <input type="checkbox" id="settings-blacklist-enabled" style="opacity: 0; width: 0; height: 0;" onchange="saveBlacklistEnabled()">
+                                    <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                                    <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 消息设置 -->
+                <div style="padding: 20px; border-bottom: 8px solid #f5f5f5;">
+                    <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">消息设置</h3>
+                    
+                    <!-- 角色主动消息开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">角色主动消息</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后角色会按设定的时间间隔主动发送消息</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-auto-message" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 主动消息时间间隔 -->
+                    <div id="auto-message-interval-container" style="margin-top: 16px; display: none;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">主动消息时间间隔 (分钟)</label>
+                        <input type="number" id="settings-auto-message-interval" min="1" max="60" value="5" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    
+                    <!-- 角色反向查手机开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0; margin-top: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">角色反向查手机</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后角色会定期"登录你的账号"查看手机数据</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-check-phone" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 查手机时间间隔 -->
+                    <div id="check-phone-interval-container" style="margin-top: 16px; display: none;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">查手机时间间隔 (分钟)</label>
+                        <input type="number" id="settings-check-phone-interval" min="5" max="120" value="30" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        <div style="font-size: 12px; color: #999; margin-top: 6px;">角色查看手机的时间间隔</div>
+                    </div>
+                    
+                    <!-- 查手机模式选择 -->
+                    <div id="check-phone-mode-container" style="margin-top: 16px; display: none;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">查手机模式</label>
+                        <div style="display: flex; gap: 12px;">
+                            <button id="mode-transparent" class="check-phone-mode-btn active" data-mode="transparent" onclick="setCheckPhoneMode('transparent')" style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; font-size: 14px; cursor: pointer; transition: all 0.3s;">透明模式</button>
+                            <button id="mode-password" class="check-phone-mode-btn" data-mode="password" onclick="setCheckPhoneMode('password')" style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; background: white; font-size: 14px; cursor: pointer; transition: all 0.3s;">密码模式</button>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 8px;">
+                            <div id="mode-transparent-desc" style="display: none; color: #5B8FF9;">透明模式：角色可以直接查看，无需授权</div>
+                            <div id="mode-password-desc" style="display: none; color: #5B8FF9;">密码模式：需要密码授权才能查看</div>
+                        </div>
+                        
+                        <!-- 密码设置 -->
+                        <div id="password-setting-container" style="margin-top: 12px; display: none;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">设置密码</label>
+                            <input type="password" id="settings-check-phone-password" placeholder="请输入密码" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        </div>
+                        
+                        <!-- 授权状态 -->
+                        <div id="authorization-status-container" style="margin-top: 12px; display: none;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f0f9ff; border-radius: 8px;">
+                                <div>
+                                    <div style="font-size: 13px; color: #333; font-weight: 500;">授权状态</div>
+                                    <div id="authorization-status-text" style="font-size: 12px; color: #999; margin-top: 2px;">未授权</div>
+                                </div>
+                                <button id="revoke-auth-btn" onclick="revokeAuthorization()" style="padding: 6px 12px; background: #ff4d4f; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">撤销授权</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 时间感知开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0; margin-top: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">时间感知</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后 AI 会感知当前时间和日期</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-time-awareness" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 环境感知开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">环境感知</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后 AI 会感知当前地理位置和天气</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-environment-awareness" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 环境感知地点设置（开关开启时显示） -->
+                    <div id="environment-locations-container" style="margin-top: 16px; display: none;">
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">用户所在地点</label>
+                            <input type="text" id="settings-user-location" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" placeholder="例如：北京朝阳区">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">角色所在地点</label>
+                            <input type="text" id="settings-ai-location" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" placeholder="例如：上海浦东新区">
+                        </div>
+                    </div>
+                    
+                    <!-- 显示时间戳开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0; margin-top: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">显示时间戳</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后在消息气泡右下角显示精确到秒的时间</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-show-timestamp" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 隐藏对话头像开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">隐藏对话头像</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后在聊天界面中不显示双方头像</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-show-avatar" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 显示token数开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">显示Token数</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后在输入框上方显示最后一条AI回复的Token数量</div>
+                            <div id="current-token-display" style="font-size: 12px; color: #667eea; margin-top: 6px; font-weight: 500;">当前: 0 tokens</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-show-token-count" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 翻译模式开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">翻译模式</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后气泡中显示双语：上面外文，下面中文翻译</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-translation-mode" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 角色语言选择 -->
+                    <div style="padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">角色语言</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">设置角色的母语，AI 将使用该语言回复（配合翻译模式使用效果更佳）</div>
+                        <select id="settings-character-language" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white; cursor: pointer;">
+                            <option value="zh">中文（简体）</option>
+                            <option value="en">英语 (English)</option>
+                            <option value="ja">日语 (日本語)</option>
+                            <option value="ko">韩语 (한국어)</option>
+                            <option value="fr">法语 (Français)</option>
+                            <option value="de">德语 (Deutsch)</option>
+                            <option value="es">西班牙语 (Español)</option>
+                            <option value="ru">俄语 (Русский)</option>
+                            <option value="it">意大利语 (Italiano)</option>
+                            <option value="pt">葡萄牙语 (Português)</option>
+                            <option value="ar">阿拉伯语 (العربية)</option>
+                            <option value="th">泰语 (ไทย)</option>
+                            <option value="vi">越南语 (Tiếng Việt)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 朋友圈更新频率 -->
+                    <div style="padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">朋友圈更新频率</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">设置 AI 自动发布朋友圈的时间间隔</div>
+                        <select id="settings-moments-frequency" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white; cursor: pointer;">
+                            <option value="0">关闭（不自动更新）</option>
+                            <option value="1">每 1 小时</option>
+                            <option value="2">每 2 小时</option>
+                            <option value="3">每 3 小时</option>
+                            <option value="6">每 6 小时</option>
+                            <option value="12">每 12 小时</option>
+                            <option value="24">每 24 小时</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 拍一拍后缀 -->
+                    <div style="padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">拍一拍后缀</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">设置拍一拍时显示的后缀词，例如：肩膀、脑袋</div>
+                        <input type="text" id="settings-pat-suffix" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;" placeholder="例如：肩膀（留空则不显示后缀）">
+                    </div>
+                    
+                    <!-- 心声功能设置 -->
+                    <div style="padding: 12px 0; border-top: 1px solid #f0f0f0;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">心声功能</h3>
+                        
+                        <!-- 自动心声开关 -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 14px; color: #333; font-weight: 500;">自动心声</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后 AI 会在特定条件下自动生成内心独白</div>
+                            </div>
+                            <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                                <input type="checkbox" id="settings-auto-voice" style="opacity: 0; width: 0; height: 0;">
+                                <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                                <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- 心声触发频率 -->
+                        <div id="auto-voice-frequency-container" style="margin-top: 16px; display: none;">
+                            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">触发频率</label>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 12px;">控制 AI 生成心声的频率</div>
+                            <select id="settings-voice-frequency" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white; cursor: pointer;">
+                                <option value="low">低频（每20条消息或深夜）</option>
+                                <option value="medium">中频（每10条消息、情绪变化或深夜）</option>
+                                <option value="high">高频（每5条消息、情绪变化或深夜）</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 心声样式自定义 CSS -->
+                        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">心声样式自定义 CSS</div>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 12px;">可以自定义心声弹窗的样式，例如：背景色、字体、圆角等<br>提示：使用 !important 可以覆盖默认样式</div>
+                            
+                            <!-- CSS 输入框 -->
+                            <textarea id="settings-voice-css" rows="8" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; resize: vertical; font-family: 'Courier New', monospace;" placeholder="/* ========== 示例 1：深色主题 ========== */
+#voice-modal > div {
+    background: #2c2c2e !important;
+}
+#voice-modal h2,
+#voice-modal div[style*='color: #333'] {
+    color: #fff !important;
+}
+#voice-clothing,
+#voice-mood,
+#voice-thoughts {
+    background: #3a3a3c !important;
+    color: #e0e0e0 !important;
+}
+
+/* ========== 示例 2：粉色温柔主题 ========== */
+#voice-modal > div {
+    background: linear-gradient(135deg, #FFF5F7 0%, #FFE8EE 100%) !important;
+}
+#voice-clothing,
+#voice-mood,
+#voice-thoughts {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid #FFCDD2 !important;
+}
+
+/* ========== 示例 3：毛玻璃效果 ========== */
+#voice-modal > div {
+    backdrop-filter: blur(20px) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ========== 示例 4：购物小票风格（完整版） ========== */
+/* 弹窗容器 - 模拟小票纸张 */
+#voice-modal > div {
+    background: #FFFFFF !important;
+    border-radius: 0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    max-width: 320px !important;
+    font-family: 'Courier New', monospace !important;
+}
+
+/* 头部标题区域 */
+#voice-modal > div > div:first-child {
+    background: #FFFFFF !important;
+    border-bottom: 2px dashed #E0E0E0 !important;
+    padding: 16px !important;
+}
+#voice-modal h2 {
+    font-size: 16px !important;
+    text-align: center !important;
+    color: #333 !important;
+}
+#voice-modal h2 svg {
+    display: none !important; /* 隐藏图标 */
+}
+
+/* 历史按钮 */
+#voice-history-btn {
+    font-family: 'Courier New', monospace !important;
+    font-size: 12px !important;
+    color: #666 !important;
+    background: transparent !important;
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 4px !important;
+    padding: 4px 12px !important;
+}
+
+/* 关闭按钮 */
+#voice-modal button[onclick*='closeVoiceModal'] svg {
+    stroke: #666 !important;
+}
+
+/* 时间显示 */
+#voice-time {
+    font-size: 11px !important;
+    color: #999 !important;
+    text-align: center !important;
+    margin: 12px 0 !important;
+    border-bottom: 1px dashed #E0E0E0 !important;
+    padding-bottom: 8px !important;
+}
+
+/* 内容区块（穿着、心情、感想） */
+#voice-clothing,
+#voice-mood,
+#voice-thoughts {
+    background: transparent !important;
+    border: none !important;
+    padding: 8px 0 !important;
+    margin-bottom: 12px !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    color: #333 !important;
+    border-bottom: 1px dashed #E0E0E0 !important;
+}
+
+/* 标签文字（穿着、心情、感想） */
+#voice-modal div[style*='穿着'],
+#voice-modal div[style*='心情'],
+#voice-modal div[style*='感想'] {
+    font-weight: bold !important;
+    font-size: 12px !important;
+    color: #666 !important;
+    margin-bottom: 4px !important;
+}
+#voice-modal div[style*='穿着'] svg,
+#voice-modal div[style*='心情'] svg,
+#voice-modal div[style*='感想'] svg {
+    display: none !important; /* 隐藏图标 */
+}
+
+/* 底部按钮区域 */
+#voice-modal > div > div:last-child {
+    border-top: 2px dashed #E0E0E0 !important;
+    background: #F8F8F8 !important;
+    padding: 12px 16px !important;
+}
+
+/* 重新生成按钮 */
+#voice-modal button[onclick*='generateVoice'] {
+    background: #FFFFFF !important;
+    color: #333 !important;
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 4px !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 13px !important;
+}
+
+/* 关闭按钮 */
+#voice-modal button[onclick*='closeVoiceModal']:last-of-type {
+    background: #FFFFFF !important;
+    color: #666 !important;
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 4px !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 13px !important;
+}"></textarea>
+                            
+                            <!-- 按钮 -->
+                            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <button onclick="applyVoiceCss()" style="flex: 1; padding: 8px 12px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">应用样式</button>
+                                <button onclick="clearVoiceCss()" style="padding: 8px 12px; background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer;">清除</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 聊天背景 -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 12px;">聊天背景</div>
+                        
+                        <!-- 背景预览 -->
+                        <div id="bg-preview-container" style="width: 100%; height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: #f5f5f5; display: none;">
+                            <img id="bg-preview" src="" alt="背景预览" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        
+                        <!-- 上传按钮 -->
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button onclick="uploadBackground()" style="flex: 1; padding: 8px 12px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">上传图片</button>
+                            <button onclick="clearBackground()" style="padding: 8px 12px; background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer;">清除</button>
+                        </div>
+                        <input type="file" id="bg-upload-input" accept="image/*" style="display: none;">
+                        
+                        <!-- URL 输入 -->
+                        <div>
+                            <label style="display: block; font-size: 13px; color: #999; margin-bottom: 6px;">或使用图片链接</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="settings-bg-url" style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none;" placeholder="输入图片 URL">
+                                <button onclick="setBgFromUrl()" style="padding: 8px 16px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer;">设置</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 气泡自定义 CSS -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">气泡自定义 CSS</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">可以自定义消息气泡和转账卡片的样式，例如：背景色、圆角、阴影等<br>提示：使用 !important 可以覆盖默认样式</div>
+                        
+                        <!-- 我的预设 -->
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 13px; color: #999;">我的预设</label>
+                                <button onclick="saveCurrentAsPreset()" style="padding: 4px 10px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 12px; cursor: pointer;"> 保存当前为预设</button>
+                            </div>
+                            <select id="bubble-preset-select" onchange="applyBubblePreset()" style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; outline: none; background: white;">
+                                <option value="">-- 选择预设 --</option>
+                            </select>
+                            <button onclick="deleteSelectedPreset()" id="delete-preset-btn" style="width: 100%; margin-top: 6px; padding: 6px; background: #fff5f5; color: #ff6b6b; border: 1px solid #ffe0e0; border-radius: 6px; font-size: 12px; cursor: pointer; display: none;">🗑️ 删除选中预设</button>
+                        </div>
+                        
+                        <!-- CSS 输入框 -->
+                        <textarea id="settings-bubble-css" rows="10" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; resize: vertical; font-family: 'Courier New', monospace;" placeholder="/* ========== 示例 1：黑色气泡（白色文字） ========== */
+.message-bubble {
+    background: #333 !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+}
+
+/* ========== 示例 2：发送方绿色，接收方白色 ========== */
+.message-item.sent .message-bubble {
+    background: #07C160 !important;
+    color: #fff;
+}
+.message-item.received .message-bubble {
+    background: #fff !important;
+    color: #333;
+}
+
+/* ========== 示例 3：毛玻璃半透明效果 ========== */
+.message-bubble {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(200, 200, 200, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+/* ========== 示例 4：圆角 + 渐变色 ========== */
+.message-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+}
+
+/* ========== 示例 5：自定义阴影和边框 ========== */
+.message-bubble {
+    background: #fff !important;
+    color: #333 !important;
+    border: 2px solid #e0e0e0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* ========== 示例 6：自定义转账卡片样式 ========== */
+.transfer-card {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3) !important;
+}
+.transfer-amount {
+    color: #fff !important;
+    font-weight: bold !important;
+}
+.transfer-remark {
+    color: rgba(255,255,255,0.9) !important;
+}
+.transfer-label {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* ========== 示例 7：转账卡片 - 购物小票风格 ========== */
+/* 转账卡片容器 - 模拟小票纸张 */
+.transfer-card {
+    background: #FFFFFF !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    padding: 16px !important;
+    min-width: 240px !important;
+    max-width: 280px !important;
+    font-family: 'Courier New', monospace !important;
+}
+
+/* 转账金额 - 大号字体居中 */
+.transfer-amount {
+    font-size: 24px !important;
+    color: #333 !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px dashed #E0E0E0 !important;
+}
+
+/* 转账备注 */
+.transfer-remark {
+    font-size: 13px !important;
+    color: #666 !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    padding: 8px 0 !important;
+    border-bottom: 1px dashed #E0E0E0 !important;
+}
+
+/* "微信转账"标签 */
+.transfer-label {
+    font-size: 11px !important;
+    color: #999 !important;
+    text-align: center !important;
+    margin-top: 12px !important;
+    padding-top: 8px !important;
+    border-top: 1px dashed #E0E0E0 !important;
+}
+.transfer-label svg {
+    display: none !important; /* 隐藏图标 */
+}
+
+/* 收款状态 */
+.transfer-status {
+    margin-top: 12px !important;
+    padding-top: 12px !important;
+    border-top: 2px dashed #E0E0E0 !important;
+    text-align: center !important;
+}
+.transfer-status span {
+    font-size: 12px !important;
+    color: #07C160 !important;
+    font-weight: bold !important;
+}
+
+/* ========== 示例 8：转账卡片 - 去除气泡背景（纯小票） ========== */
+/* 隐藏转账消息的气泡背景 - 使用:has()选择器只影响包含.transfer-card的消息 */
+.message-item .message-bubble:has(.transfer-card),
+.message-item .message-bubble:has([onclick*="showTransferPopup"]) {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* 兼容不支持:has()的浏览器 - 转账消息不使用气泡容器 */
+.transfer-message-wrapper .message-bubble,
+.transfer-message-wrapper {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* 转账卡片本身 - 模拟小票纸张 */
+.transfer-card {
+    background: #FFFFFF !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    padding: 16px !important;
+    min-width: 240px !important;
+    max-width: 280px !important;
+    font-family: 'Courier New', monospace !important;
+}"></textarea>
+                        
+                        <!-- 提示 -->
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #f8f8f8; border-radius: 6px; font-size: 12px; color: #666; line-height: 1.6;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">💡 可用选择器：</div>
+                            <div>• <code>.message-bubble</code> - 所有消息气泡</div>
+                            <div>• <code>.user-message .message-bubble</code> - 用户消息气泡</div>
+                            <div>• <code>.ai-message .message-bubble</code> - AI 消息气泡</div>
+                            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #e0e0e0;"><strong>🎁 转账卡片选择器：</strong></div>
+                            <div>• <code>.transfer-card</code> - 转账卡片容器</div>
+                            <div>• <code>.transfer-amount</code> - 转账金额</div>
+                            <div>• <code>.transfer-remark</code> - 转账备注</div>
+                            <div>• <code>.transfer-label</code> - "微信转账"标签</div>
+                            <div>• <code>.transfer-status</code> - 收款状态</div>
+                        </div>
+                        
+                        <!-- 按钮 -->
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button onclick="applyBubbleCss()" style="flex: 1; padding: 8px 12px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">应用样式</button>
+                            <button onclick="clearBubbleCss()" style="padding: 8px 12px; background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer;">清除</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 界面自定义CSS -->
+                <div style="padding: 20px; border-top: 1px solid #f0f0f0;">
+                    <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 12px;">界面自定义CSS</h3>
+                    
+                    <!-- 统一界面自定义CSS -->
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 13px; color: #666; display: block; margin-bottom: 8px; font-weight: 500;">界面自定义CSS <span style="color: #999; font-weight: normal; font-size: 12px;">（不限制字数）</span></label>
+                        <textarea id="settings-interface-css" rows="25" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; resize: vertical; font-family: 'Courier New', monospace;" placeholder="/* ========== 示例 1：替换顶栏头像 ========== */
+/* 使用自定义图片替换灰色头像 */
+#header-avatar {
+    background: url('你的图片URL') center/cover !important;
+}
+#header-avatar svg {
+    display: none !important;
+}
+
+/* ========== 示例 2：修改顶栏样式 ========== */
+.chat-header {
+    background: #f6f6f6 !important;
+    border-bottom: 0.5px solid #c6c6c8 !important;
+}
+
+/* ========== 示例 3：消息气泡 ========== */
+.message-item.sent .message-bubble {
+    background: #007AFF !important;
+    color: #fff !important;
+    border-radius: 18px !important;
+}
+
+.message-item.received .message-bubble {
+    background: #e9e9eb !important;
+    color: #000 !important;
+}
+
+/* ========== 示例 4：替换图标颜色 ========== */
+.menu-btn svg,
+.back-btn svg {
+    stroke: #ff3b30 !important;  /* 红色 */
+}
+
+/* ========== 示例 5：发送按钮 ========== */
+.send-btn {
+    background: #34c759 !important;  /* 绿色 */
+    border-radius: 50% !important;
+}
+
+/* 你可以编写任意 CSS 样式 */
+/* 自由定制界面的每个细节 */
+/* 支持所有 CSS 属性和选择器 */"></textarea>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <button type="button" onclick="applyInterfaceCss(event)" style="flex: 1; padding: 8px 12px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">应用样式</button>
+                            <button type="button" onclick="clearInterfaceCss(event)" style="padding: 8px 12px; background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; cursor: pointer;">清除</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 记忆设置 -->
+                <div style="padding: 20px;">
+                    <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">记忆设置</h3>
+                    
+                    <!-- 短期记忆条数 -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">短期记忆条数</label>
+                        <input type="number" id="settings-short-memory-count" min="5" max="100" value="20" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">AI 会记住最近设定的聊天条数</div>
+                    </div>
+                    
+                    <!-- 自动总结开关 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; margin-bottom: 16px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; color: #333; font-weight: 500;">自动总结</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">开启后连接 API 会自动总结</div>
+                        </div>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" id="settings-auto-summary" style="opacity: 0; width: 0; height: 0;">
+                            <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;"></span>
+                            <span class="toggle-knob" style="position: absolute; content: ''; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 自动总结条数 -->
+                    <div id="auto-summary-count-container" style="margin-bottom: 16px; display: none;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">总结条数</label>
+                        <input type="number" id="settings-auto-summary-count" min="10" max="200" value="50" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">每达到设定的条数后自动总结</div>
+                    </div>
+                    
+                    <!-- 总结字数选择 -->
+                    <div id="auto-summary-length-container" style="margin-bottom: 16px; display: none;">
+                        <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">总结字数</label>
+                        <select id="settings-auto-summary-length" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white;">
+                            <option value="short">简短（100字以内）</option>
+                            <option value="medium" selected>中等（300字以内）</option>
+                            <option value="long">详细（500字以内）</option>
+                        </select>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">选择日记的详细程度</div>
+                    </div>
+                    
+                    <!-- 手动总结按钮 -->
+                    <button onclick="showManualSummaryDialog()" style="width: 100%; padding: 12px; background: #a0a0a0; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">立即总结</button>
+                    
+                    <!-- 查看记忆库 -->
+                    <button onclick="window.location.href='memory-app.html'" style="width: 100%; padding: 12px; background: #f5f5f5; color: #333; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; margin-top: 10px;">📚 查看所有记忆</button>
+                </div>
+                
+                <!-- 储存管理 -->
+                <div style="padding: 20px; border-top: 8px solid #f5f5f5;">
+                    <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px;">储存管理</h3>
+                    
+                    <!-- 聊天记录管理 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">聊天记录</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">当前聊天包含 <span id="chat-message-count-single" style="color: #333;">0</span> 条消息</div>
+                        <button onclick="clearChatMessages()" style="width: 100%; padding: 10px; background: #f0f0f0; color: #666; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">清空聊天记录</button>
+                    </div>
+                    
+                    <!-- 记忆记录管理 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">记忆记录</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">已保存 <span id="memory-record-count" style="color: #333;">0</span> 条记忆总结</div>
+                        <button onclick="clearMemoryRecords()" style="width: 100%; padding: 10px; background: #f0f0f0; color: #666; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">清空记忆记录</button>
+                    </div>
+                    
+                    <!-- 数据备份 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #333; font-weight: 500; margin-bottom: 8px;">数据备份</div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button onclick="exportChatData()" style="flex: 1; padding: 10px; background: white; color: #07C160; border: 1px solid #07C160; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">导出数据</button>
+                            <button onclick="importChatData()" style="flex: 1; padding: 10px; background: white; color: #007AFF; border: 1px solid #007AFF; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">导入数据</button>
+                        </div>
+                        <div style="font-size: 11px; color: #999; line-height: 1.5;">导出聊天记录到本地文件，或从备份文件恢复数据</div>
+                    </div>
+                    
+                    <!-- 全部清空 -->
+                    <div>
+                        <button onclick="clearAllChatData()" style="width: 100%; padding: 10px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 500;">清空所有聊天数据</button>
+                        <div style="font-size: 11px; color: #999; margin-top: 8px;">注意：此操作将清空当前聊天的所有消息、记忆和设置，且不可恢复</div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- 保存按钮 -->
+            <div style="padding: 16px 20px; border-top: 1px solid #e5e5e5; background: #f5f5f5;">
+                <button onclick="saveChatSettings()" style="width: 100%; padding: 12px; background: #a0a0a0; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手动总结弹窗 -->
+    <div id="manual-summary-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10001;">
+        <div style="background: white; width: 100%; max-width: 400px; margin: auto; border-radius: 16px; padding: 24px;">
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #333;">立即总结</h3>
+            <label style="display: block; font-size: 14px; color: #999; margin-bottom: 8px;">总结最近多少条消息</label>
+            <input type="number" id="manual-summary-count" min="10" max="500" value="50" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 20px;">
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeManualSummaryDialog()" style="flex: 1; padding: 12px; background: #d0d0d0; color: #333; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">取消</button>
+                <button onclick="executeManualSummary()" style="flex: 1; padding: 12px; background: #a0a0a0; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">总结</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 转发联系人选择弹窗 -->
+    <div id="forward-contact-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10002;" onclick="if(event.target===this)closeForwardContactModal()">
+        <div style="background: white; width: 100%; max-width: 400px; max-height: 70vh; margin: auto; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+            <!-- 弹窗头部 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; background: #f5f5f5;">
+                <h3 style="font-size: 17px; font-weight: 600; margin: 0; color: #333;">选择联系人</h3>
+                <button onclick="closeForwardContactModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            <!-- 联系人列表 -->
+            <div id="forward-contact-list" style="flex: 1; overflow-y: auto; padding: 8px 0;"></div>
+        </div>
+    </div>
+
+    <!-- 心声弹窗 -->
+    <div id="voice-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10001;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 90%; max-width: 420px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <!-- 头部 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; background: #f5f5f5;">
+                <h2 style="font-size: 17px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#999" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    心声
+                </h2>
+                <div style="display: flex; gap: 8px;">
+                    <button id="voice-history-btn" onclick="toggleVoiceHistory()" style="background: none; border: none; font-size: 13px; cursor: pointer; color: #FFCDD2; padding: 4px 12px; border-radius: 4px;">历史</button>
+                    <button onclick="closeVoiceModal()" style="background: none; border: none; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 内容区 -->
+            <div style="padding: 20px; min-height: 200px; max-height: 500px; overflow-y: auto;">
+                <!-- 加载状态 -->
+                <div id="voice-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+                    <div style="width: 40px; height: 40px; border: 3px solid #e5e5e5; border-top: 3px solid #07C160; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div style="margin-top: 16px; font-size: 14px; color: #999;">正在加载心声...</div>
+                </div>
+                        
+                <!-- 最新心声（默认显示） -->
+                <div id="voice-latest" style="display: none;">
+                    <!-- 生成时间 -->
+                    <div id="voice-time" style="font-size: 12px; color: #999; margin-bottom: 12px; text-align: right;"></div>
+                                
+                    <!-- 穿着 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 6px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B8A9A1" stroke-width="2">
+                                <path d="M20.38 3.4a2 2 0 0 0-1.95-1.25H5.57a2 2 0 0 0-1.95 1.25L2 16h20"></path>
+                                <path d="M16 16v2a4 4 0 0 1-8 0v-2"></path>
+                            </svg>
+                            穿着
+                        </div>
+                        <div id="voice-clothing" style="font-size: 15px; color: #333; line-height: 1.6; padding: 12px; background: #f8f8f8; border-radius: 8px;"></div>
+                    </div>
+                                
+                    <!-- 心情 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 13px; color: #999; margin-bottom: 6px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B8A9A1" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                            心情
+                        </div>
+                        <div id="voice-mood" style="font-size: 15px; color: #333; line-height: 1.6; padding: 12px; background: #f8f8f8; border-radius: 8px;"></div>
+                    </div>
+                                
+                    <!-- 感想 -->
+                    <div>
+                        <div style="font-size: 13px; color: #999; margin-bottom: 6px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#B8A9A1" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            感想
+                        </div>
+                        <div id="voice-thoughts" style="font-size: 15px; color: #333; line-height: 1.6; padding: 12px; background: #f8f8f8; border-radius: 8px; font-style: italic;"></div>
+                    </div>
+                </div>
+                        
+                <!-- 心声历史列表 -->
+                <div id="voice-list" style="display: none;">
+                    <!-- 动态生成心声列表 -->
+                </div>
+                        
+                <!-- 空状态 -->
+                <div id="voice-empty" style="display: none; text-align: center; padding: 40px 20px;">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ddd" stroke-width="1.5" style="margin-bottom: 12px;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <div style="font-size: 15px; color: #333; margin-bottom: 8px; font-weight: 500;">还没有心声</div>
+                    <div style="font-size: 13px; color: #999;">心声会在对话中自动生成，请耐心等待</div>
+                </div>
+                        
+                <!-- 错误提示 -->
+                <div id="voice-error" style="display: none; text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 40px; margin-bottom: 12px;">😔</div>
+                    <div style="font-size: 14px; color: #999; margin-bottom: 16px;">加载失败</div>
+                </div>
+            </div>
+            
+            <!-- 底部按钮 -->
+            <div style="padding: 12px 20px; border-top: 1px solid #e5e5e5; display: flex; gap: 12px;">
+                <button onclick="generateVoice()" style="flex: 1; padding: 10px; background: #D3D3D3; color: #666; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">重新生成</button>
+                <button onclick="closeVoiceModal()" style="flex: 1; padding: 10px; background: #FCE4EC; color: #666; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 长文本线下叙事界面 -->
+    <div id="offline-long-text-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #ededed; z-index: 10001;">
+        <div style="height: 100vh; display: flex; flex-direction: column;">
+            <!-- 头部 -->
+            <div class="chat-header" style="margin: 0; border-radius: 0; max-width: 100%;">
+                <div class="header-left">
+                    <button onclick="closeOfflineLongText()" class="back-btn">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <span class="chat-title">线下叙事</span>
+                </div>
+                <div class="header-right">
+                    <button onclick="openOfflineSettings()" class="settings-btn" title="设置">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 消息显示区域 -->
+            <div id="offline-narrative-messages" style="flex: 1; overflow-y: auto; padding: 16px; background: #ededed;">
+                <!-- 动态显示消息 -->
+            </div>
+            
+            <!-- 消息输入栏 -->
+            <div style="background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); padding: 12px; border-top: 1px solid rgba(0,0,0,0.05);">
+                <div style="display: flex; gap: 8px; align-items: flex-end;">
+                    <button onclick="generateOfflineNarrative()" style="width: 40px; height: 40px; background: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="AI生成">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </button>
+                    <textarea id="offline-narrative-input" placeholder="输入叙事内容..." 
+                        style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; line-height: 1.5; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;" 
+                        rows="1"
+                        onkeydown="handleOfflineNarrativeKeydown(event)"
+                        oninput="autoResizeOfflineNarrative(this)"></textarea>
+                    <button onclick="sendOfflineNarrative()" style="padding: 8px 20px; background: #A5D6A7; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; height: 40px;">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 线下叙事设置弹窗 -->
+    <div id="offline-settings-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10002; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 18px; color: #333;">线下叙事设置</h3>
+                <button onclick="closeOfflineSettings()" style="background: none; border: none; cursor: pointer; padding: 4px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- 人称视角 -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 500;">人称视角</label>
+                <select id="offline-perspective" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none; background: white; cursor: pointer;">
+                    <option value="first">第一人称（我）</option>
+                    <option value="second">第二人称（你）</option>
+                    <option value="third">第三人称（他/她）</option>
+                </select>
+            </div>
+            
+            <!-- 字数 -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 500;">字数</label>
+                <select id="offline-wordcount" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none; background: white; cursor: pointer;">
+                    <option value="short">短 (50-100字)</option>
+                    <option value="medium">中 (200-500字)</option>
+                    <option value="long">长 (500-1000字)</option>
+                    <option value="unlimited">不限</option>
+                </select>
+            </div>
+            
+            <!-- 文风 -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 500;">文风</label>
+                <select id="offline-style" style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none; background: white; cursor: pointer;">
+                    <option value="simple">简洁</option>
+                    <option value="literary">文艺</option>
+                    <option value="detailed">细腻</option>
+                    <option value="custom">自定义...</option>
+                </select>
+                <div id="custom-style-input" style="display: none; margin-top: 12px;">
+                    <input type="text" id="custom-style-text" placeholder="输入自定义文风名称..." style="width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none;">
+                    <div style="margin-top: 8px;">
+                        <span style="font-size: 12px; color: #999;">已添加的自定义文风：</span>
+                        <div id="custom-styles-list" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 保存按钮 -->
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button onclick="closeOfflineSettings()" style="padding: 10px 20px; background: #f0f0f0; color: #666; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">取消</button>
+                <button onclick="saveOfflineSettings()" style="padding: 10px 20px; background: #A5D6A7; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 来电浮窗 -->
+    <div id="incoming-call-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 10002; padding: 32px 24px;">
+        <div style="text-align: center;">
+            <!-- 头像 -->
+            <div id="incoming-call-avatar" style="width: 80px; height: 80px; margin: 0 auto 16px; border-radius: 50%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                </svg>
+            </div>
+            
+            <!-- 联系人名称 -->
+            <div id="incoming-call-name" style="font-size: 20px; font-weight: 500; color: #333; margin-bottom: 8px;">对方名称</div>
+            
+            <!-- 通话类型 -->
+            <div id="incoming-call-type" style="font-size: 14px; color: #999; margin-bottom: 32px;">视频通话</div>
+            
+            <!-- 按钮组 -->
+            <div style="display: flex; justify-content: space-around; gap: 24px;">
+                <!-- 挂断按钮 -->
+                <button onclick="rejectIncomingCall()" style="width: 64px; height: 64px; border-radius: 50%; background: #ff4444; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+                        <line x1="23" y1="1" x2="1" y2="23"></line>
+                    </svg>
+                </button>
+                
+                <!-- 接听按钮 -->
+                <button onclick="acceptIncomingCall()" style="width: 64px; height: 64px; border-radius: 50%; background: #4CAF50; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视频通话界面 -->
+    <div id="video-call-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #1a1a1a; z-index: 10001;">
+        <div style="height: 100vh; display: flex; flex-direction: column;">
+            <!-- 顶部状态栏 -->
+            <div style="padding: 16px; text-align: center; color: white;">
+                <!-- 头像 -->
+                <div id="call-avatar-container" style="width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 0 auto 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <img id="call-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <svg id="call-avatar-placeholder" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                    </svg>
+                </div>
+                <div id="call-contact-name" style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">对方名称</div>
+                <div id="call-status" style="font-size: 14px; opacity: 0.8;">正在呼叫...</div>
+                <div id="call-duration" style="font-size: 14px; opacity: 0.8; display: none;">00:00</div>
+            </div>
+            
+            <!-- 视频区域 -->
+            <div style="flex: 1; position: relative; background: #1a1a1a; overflow: hidden;">
+                <!-- 对方的大画面（模拟） -->
+                <div id="remote-video" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: #2a2a2a; border-radius: 0;">
+                    <div style="text-align: center; color: rgba(255,255,255,0.5);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.6;">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                        </svg>
+                        <div style="font-size: 16px; opacity: 0.9;">对方画面</div>
+                    </div>
+                </div>
+                        
+                <!-- 自己的小画面（右上角） -->
+                <div id="local-video" style="position: absolute; top: 20px; right: 20px; width: 120px; height: 160px; background: #3a3a3a; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10; border: 2px solid rgba(255,255,255,0.2);">
+                    <div style="text-align: center; color: rgba(255,255,255,0.7); font-size: 12px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 4px; opacity: 0.6;">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                        </svg>
+                        <div>我</div>
+                    </div>
+                </div>
+                        
+                <!-- 对话和旁白显示区域 -->
+                <div id="call-chat-area" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 16px; padding-bottom: 200px; pointer-events: auto; z-index: 5;">
+                    <!-- 动态显示对话和旁白 -->
+                </div>
+            </div>
+            
+            <!-- 底部控制栏 -->
+            <div style="background: rgba(0,0,0,0.8); padding: 16px;">
+                <!-- 输入区域 -->
+                <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: flex-end;">
+                    <button onclick="generateCallReply()" style="width: 40px; height: 40px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white;" title="AI生成回复">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </button>
+                    <textarea id="call-message-input" placeholder="输入消息..." 
+                        style="flex: 1; padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 14px; line-height: 1.5; resize: none; outline: none; min-height: 40px; max-height: 100px; background: rgba(255,255,255,0.1); color: white; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;" 
+                        rows="1"
+                        onkeydown="handleCallMessageKeydown(event)"
+                        oninput="autoResizeCallInput(this)"></textarea>
+                    <button onclick="sendCallMessage()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; height: 40px; white-space: nowrap;">发送</button>
+                </div>
+                
+                <!-- 控制按钮 -->
+                <div style="display: flex; justify-content: center; gap: 32px;">
+                    <button onclick="toggleCallMute()" id="mute-btn" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.2); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
+                    <button onclick="endVideoCall()" style="width: 64px; height: 64px; border-radius: 50%; background: #ff4444; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+                            <line x1="23" y1="1" x2="1" y2="23"></line>
+                        </svg>
+                    </button>
+                    <button onclick="toggleCallCamera()" id="camera-btn" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.2); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+
+    <script src="beautify.js?v=5"></script>
+    <script src="chat-storage.js"></script>
+    <script src="chat-interface.js?v=230"></script>
+    
+    <!-- 隐藏内部顶栏，功能由外层iframe提供 -->
+    <script>
+    // 监听来自父窗口的postMessage
+    window.addEventListener('message', function(event) {
+        const data = event.data;
+        
+        if (data && data.type === 'callIframeFunction') {
+            // 调用内部函数
+            if (data.funcName && typeof window[data.funcName] === 'function') {
+                try {
+                    window[data.funcName]();
+                    console.log('[chat-interface] 接收到父窗口调用:', data.funcName);
+                } catch(err) {
+                    console.error('[chat-interface] 调用函数失败:', err);
+                }
+            }
+        }
+    });
+    
+    // 通知父窗口隐藏内部顶栏
+    document.addEventListener('DOMContentLoaded', function() {
+        // 隐藏内部顶栏
+        const header = document.querySelector('.chat-header');
+        if (header) {
+            header.style.display = 'none';
+        }
+        
+        // 调整内容区域的上边距
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+            chatContainer.style.marginTop = '0';
+            chatContainer.style.paddingTop = '0';
+        }
+        
+        // 尝试加载黑名单设置和自主拉黑设置（延迟加载以确保DOM完全就绪）
+        setTimeout(() => {
+            if (typeof loadBlacklistSettings === 'function') {
+                loadBlacklistSettings();
+                console.log('[chat-interface] 黑名单设置已加载');
+            }
+        }, 2000);
+    });
+    </script>
+
+
+</body>
+</html>

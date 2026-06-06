@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>一起做</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #F5F5F5;
+            height: 100dvh;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Tab切换 */
+        .tab-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            z-index: 99;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 14px 0;
+            text-align: center;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #000000;
+            border-radius: 2px;
+        }
+
+        /* 内容区域 */
+        .content-container {
+            position: fixed;
+            top: 44px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        /* 三栏Tab时调整字体大小 */
+        .tab-container.three-tabs .tab-item {
+            font-size: 14px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 音乐播放器内嵌样式 */
+        .music-player-embed {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            overflow: hidden;
+        }
+
+        .music-player-embed .search-box {
+            position: relative;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .music-player-embed .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .music-player-embed .search-box input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+
+        .music-player-embed .search-btn {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #000000;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .music-player-embed .search-btn:hover {
+            background: #333333;
+        }
+
+        /* 音乐来源切换按钮 */
+        .music-source-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .music-source-btn:hover {
+            border-color: #000000;
+            color: #000000;
+        }
+
+        .music-source-btn.active {
+            background: #000000;
+            border-color: #000000;
+            color: white;
+        }
+
+        .music-player-embed .search-results {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 16px;
+        }
+
+        .music-player-embed .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .music-player-embed .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-player-embed .result-item.playing {
+            background: #000000;
+            color: white;
+        }
+
+        .music-player-embed .result-item.playing .result-name,
+        .music-player-embed .result-item.playing .result-artist {
+            color: white;
+        }
+
+        .music-player-embed .album-art {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .music-player-embed .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .music-player-embed .song-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .music-player-embed .artist-name {
+            font-size: 12px;
+            color: #999;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .music-player-embed .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .music-player-embed .empty-state svg {
+            width: 80px;
+            height: 80px;
+            stroke: #e0e0e0;
+            margin-bottom: 16px;
+        }
+
+        .music-player-embed .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* 卡片样式 */
+        .feature-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: #000000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .feature-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            stroke: #ddd;
+            stroke-width: 1.5;
+            fill: none;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-hint {
+            font-size: 13px;
+            color: #bbb;
+        }
+
+        /* Toast 动画 */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tab切换 -->
+    <div class="tab-container">
+        <div class="tab-item active" data-tab="listen" onclick="switchTab('listen')">一起听</div>
+        <div class="tab-item" data-tab="read" onclick="switchTab('read')">一起读</div>
+        <div class="tab-item" data-tab="watch" onclick="switchTab('watch')">一起看</div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content-container">
+        <!-- 一起听 -->
+        <div id="tab-listen" class="tab-content active">
+            <div class="music-player-embed">
+                <!-- 音乐来源切换标签 -->
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button class="music-source-btn active" onclick="switchMusicSource('search')"> 搜索音乐</button>
+                    <button class="music-source-btn" onclick="switchMusicSource('local')"> 本地上传</button>
+                    <button class="music-source-btn" onclick="switchMusicSource('url')"> URL链接</button>
+                </div>
+
+                <!-- 搜索模式 -->
+                <div id="music-search-mode">
+                    <div class="search-box">
+                        <input type="text" id="musicSearchInput" placeholder="搜索歌曲、歌手..." />
+                        <button class="search-btn" onclick="searchEmbedMusic()">搜索</button>
+                    </div>
+
+                    <!-- 搜索结果 -->
+                    <div class="search-results" id="musicSearchResults">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 18V5l12-2v13" />
+                                <circle cx="6" cy="18" r="3" />
+                                <circle cx="18" cy="16" r="3" />
+                            </svg>
+                            <div class="empty-state-text">搜索你喜欢的音乐</div>
+                            <div class="empty-state-hint">输入歌曲名或歌手名开始搜索</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 本地上传模式 -->
+                <div id="music-local-mode" style="display: none;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="margin-bottom: 12px;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18V5l12-2v13"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <circle cx="18" cy="16" r="3"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px;">上传本地音乐</div>
+                        <div style="font-size: 13px; color: #666; margin-bottom: 20px;">支持 MP3、WAV、OGG 格式</div>
+                        
+                        <input type="file" id="musicFileInput" accept="audio/*" multiple style="display: none;" onchange="handleLocalMusicUpload(event)">
+                        <button class="search-btn" onclick="document.getElementById('musicFileInput').click()" style="margin-bottom: 16px;">
+                            选择文件
+                        </button>
+                        
+                        <div id="localMusicList" style="margin-top: 16px; text-align: left;"></div>
+                    </div>
+                </div>
+
+                <!-- URL链接模式 -->
+                <div id="music-url-mode" style="display: none;">
+                    <div style="background: white; border-radius: 12px; padding: 24px;">
+                        <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 12px;"> 播放URL链接音乐</div>
+                        <div style="font-size: 13px; color: #666; margin-bottom: 16px;">输入音乐的直接链接（MP3、WAV等）</div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <input type="text" id="musicUrlInput" placeholder="https://example.com/music.mp3" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <input type="text" id="musicNameInput" placeholder="歌曲名称（可选）" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        </div>
+                        <button class="search-btn" onclick="playMusicFromUrl()" style="width: 100%;">播放音乐</button>
+                        
+                        <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
+                            <div style="font-weight: 600; margin-bottom: 4px;"> 提示：</div>
+                            <div>• 需要直接的音乐文件链接</div>
+                            <div>• 不支持网页链接（如网易云、QQ音乐页面）</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 一起读 -->
+        <div id="tab-read" class="tab-content">
+            <!-- 上排两个卡片 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                <!-- 上传书籍卡片 -->
+                <div class="feature-card" onclick="showUploadBookModal()">
+                    <div class="feature-icon" style="background: #9DBAD5;">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="feature-title">上传电子书</div>
+                    <div class="feature-desc">支持 PDF、TXT、EPUB 格式，邀请角色一起阅读</div>
+                </div>
+
+                <!-- AI生成小说卡片 -->
+                <div class="feature-card" onclick="showAIGenerateModal()">
+                    <div class="feature-icon" style="background: #A3B18A;">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <div class="feature-title">AI 生成小说</div>
+                    <div class="feature-desc">让 AI 为你创作专属小说，与角色共同体验</div>
+                </div>
+            </div>
+
+            <!-- 下排我的书架卡片 -->
+            <div class="feature-card" onclick="showMyBooks()" style="margin-bottom: 0;">
+                <div class="feature-icon" style="background: #D4CAB0;">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </div>
+                <div class="feature-title">我的书架</div>
+                <div class="feature-desc">查看已上传的书籍和 AI 生成的小说</div>
+            </div>
+        </div>
+
+        <!-- 一起看 -->
+        <div id="tab-watch" class="tab-content">
+            <!-- 上传本地视频卡片 -->
+            <div class="feature-card" onclick="showUploadVideoModal()" style="margin-bottom: 12px;">
+                <div class="feature-icon" style="background: #E8927C;">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                </div>
+                <div class="feature-title">上传本地视频</div>
+                <div class="feature-desc">支持 MP4、WebM、AVI 等常见视频格式</div>
+            </div>
+
+            <!-- URL链接卡片 -->
+            <div class="feature-card" onclick="showURLVideoModal()" style="margin-bottom: 12px;">
+                <div class="feature-icon" style="background: #7EC8C3;">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                </div>
+                <div class="feature-title">视频URL链接</div>
+                <div class="feature-desc">输入视频链接，在线观看</div>
+            </div>
+
+            <!-- 我的视频库 -->
+            <div class="feature-card" onclick="showMyVideos()">
+                <div class="feature-icon" style="background: #95E1D3;">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                        <line x1="7" y1="2" x2="7" y2="22"></line>
+                        <line x1="17" y1="2" x2="17" y2="22"></line>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <line x1="2" y1="7" x2="7" y2="7"></line>
+                        <line x1="2" y1="17" x2="7" y2="17"></line>
+                        <line x1="17" y1="17" x2="22" y2="17"></line>
+                        <line x1="17" y1="7" x2="22" y2="7"></line>
+                    </svg>
+                </div>
+                <div class="feature-title">我的视频库</div>
+                <div class="feature-desc">查看已上传的视频和URL视频</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        // 切换Tab
+        function switchTab(tabName) {
+            // 更新Tab样式
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // 更新内容显示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // ==================== 音乐播放器功能 ====================
+        
+        // 音乐API配置
+        const MUSIC_APIS = {
+            // 开源网易云音乐 API (https://github.com/Binaryify/NeteaseCloudMusicApi)
+            netease: 'https://neteasecloudmusicapi.vercel.app',
+            // 备用 API
+            meting: 'https://api.injahow.cn/meting',
+            // 本地回退：使用浏览器自带的示例音乐
+            fallback: true
+        };
+        
+        let embedPlaylist = [];
+        let embedCurrentIndex = -1;
+        let embedAudioPlayer = null;
+        
+        // 搜索音乐
+        async function searchEmbedMusic() {
+            const input = document.getElementById('musicSearchInput');
+            const resultsDiv = document.getElementById('musicSearchResults');
+            const query = input.value.trim();
+            
+            if (!query) {
+                showToast('请输入搜索内容');
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="loading"> 正在搜索...</div>';
+            
+            try {
+                let data = null;
+                let apiUrl = '';
+                
+                // 尝试 1: 网易云音乐 API
+                try {
+                    console.log('尝试网易云 API...');
+                    apiUrl = `${MUSIC_APIS.netease}/search?keywords=${encodeURIComponent(query)}&limit=20`;
+                    const response = await fetch(apiUrl, { 
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('网易云 API 成功:', data);
+                    }
+                } catch (e) {
+                    console.log('网易云 API 失败:', e);
+                }
+                
+                // 尝试 2: Meting API
+                if (!data || !data.result || !data.result.songs || data.result.songs.length === 0) {
+                    try {
+                        console.log('尝试 Meting API...');
+                        apiUrl = `${MUSIC_APIS.meting}/?server=netease&type=search&id=${encodeURIComponent(query)}&limit=20`;
+                        const response = await fetch(apiUrl);
+                        if (response.ok) {
+                            data = await response.json();
+                            console.log('Meting API 成功:', data);
+                            // 转换 Meting 格式
+                            if (Array.isArray(data)) {
+                                data = {
+                                    result: {
+                                        songs: data.map(item => ({
+                                            id: item.id,
+                                            name: item.title,
+                                            artists: [{ name: item.author }],
+                                            album: { picUrl: item.pic },
+                                            url: item.url
+                                        }))
+                                    }
+                                };
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Meting API 失败:', e);
+                    }
+                }
+                
+                // 如果所有 API 都失败，显示友好提示
+                if (!data || !data.result || !data.result.songs || data.result.songs.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 18V5l12-2v13" />
+                                <circle cx="6" cy="18" r="3" />
+                                <circle cx="18" cy="16" r="3" />
+                            </svg>
+                            <div class="empty-state-text">搜索失败</div>
+                            <div class="empty-state-hint">可能是网络问题或 API 不可用，请稍后重试</div>
+                            <div style="margin-top: 20px; padding: 16px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #666;">
+                                <div style="margin-bottom: 8px; font-weight: 600;"> 提示：音乐 API 限制</div>
+                                <div>由于跨域限制，部分 API 可能无法访问。</div>
+                                <div>建议在本地服务器环境下使用此功能。</div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 保存播放列表
+                embedPlaylist = data.result.songs.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    artist: item.artists ? item.artists.map(a => a.name).join(' / ') : '未知',
+                    cover: item.album && item.album.picUrl ? item.album.picUrl.replace('http:', 'https:') : '',
+                    url: `${MUSIC_APIS.netease}/song/url?id=${item.id}`
+                }));
+                
+                // 显示搜索结果
+                displayEmbedResults();
+                showToast(` 找到 ${embedPlaylist.length} 首歌曲`);
+                
+            } catch (error) {
+                console.error('搜索失败:', error);
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <div class="empty-state-text">搜索失败</div>
+                        <div class="empty-state-hint">${error.message || '请检查网络连接后重试'}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 显示搜索结果
+        function displayEmbedResults() {
+            const resultsDiv = document.getElementById('musicSearchResults');
+            
+            resultsDiv.innerHTML = embedPlaylist.map((song, index) => `
+                <div class="result-item" onclick="playEmbedSong(${index})">
+                    <img class="album-art" src="${song.cover || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>'}" alt="${song.name}" />
+                    <div class="song-info">
+                        <div class="song-name">${song.name}</div>
+                        <div class="artist-name">${song.artist}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 播放歌曲
+        async function playEmbedSong(index) {
+            if (index < 0 || index >= embedPlaylist.length) return;
+            
+            const song = embedPlaylist[index];
+            embedCurrentIndex = index;
+            
+            showToast(`🎵 正在播放: ${song.name}`);
+            
+            // 创建或更新音频播放器
+            if (!embedAudioPlayer) {
+                embedAudioPlayer = new Audio();
+                
+                // 播放结束自动下一首
+                embedAudioPlayer.addEventListener('ended', () => {
+                    if (embedCurrentIndex < embedPlaylist.length - 1) {
+                        playEmbedSong(embedCurrentIndex + 1);
+                    }
+                });
+                
+                // 播放错误处理
+                embedAudioPlayer.addEventListener('error', (e) => {
+                    console.error('播放失败:', e);
+                    showToast(' 播放失败，尝试下一首...');
+                    if (embedCurrentIndex < embedPlaylist.length - 1) {
+                        setTimeout(() => playEmbedSong(embedCurrentIndex + 1), 1000);
+                    }
+                });
+            }
+            
+            try {
+                // 获取音频URL - 使用网易云 API
+                console.log('获取音频URL:', song.url);
+                const response = await fetch(song.url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`获取音频 URL 失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('音频URL响应:', data);
+                
+                if (data.data && data.data[0] && data.data[0].url) {
+                    embedAudioPlayer.src = data.data[0].url;
+                    await embedAudioPlayer.play();
+                    
+                    // 高亮当前播放的歌曲
+                    document.querySelectorAll('.result-item').forEach((item, i) => {
+                        if (i === index) {
+                            item.style.background = '#f0f4ff';
+                            item.style.borderLeft = '3px solid #000000';
+                        } else {
+                            item.style.background = '#fff';
+                            item.style.borderLeft = 'none';
+                        }
+                    });
+                } else {
+                    throw new Error('未获取到音频URL');
+                }
+                
+            } catch (error) {
+                console.error('获取音频失败:', error);
+                showToast('❌ 获取音频失败: ' + error.message);
+            }
+        }
+        
+        // 监听回车键搜索
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('musicSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchEmbedMusic();
+                    }
+                });
+            }
+        });
+        
+        // 简单的Toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: fadeInOut 2s ease;
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+        
+        // ==================== 音乐来源切换功能 ====================
+        
+        // 切换音乐来源模式
+        function switchMusicSource(mode) {
+            // 更新按钮状态
+            document.querySelectorAll('.music-source-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 隐藏所有模式
+            document.getElementById('music-search-mode').style.display = 'none';
+            document.getElementById('music-local-mode').style.display = 'none';
+            document.getElementById('music-url-mode').style.display = 'none';
+            
+            // 显示选中的模式
+            if (mode === 'search') {
+                document.getElementById('music-search-mode').style.display = 'block';
+            } else if (mode === 'local') {
+                document.getElementById('music-local-mode').style.display = 'block';
+            } else if (mode === 'url') {
+                document.getElementById('music-url-mode').style.display = 'block';
+            }
+        }
+        
+        // ==================== 本地音乐上传功能 ====================
+        
+        // 处理本地音乐文件上传
+        let localMusicFiles = [];
+        
+        function handleLocalMusicUpload(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 0) return;
+            
+            files.forEach(file => {
+                if (file.type.startsWith('audio/')) {
+                    const url = URL.createObjectURL(file);
+                    localMusicFiles.push({
+                        name: file.name.replace(/\.[^/.]+$/, ""), // 移除扩展名
+                        artist: '本地音乐',
+                        url: url,
+                        file: file
+                    });
+                }
+            });
+            
+            renderLocalMusicList();
+            showToast(`已添加 ${files.length} 首歌曲`);
+        }
+        
+        // 渲染本地音乐列表
+        function renderLocalMusicList() {
+            const listDiv = document.getElementById('localMusicList');
+            if (localMusicFiles.length === 0) {
+                listDiv.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">暂无本地音乐</div>';
+                return;
+            }
+            
+            listDiv.innerHTML = localMusicFiles.map((song, index) => `
+                <div class="result-item" onclick="playLocalSong(${index})">
+                    <div class="result-info">
+                        <div class="result-name">${song.name}</div>
+                        <div class="result-artist">${song.artist}</div>
+                    </div>
+                    <button class="delete-btn" onclick="event.stopPropagation(); removeLocalSong(${index})" style="background: none; border: none; color: #999; cursor: pointer; font-size: 18px;">×</button>
+                </div>
+            `).join('');
+        }
+        
+        // 播放本地音乐
+        function playLocalSong(index) {
+            if (index < 0 || index >= localMusicFiles.length) return;
+            
+            const song = localMusicFiles[index];
+            
+            // 创建或更新音频播放器
+            if (!embedAudioPlayer) {
+                embedAudioPlayer = new Audio();
+                
+                embedAudioPlayer.addEventListener('ended', () => {
+                    if (index < localMusicFiles.length - 1) {
+                        playLocalSong(index + 1);
+                    }
+                });
+            }
+            
+            embedAudioPlayer.src = song.url;
+            embedAudioPlayer.play().then(() => {
+                showToast(`🎵 正在播放: ${song.name}`);
+                
+                // 高亮当前播放的歌曲
+                document.querySelectorAll('#localMusicList .result-item').forEach((item, i) => {
+                    item.classList.toggle('playing', i === index);
+                });
+            }).catch(err => {
+                console.error('播放失败:', err);
+                showToast('播放失败，请检查文件格式');
+            });
+        }
+        
+        // 删除本地音乐
+        function removeLocalSong(index) {
+            localMusicFiles.splice(index, 1);
+            renderLocalMusicList();
+            showToast('已删除');
+        }
+        
+        // ==================== URL链接播放功能 ====================
+        
+        // 从URL播放音乐
+        async function playMusicFromUrl() {
+            const urlInput = document.getElementById('musicUrlInput');
+            const nameInput = document.getElementById('musicNameInput');
+            
+            const url = urlInput.value.trim();
+            const name = nameInput.value.trim() || 'URL音乐';
+            
+            if (!url) {
+                showToast('请输入音乐URL');
+                return;
+            }
+            
+            // 验证URL格式
+            if (!url.match(/^https?:\/\/.+/i)) {
+                showToast('请输入有效的URL地址');
+                return;
+            }
+            
+            showToast('🎵 正在加载...');
+            
+            // 创建或更新音频播放器
+            if (!embedAudioPlayer) {
+                embedAudioPlayer = new Audio();
+            }
+            
+            embedAudioPlayer.src = url;
+            
+            try {
+                await embedAudioPlayer.play();
+                showToast(`🎵 正在播放: ${name}`);
+                
+                // 清空输入框
+                urlInput.value = '';
+                nameInput.value = '';
+            } catch (err) {
+                console.error('播放失败:', err);
+                showToast('播放失败，请检查URL是否有效');
+            }
+        }
+        
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始化：检测Tab数量并添加相应样式
+        window.addEventListener('DOMContentLoaded', function() {
+            const tabContainer = document.querySelector('.tab-container');
+            const tabItems = document.querySelectorAll('.tab-item');
+            if (tabItems.length === 3) {
+                tabContainer.classList.add('three-tabs');
+            }
+        });
+
+        // 打开音乐播放器
+        function openMusicPlayer() {
+            window.location.href = 'music-player.html';
+        }
+
+        // 显示上传书籍弹窗
+        function showUploadBookModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            modal.id = 'uploadBookModal';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">上传电子书</h3>
+                    <div style="border: 2px dashed #ddd; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s;" 
+                         onmouseover="this.style.borderColor='#000000'"
+                         onmouseout="this.style.borderColor='#ddd'"
+                         onclick="document.getElementById('bookFileInput').click()">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="#999" stroke-width="2" fill="none" style="margin-bottom: 12px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <div style="font-size: 15px; color: #666; margin-bottom: 8px;">点击选择文件</div>
+                        <div style="font-size: 13px; color: #999;">支持 PDF、TXT、EPUB 格式</div>
+                        <input type="file" id="bookFileInput" accept=".pdf,.txt,.epub" style="display: none;" onchange="handleBookUpload(this)">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">邀请角色一起阅读（可选）</label>
+                        <select id="inviteCharacter" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; background: white;">
+                            <option value="">不邀请</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button onclick="closeModal('uploadBookModal')" style="flex: 1; padding: 12px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: #666;">取消</button>
+                        <button onclick="confirmUploadBook()" style="flex: 1; padding: 12px; background: #000000; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: white; font-weight: 600;">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 加载角色列表
+            loadCharactersForInvite();
+        }
+        
+        // 加载角色列表
+        function loadCharactersForInvite() {
+            // 从 localStorage 读取角色数据
+            const characters = JSON.parse(localStorage.getItem('characters') || '[]');
+            const select = document.getElementById('inviteCharacter');
+            
+            if (select && characters.length > 0) {
+                characters.forEach(char => {
+                    const option = document.createElement('option');
+                    option.value = char.id;
+                    option.textContent = char.name || char.nickname || '未知角色';
+                    select.appendChild(option);
+                });
+            }
+        }
+        
+        // 确认上传书籍
+        let pendingBookFile = null;
+        
+        function handleBookUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            pendingBookFile = file;
+            
+            // 显示文件名
+            const uploadArea = input.parentElement;
+            uploadArea.innerHTML = `
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="#000000" stroke-width="2" fill="none" style="margin-bottom: 12px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div style="font-size: 15px; color: #000000; margin-bottom: 8px; font-weight: 600;">${file.name}</div>
+                <div style="font-size: 13px; color: #999;">点击重新选择</div>
+                <input type="file" id="bookFileInput" accept=".pdf,.txt,.epub" style="display: none;" onchange="handleBookUpload(this)">
+            `;
+        }
+        
+        function confirmUploadBook() {
+            if (!pendingBookFile) {
+                showToast('请先选择文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                
+                const inviteCharId = document.getElementById('inviteCharacter')?.value;
+                
+                books.push({
+                    id: Date.now(),
+                    title: pendingBookFile.name.replace(/\.[^/.]+$/, ''),
+                    type: 'upload',
+                    fileName: pendingBookFile.name,
+                    content: content.substring(0, 5000),
+                    inviteCharacterId: inviteCharId || null,
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('myBooks', JSON.stringify(books));
+                
+                closeModal('uploadBookModal');
+                
+                if (inviteCharId) {
+                    showToast('上传成功，已邀请角色一起阅读');
+                    // TODO: 发送邀请通知给角色
+                } else {
+                    showToast('上传成功');
+                }
+            };
+            reader.readAsText(pendingBookFile);
+        }
+
+        // 显示AI生成小说弹窗
+        function showAIGenerateModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            modal.id = 'aiGenerateModal';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">AI 生成小说</h3>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">小说主题/类型</label>
+                        <input type="text" id="novelTheme" placeholder="例如：都市爱情、科幻冒险、悬疑推理..." 
+                               style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">故事梗概（可选）</label>
+                        <textarea id="novelOutline" rows="4" placeholder="简单描述你想要的故事情节..." 
+                                  style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; resize: vertical;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="closeModal('aiGenerateModal')" style="flex: 1; padding: 12px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: #666;">取消</button>
+                        <button onclick="generateAINovel()" style="flex: 1; padding: 12px; background: #000000; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: white; font-weight: 600;">开始生成</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 生成AI小说
+        async function generateAINovel() {
+            const theme = document.getElementById('novelTheme').value.trim();
+            const outline = document.getElementById('novelOutline').value.trim();
+            
+            if (!theme) {
+                showToast('请输入小说主题');
+                return;
+            }
+            
+            // 关闭弹窗
+            closeModal('aiGenerateModal');
+            
+            showToast('✨ AI 正在创作中...');
+            
+            try {
+                // 获取API配置
+                let apiConfig = null;
+                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                if (globalConfigStr) {
+                    apiConfig = JSON.parse(globalConfigStr);
+                }
+                
+                if (!apiConfig || !apiConfig.mainApi || !apiConfig.mainApi.url || !apiConfig.mainApi.token) {
+                    throw new Error('请先在设置中配置API');
+                }
+                
+                // 构建API URL
+                let baseUrl = apiConfig.mainApi.url.trim();
+                if (baseUrl.endsWith('/')) {
+                    baseUrl = baseUrl.slice(0, -1);
+                }
+                if (!baseUrl.includes('/chat/completions')) {
+                    if (baseUrl.endsWith('/v1')) {
+                        baseUrl += '/chat/completions';
+                    } else {
+                        baseUrl += '/v1/chat/completions';
+                    }
+                }
+                
+                // 构建系统提示词
+                const systemPrompt = `你是一个专业的小说创作AI，擅长创作各种类型的小说。请根据用户提供的主题和梗概，创作一篇精彩的小说。
+
+要求：
+1. **只生成前3章**，每章要有完整的章节标题
+2. 语言要生动、流畅，符合中文小说的表达习惯
+3. 人物刻画要细腻，情节要有吸引力
+4. 每章字数在500-800字左右
+5. 在结尾处留下悬念，为后续章节做铺垫
+6. 直接返回小说内容，不要有任何额外的说明文字
+7. 格式示例：
+   第一章 章节标题
+   （内容）
+   
+   第二章 章节标题
+   （内容）
+   
+   第三章 章节标题
+   （内容）`;
+                
+                // 构建用户消息
+                const userMessage = `请根据以下要求创作小说的**前3章**：
+
+主题/类型：${theme}
+${outline ? `故事梗概：${outline}` : '请自由发挥创作一个精彩的故事。'}
+
+请开始创作前3章，记得在第三章结尾留下悬念。`;
+                
+                console.log('🤖 调用AI API生成小说...');
+                
+                // 调用API
+                const response = await fetch(baseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiConfig.mainApi.token}`
+                    },
+                    body: JSON.stringify({
+                        model: apiConfig.model || 'gpt-3.5-turbo',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: userMessage }
+                        ],
+                        temperature: 0.8,
+                        max_tokens: 4000
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const novelContent = data.choices?.[0]?.message?.content;
+                
+                if (!novelContent) {
+                    throw new Error('AI未返回内容');
+                }
+                
+                console.log('✅ 小说生成成功');
+                
+                // 保存到书架
+                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                books.push({
+                    id: Date.now(),
+                    title: theme,
+                    type: 'ai',
+                    outline: outline,
+                    content: novelContent,
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('myBooks', JSON.stringify(books));
+                
+                showToast('✅ 小说生成成功！');
+                
+            } catch (error) {
+                console.error('AI生成失败:', error);
+                showToast('生成失败：' + error.message);
+            }
+        }
+
+        // 显示我的书架
+        function showMyBooks() {
+            window.location.href = 'bookshelf.html';
+        }
+
+        // 显示上传本地视频弹窗
+        function showUploadVideoModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            modal.id = 'uploadVideoModal';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">上传本地视频</h3>
+                    <div style="border: 2px dashed #ddd; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s;" 
+                         onmouseover="this.style.borderColor='#FF6B6B'" 
+                         onmouseout="this.style.borderColor='#ddd'"
+                         onclick="document.getElementById('videoFileInput').click()">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="#999" stroke-width="2" fill="none" style="margin-bottom: 12px;">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                        <div style="font-size: 15px; color: #666; margin-bottom: 8px;">点击选择视频文件</div>
+                        <div style="font-size: 13px; color: #999;">支持 MP4、WebM、AVI 等格式</div>
+                        <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="handleVideoUpload(this)">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">视频标题（可选）</label>
+                        <input type="text" id="videoTitle" placeholder="输入视频标题" 
+                               style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button onclick="closeModal('uploadVideoModal')" style="flex: 1; padding: 12px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: #666;">取消</button>
+                        <button onclick="confirmUploadVideo()" style="flex: 1; padding: 12px; background: #E8927C; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: white; font-weight: 600;">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 处理视频文件上传
+        let pendingVideoFile = null;
+        
+        function handleVideoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            if (!file.type.startsWith('video/')) {
+                showToast('请选择视频文件');
+                return;
+            }
+            
+            pendingVideoFile = file;
+            
+            // 显示文件名
+            const uploadArea = input.parentElement;
+            uploadArea.innerHTML = `
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="#FF6B6B" stroke-width="2" fill="none" style="margin-bottom: 12px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div style="font-size: 15px; color: #FF6B6B; margin-bottom: 8px; font-weight: 600;">${file.name}</div>
+                <div style="font-size: 13px; color: #999;">${(file.size / 1024 / 1024).toFixed(2)} MB · 点击重新选择</div>
+                <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="handleVideoUpload(this)">
+            `;
+        }
+
+        // 确认上传视频
+        function confirmUploadVideo() {
+            if (!pendingVideoFile) {
+                showToast('请先选择视频文件');
+                return;
+            }
+            
+            const title = document.getElementById('videoTitle').value.trim() || pendingVideoFile.name.replace(/\.[^/.]+$/, '');
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const videoData = e.target.result;
+                const videos = JSON.parse(localStorage.getItem('myVideos') || '[]');
+                
+                videos.push({
+                    id: Date.now(),
+                    title: title,
+                    type: 'local',
+                    fileName: pendingVideoFile.name,
+                    data: videoData,
+                    fileSize: pendingVideoFile.size,
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('myVideos', JSON.stringify(videos));
+                
+                closeModal('uploadVideoModal');
+                showToast('✅ 视频上传成功！');
+            };
+            
+            reader.onerror = function() {
+                showToast('文件读取失败');
+            };
+            
+            reader.readAsDataURL(pendingVideoFile);
+        }
+
+        // 显示URL视频弹窗
+        function showURLVideoModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            modal.id = 'urlVideoModal';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #333;">添加视频链接</h3>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">视频标题</label>
+                        <input type="text" id="urlVideoTitle" placeholder="输入视频标题" 
+                               style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">视频URL链接</label>
+                        <input type="url" id="urlVideoLink" placeholder="https://example.com/video.mp4" 
+                               style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none;">
+                        <div style="font-size: 12px; color: #999; margin-top: 8px;">支持 MP4、WebM、Ogg 等视频格式的直接链接</div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="closeModal('urlVideoModal')" style="flex: 1; padding: 12px; background: #f5f5f5; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: #666;">取消</button>
+                        <button onclick="confirmURLVideo()" style="flex: 1; padding: 12px; background: #7EC8C3; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: white; font-weight: 600;">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 确认添加URL视频
+        function confirmURLVideo() {
+            const title = document.getElementById('urlVideoTitle').value.trim();
+            const url = document.getElementById('urlVideoLink').value.trim();
+            
+            if (!title) {
+                showToast('请输入视频标题');
+                return;
+            }
+            
+            if (!url) {
+                showToast('请输入视频链接');
+                return;
+            }
+            
+            // 验证URL格式
+            try {
+                new URL(url);
+            } catch (e) {
+                showToast('请输入有效的URL链接');
+                return;
+            }
+            
+            const videos = JSON.parse(localStorage.getItem('myVideos') || '[]');
+            
+            videos.push({
+                id: Date.now(),
+                title: title,
+                type: 'url',
+                url: url,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('myVideos', JSON.stringify(videos));
+            
+            closeModal('urlVideoModal');
+            showToast('✅ 视频链接添加成功！');
+        }
+
+        // 显示我的视频库
+        function showMyVideos() {
+            const videos = JSON.parse(localStorage.getItem('myVideos') || '[]');
+            
+            if (videos.length === 0) {
+                showToast('还没有视频，快去上传吧！');
+                return;
+            }
+            
+            // 创建视频库弹窗
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            modal.id = 'myVideosModal';
+            
+            let videoListHTML = videos.map(video => `
+                <div style="background: #f9f9f9; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s;" 
+                     onmouseover="this.style.background='#f0f0f0'" 
+                     onmouseout="this.style.background='#f9f9f9'"
+                     onclick="playVideo(${video.id})">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: ${video.type === 'local' ? '#FF6B6B' : '#4ECDC4'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="none">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${video.title}</div>
+                            <div style="font-size: 13px; color: #999;">
+                                ${video.type === 'local' ? '本地视频' : '在线视频'}
+                                ${video.fileSize ? ' · ' + (video.fileSize / 1024 / 1024).toFixed(2) + ' MB' : ''}
+                            </div>
+                        </div>
+                        <div style="color: #999; font-size: 20px;">›</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #333;">我的视频库 (${videos.length})</h3>
+                        <button onclick="closeModal('myVideosModal')" style="background: none; border: none; font-size: 24px; color: #999; cursor: pointer;">×</button>
+                    </div>
+                    ${videoListHTML}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 播放视频
+        function playVideo(videoId) {
+            const videos = JSON.parse(localStorage.getItem('myVideos') || '[]');
+            const video = videos.find(v => v.id === videoId);
+            
+            if (!video) {
+                showToast('视频不存在');
+                return;
+            }
+            
+            // 关闭视频库弹窗
+            closeModal('myVideosModal');
+            
+            // 创建视频播放器
+            const playerModal = document.createElement('div');
+            playerModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+            `;
+            playerModal.id = 'videoPlayerModal';
+            
+            let videoSource = '';
+            if (video.type === 'local') {
+                videoSource = video.data;
+            } else {
+                videoSource = video.url;
+            }
+            
+            playerModal.innerHTML = `
+                <div style="position: absolute; top: 16px; left: 16px; z-index: 100;">
+                    <button onclick="closeVideoPlayer()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+                </div>
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <video id="videoPlayer" controls autoplay style="max-width: 100%; max-height: 100%; border-radius: 8px;" src="${videoSource}"></video>
+                </div>
+                <div style="padding: 20px; text-align: center; color: white;">
+                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">${video.title}</div>
+                    <div style="font-size: 14px; opacity: 0.7;">${video.type === 'local' ? '本地视频' : '在线视频'}</div>
+                </div>
+            `;
+            
+            document.body.appendChild(playerModal);
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 关闭视频播放器
+        function closeVideoPlayer() {
+            const player = document.getElementById('videoPlayer');
+            if (player) {
+                player.pause();
+            }
+            closeModal('videoPlayerModal');
+        }
+
+        // Toast 提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 初始化
+        console.log('✅ 一起做页面已加载');
+        
+        // 📱 监听角色查手机标志
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'phone_being_checked' && e.newValue === 'true') {
+                console.log('📱 [一起做] 检测到角色查手机标志');
+                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                console.log('📱 角色名称:', checkerName);
+                
+                // 跳转到 chat-app.html
+                if (!window.location.href.includes('chat-app.html')) {
+                    console.log('📱 跳转到 chat-app.html');
+                    window.location.href = 'chat-app.html?autoBrowse=true&roleName=' + encodeURIComponent(checkerName);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
