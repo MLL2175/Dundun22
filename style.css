@@ -2072,7 +2072,7 @@ body {
 }
 
 .toast.success {
-    background-color: var(--success-color) !important;
+    background-color: #333333 !important;
 }
 
 .toast.error {
