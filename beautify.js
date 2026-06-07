@@ -8,6 +8,7 @@
         statusBarVisible: true,
         customIcons: {},
         fontUrl: '',
+        fontName: '',
         customCss: '',
         widgetAvatar: ''
     };
@@ -117,14 +118,48 @@
 
         // 应用字体
         if (beautifyConfig.fontUrl) {
-            let fontLink = document.getElementById('custom-font-link');
-            if (!fontLink) {
-                fontLink = document.createElement('link');
-                fontLink.id = 'custom-font-link';
-                fontLink.rel = 'stylesheet';
-                document.head.appendChild(fontLink);
+            // 直接用最简单的方式：把字体链接转成自定义CSS一样的方式
+            let fontStyle = document.getElementById('custom-font-style');
+            if (!fontStyle) {
+                fontStyle = document.createElement('style');
+                fontStyle.id = 'custom-font-style';
+                document.head.appendChild(fontStyle);
             }
-            fontLink.href = beautifyConfig.fontUrl;
+            
+            // 对于 Google Fonts，提取字体名
+            let fontFamily = 'Noto Sans SC';
+            if (beautifyConfig.fontUrl.match(/family=([^&]+)/)) {
+                fontFamily = decodeURIComponent(RegExp.$1).replace(/\+/g, ' ').replace(/:.*$/, '');
+            }
+            
+            // 直接把 @import 和字体样式放在一起，这样最简单！
+            fontStyle.textContent = `
+                @import url('${beautifyConfig.fontUrl}');
+                html, body, div, span, applet, object, iframe,
+                h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+                a, abbr, acronym, address, big, cite, code,
+                del, dfn, em, img, ins, kbd, q, s, samp,
+                small, strike, strong, sub, sup, tt, var,
+                b, u, i, center,
+                dl, dt, dd, ol, ul, li,
+                fieldset, form, label, legend,
+                table, caption, tbody, tfoot, thead, tr, th, td,
+                article, aside, canvas, details, embed,
+                figure, figcaption, footer, header, hgroup,
+                menu, nav, output, ruby, section, summary,
+                time, mark, audio, video, * {
+                    font-family: '${fontFamily}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                }
+            `;
+            // 移除旧的 link 标签
+            const oldLink = document.getElementById('custom-font-link');
+            if (oldLink) oldLink.remove();
+        } else {
+            // 清除字体设置
+            const fontLink = document.getElementById('custom-font-link');
+            const fontStyle = document.getElementById('custom-font-style');
+            if (fontLink) fontLink.remove();
+            if (fontStyle) fontStyle.remove();
         }
 
         // 应用自定义CSS
@@ -171,6 +206,10 @@
         // 字体URL
         const fontUrl = document.getElementById('font-url');
         if (fontUrl) fontUrl.value = beautifyConfig.fontUrl || '';
+        
+        // 字体名称
+        const fontName = document.getElementById('font-name');
+        if (fontName) fontName.value = beautifyConfig.fontName || '';
 
         // 自定义CSS
         const customCss = document.getElementById('custom-css');
@@ -454,12 +493,16 @@
         if (saveFontBtn) {
             saveFontBtn.addEventListener('click', function() {
                 const fontUrl = document.getElementById('font-url');
+                const fontName = document.getElementById('font-name');
                 if (fontUrl) {
                     beautifyConfig.fontUrl = fontUrl.value.trim();
                 }
+                if (fontName) {
+                    beautifyConfig.fontName = fontName.value.trim();
+                }
                 saveConfig();
                 applyConfig();
-                showToast('字体设置已保存！');
+                showToast('字体设置已保存！如果没看到变化，刷新页面试试！');
             });
         }
 

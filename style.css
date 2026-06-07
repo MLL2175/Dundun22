@@ -68,11 +68,24 @@ body {
     font-weight: 600;
 }
 
+.status-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-right svg {
+    width: 20px;
+    height: 16px;
+    display: block;
+    object-fit: contain;
+}
+
 /* 主屏幕（分页容器） */
 #home-screen {
     width: 100%;
     height: 100%;
-    padding: 24px 0 100px;
+    padding: 34px 0 100px;
     position: relative;
     overflow: hidden;
     background: #ffffff;  /* 白色背景 */
@@ -99,7 +112,6 @@ body {
     width: 50%;
     height: 100%;
     padding: 0 20px;
-    margin-top: 0;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -141,7 +153,6 @@ body {
     grid-auto-flow: row;
     grid-auto-rows: auto;  /* 根据内容自动调整行高 */
     gap: 0px;  /* 网格间距为0 */
-    margin-top: 0;
 }
 
 #widget-area-page2 {
@@ -432,7 +443,7 @@ body {
     color: #555;
     letter-spacing: 2px;
     line-height: 1;
-    margin-top: -30px;
+    margin-top: -50px;
 }
 
 .time-right-section {
@@ -1125,7 +1136,7 @@ body {
     grid-auto-rows: 80px;
     gap: 2px 4px;  /* 行间距2px，列间距4px */
     min-height: auto;
-    margin-top: 0 !important;
+    margin-top: 0px !important;  /* 恢复默认 */
 }
 
 /* widget-area 中的图标行高覆盖 */
@@ -1583,7 +1594,7 @@ body {
     }
     
     #home-screen {
-        padding: 50px 0 90px;
+        padding: 30px 0 90px;
     }
     
     .desktop-page {
@@ -1592,7 +1603,8 @@ body {
     
     .app-icon {
         width: 60px;
-        height: 60px;
+        height: auto;
+        min-height: 76px;
         font-size: 28px;
     }
     
@@ -1634,7 +1646,8 @@ body {
     
     .app-icon {
         width: 64px;
-        height: 64px;
+        height: auto;
+        min-height: 80px;
         font-size: 30px;
     }
     
@@ -1665,7 +1678,8 @@ body {
     
     .app-icon {
         width: 70px;
-        height: 70px;
+        height: auto;
+        min-height: 86px;
         font-size: 34px;
     }
     
@@ -1714,7 +1728,8 @@ body {
     
     .app-icon {
         width: 76px;
-        height: 76px;
+        height: auto;
+        min-height: 92px;
         font-size: 38px;
     }
     
@@ -1736,7 +1751,8 @@ body {
 @media only screen and (min-height: 800px) {
     .app-icon {
         width: 72px;
-        height: 72px;
+        height: auto;
+        min-height: 88px;
         font-size: 36px;
     }
 }
@@ -1745,7 +1761,8 @@ body {
 @media only screen and (max-height: 667px) {
     .app-icon {
         width: 56px;
-        height: 56px;
+        height: auto;
+        min-height: 72px;
         font-size: 26px;
     }
     
@@ -1754,7 +1771,7 @@ body {
     }
     
     #home-screen {
-        padding: 50px 0 85px;
+        padding: 30px 0 85px;
     }
 }
 
@@ -1766,7 +1783,8 @@ body {
     
     .app-icon {
         width: 50px;
-        height: 50px;
+        height: auto;
+        min-height: 66px;
         font-size: 24px;
     }
     
