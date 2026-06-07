@@ -1603,7 +1603,8 @@ body {
     
     .app-icon {
         width: 60px;
-        height: 60px;
+        height: auto;
+        min-height: 76px;
         font-size: 28px;
     }
     
@@ -1645,7 +1646,8 @@ body {
     
     .app-icon {
         width: 64px;
-        height: 64px;
+        height: auto;
+        min-height: 80px;
         font-size: 30px;
     }
     
@@ -1676,7 +1678,8 @@ body {
     
     .app-icon {
         width: 70px;
-        height: 70px;
+        height: auto;
+        min-height: 86px;
         font-size: 34px;
     }
     
@@ -1725,7 +1728,8 @@ body {
     
     .app-icon {
         width: 76px;
-        height: 76px;
+        height: auto;
+        min-height: 92px;
         font-size: 38px;
     }
     
@@ -1747,7 +1751,8 @@ body {
 @media only screen and (min-height: 800px) {
     .app-icon {
         width: 72px;
-        height: 72px;
+        height: auto;
+        min-height: 88px;
         font-size: 36px;
     }
 }
@@ -1756,7 +1761,8 @@ body {
 @media only screen and (max-height: 667px) {
     .app-icon {
         width: 56px;
-        height: 56px;
+        height: auto;
+        min-height: 72px;
         font-size: 26px;
     }
     
@@ -1777,7 +1783,8 @@ body {
     
     .app-icon {
         width: 50px;
-        height: 50px;
+        height: auto;
+        min-height: 66px;
         font-size: 24px;
     }
     
