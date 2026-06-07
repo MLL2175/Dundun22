@@ -507,7 +507,7 @@
                 }
                 saveConfig();
                 applyConfig();
-                showToast('字体设置已保存！刷新页面看效果');
+                showToast('字体设置已保存！立刻生效！');
             });
         }
 
