@@ -118,17 +118,7 @@
 
         // 应用字体
         if (beautifyConfig.fontUrl) {
-            // 先加载字体链接
-            let fontLink = document.getElementById('custom-font-link');
-            if (!fontLink) {
-                fontLink = document.createElement('link');
-                fontLink.id = 'custom-font-link';
-                fontLink.rel = 'stylesheet';
-                document.head.appendChild(fontLink);
-            }
-            fontLink.href = beautifyConfig.fontUrl;
-            
-            // 然后应用最简单的字体样式，直接用通用的中文字体名称
+            // 直接用最简单的方式：把字体链接转成自定义CSS一样的方式
             let fontStyle = document.getElementById('custom-font-style');
             if (!fontStyle) {
                 fontStyle = document.createElement('style');
@@ -136,13 +126,15 @@
                 document.head.appendChild(fontStyle);
             }
             
-            // 对于 Google Fonts，直接用链接里的字体名称
+            // 对于 Google Fonts，提取字体名
             let fontFamily = 'Noto Sans SC';
             if (beautifyConfig.fontUrl.match(/family=([^&]+)/)) {
                 fontFamily = decodeURIComponent(RegExp.$1).replace(/\+/g, ' ').replace(/:.*$/, '');
             }
             
+            // 直接把 @import 和字体样式放在一起，这样最简单！
             fontStyle.textContent = `
+                @import url('${beautifyConfig.fontUrl}');
                 html, body, div, span, applet, object, iframe,
                 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
                 a, abbr, acronym, address, big, cite, code,
@@ -159,6 +151,9 @@
                     font-family: '${fontFamily}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
                 }
             `;
+            // 移除旧的 link 标签
+            const oldLink = document.getElementById('custom-font-link');
+            if (oldLink) oldLink.remove();
         } else {
             // 清除字体设置
             const fontLink = document.getElementById('custom-font-link');
