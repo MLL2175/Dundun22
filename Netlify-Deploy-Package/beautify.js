@@ -8,6 +8,7 @@
         statusBarVisible: true,
         customIcons: {},
         fontUrl: '',
+        fontName: '',
         customCss: '',
         widgetAvatar: ''
     };
@@ -117,14 +118,62 @@
 
         // 应用字体
         if (beautifyConfig.fontUrl) {
-            let fontLink = document.getElementById('custom-font-link');
-            if (!fontLink) {
-                fontLink = document.createElement('link');
-                fontLink.id = 'custom-font-link';
-                fontLink.rel = 'stylesheet';
-                document.head.appendChild(fontLink);
+            // 检查是否是直接的字体文件链接
+            if (beautifyConfig.fontUrl.match(/\.(woff|woff2|ttf|otf)$/i)) {
+                // 直接字体文件，创建 @font-face
+                let fontStyle = document.getElementById('custom-font-style');
+                if (!fontStyle) {
+                    fontStyle = document.createElement('style');
+                    fontStyle.id = 'custom-font-style';
+                    document.head.appendChild(fontStyle);
+                }
+                const fontName = beautifyConfig.fontName || 'CustomFont';
+                fontStyle.textContent = `
+                    @font-face {
+                        font-family: '${fontName}';
+                        src: url('${beautifyConfig.fontUrl}') format('${beautifyConfig.fontUrl.match(/\.woff2$/i) ? 'woff2' : beautifyConfig.fontUrl.match(/\.woff$/i) ? 'woff' : 'truetype'}');
+                        font-weight: normal;
+                        font-style: normal;
+                    }
+                    * {
+                        font-family: '${fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                    }
+                `;
+                // 移除 link 标签
+                const oldLink = document.getElementById('custom-font-link');
+                if (oldLink) oldLink.remove();
+            } else {
+                // CSS 字体链接（如 Google Fonts）
+                let fontLink = document.getElementById('custom-font-link');
+                if (!fontLink) {
+                    fontLink = document.createElement('link');
+                    fontLink.id = 'custom-font-link';
+                    fontLink.rel = 'stylesheet';
+                    document.head.appendChild(fontLink);
+                }
+                fontLink.href = beautifyConfig.fontUrl;
+                
+                // 如果有设置字体名称，应用到页面
+                if (beautifyConfig.fontName) {
+                    let fontStyle = document.getElementById('custom-font-style');
+                    if (!fontStyle) {
+                        fontStyle = document.createElement('style');
+                        fontStyle.id = 'custom-font-style';
+                        document.head.appendChild(fontStyle);
+                    }
+                    fontStyle.textContent = `
+                        * {
+                            font-family: '${beautifyConfig.fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                        }
+                    `;
+                }
             }
-            fontLink.href = beautifyConfig.fontUrl;
+        } else {
+            // 清除字体设置
+            const fontLink = document.getElementById('custom-font-link');
+            const fontStyle = document.getElementById('custom-font-style');
+            if (fontLink) fontLink.remove();
+            if (fontStyle) fontStyle.remove();
         }
 
         // 应用自定义CSS
@@ -171,6 +220,10 @@
         // 字体URL
         const fontUrl = document.getElementById('font-url');
         if (fontUrl) fontUrl.value = beautifyConfig.fontUrl || '';
+        
+        // 字体名称
+        const fontName = document.getElementById('font-name');
+        if (fontName) fontName.value = beautifyConfig.fontName || '';
 
         // 自定义CSS
         const customCss = document.getElementById('custom-css');
@@ -454,8 +507,12 @@
         if (saveFontBtn) {
             saveFontBtn.addEventListener('click', function() {
                 const fontUrl = document.getElementById('font-url');
+                const fontName = document.getElementById('font-name');
                 if (fontUrl) {
                     beautifyConfig.fontUrl = fontUrl.value.trim();
+                }
+                if (fontName) {
+                    beautifyConfig.fontName = fontName.value.trim();
                 }
                 saveConfig();
                 applyConfig();

@@ -17,7 +17,7 @@
   <!-- Android Chrome 图标 -->
   <link rel="icon" type="image/png" sizes="192x192" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
   <link rel="icon" type="image/png" sizes="512x512" href="https://img.touxiangkong.com/uploads/allimg/2021091715/mvruhsyitw1.jpg">
-  <link rel="stylesheet" href="style.css?v=200">
+  <link rel="stylesheet" href="style.css?v=201">
   <script src="main.js?v=222"></script>
   <script src="collection-widget.js?v=4"></script>
 </head>
@@ -857,8 +857,13 @@
             <div class="settings-section">
               <div class="settings-item">
                 <label class="item-label">字体链接URL</label>
-                <span class="item-desc">粘贴Google Fonts等字体链接</span>
+                <span class="item-desc">粘贴Google Fonts等字体链接或直接字体文件链接（.woff/.woff2/.ttf）</span>
                 <input type="text" class="settings-input" id="font-url" name="fontUrl" placeholder="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+              </div>
+              <div class="settings-item">
+                <label class="item-label">字体名称</label>
+                <span class="item-desc">（可选）设置要使用的字体名称，Google Fonts的话填写字体家族名</span>
+                <input type="text" class="settings-input" id="font-name" name="fontName" placeholder="例如：Roboto 或 Alibaba PuHuiTi">
                 <button class="btn-secondary" id="save-font-btn" style="margin-top: 8px;">保存字体设置</button>
               </div>
             </div>
