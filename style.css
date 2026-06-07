@@ -68,6 +68,19 @@ body {
     font-weight: 600;
 }
 
+.status-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-right svg {
+    width: 20px;
+    height: 16px;
+    display: block;
+    object-fit: contain;
+}
+
 /* 主屏幕（分页容器） */
 #home-screen {
     width: 100%;
