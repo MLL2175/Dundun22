@@ -154,24 +154,31 @@
                 }
                 fontLink.href = beautifyConfig.fontUrl;
                 
-                // 如果有设置字体名称，应用到页面
-                if (beautifyConfig.fontName) {
-                    let fontStyle = document.getElementById('custom-font-style');
-                    if (!fontStyle) {
-                        fontStyle = document.createElement('style');
-                        fontStyle.id = 'custom-font-style';
-                        document.head.appendChild(fontStyle);
+                // 自动应用字体，不需要填字体名称
+                let fontName = beautifyConfig.fontName;
+                if (!fontName) {
+                    // 从 Google Fonts URL 尝试提取
+                    if (beautifyConfig.fontUrl.match(/family=([^&]+)/)) {
+                        fontName = decodeURIComponent(RegExp.$1).replace(/\+/g, ' ').replace(/:.*$/, '');
                     }
-                    fontStyle.textContent = `
-                        html, body, * {
-                            font-family: '${beautifyConfig.fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-                        }
-                    `;
-                } else {
-                    // 如果没有设置字体名称，只加载字体链接，让用户自己用自定义CSS设置
-                    const fontStyle = document.getElementById('custom-font-style');
-                    if (fontStyle) fontStyle.remove();
                 }
+                // 如果提取不到，用默认的
+                if (!fontName) {
+                    fontName = 'Noto Sans SC';
+                }
+                
+                // 应用字体
+                let fontStyle = document.getElementById('custom-font-style');
+                if (!fontStyle) {
+                    fontStyle = document.createElement('style');
+                    fontStyle.id = 'custom-font-style';
+                    document.head.appendChild(fontStyle);
+                }
+                fontStyle.textContent = `
+                    html, body, * {
+                        font-family: '${fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+                    }
+                `;
             }
         } else {
             // 清除字体设置
