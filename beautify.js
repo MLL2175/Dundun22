@@ -117,6 +117,9 @@
         }
 
         // 应用字体
+        console.log('beautifyConfig.fontUrl:', beautifyConfig.fontUrl);
+        console.log('beautifyConfig.fontName:', beautifyConfig.fontName);
+        
         if (beautifyConfig.fontUrl) {
             // 检查是否是直接的字体文件链接
             if (beautifyConfig.fontUrl.match(/\.(woff|woff2|ttf|otf)$/i)) {
@@ -134,11 +137,13 @@
                         src: url('${beautifyConfig.fontUrl}') format('${beautifyConfig.fontUrl.match(/\.woff2$/i) ? 'woff2' : beautifyConfig.fontUrl.match(/\.woff$/i) ? 'woff' : 'truetype'}');
                         font-weight: normal;
                         font-style: normal;
+                        font-display: swap;
                     }
-                    * {
+                    html, body, * {
                         font-family: '${fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
                     }
                 `;
+                console.log('Applied direct font file:', fontName);
                 // 移除 link 标签
                 const oldLink = document.getElementById('custom-font-link');
                 if (oldLink) oldLink.remove();
@@ -153,6 +158,8 @@
                 }
                 fontLink.href = beautifyConfig.fontUrl;
                 
+                console.log('Font link added');
+                
                 // 如果有设置字体名称，应用到页面
                 if (beautifyConfig.fontName) {
                     let fontStyle = document.getElementById('custom-font-style');
@@ -162,10 +169,11 @@
                         document.head.appendChild(fontStyle);
                     }
                     fontStyle.textContent = `
-                        * {
+                        html, body, * {
                             font-family: '${beautifyConfig.fontName}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
                         }
                     `;
+                    console.log('Applied font family:', beautifyConfig.fontName);
                 }
             }
         } else {
