@@ -1261,7 +1261,7 @@ body {
 
 .app-page.active {
     display: flex;
-    z-index: 9999;
+    z-index: 99999;
 }
 
 /* iframe应用容器 */
