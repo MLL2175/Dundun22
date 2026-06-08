@@ -1468,6 +1468,7 @@ body {
     -webkit-overflow-scrolling: touch;
     position: relative;
     background-color: #ffffff;
+    z-index: 1;
 }
 
 /* 聊天页面样式 */
@@ -1910,7 +1911,6 @@ body {
     flex-shrink: 0;
     display: inline-block;
     vertical-align: middle;
-    z-index: 1;
 }
 
 .switch.active {
@@ -1974,8 +1974,6 @@ body {
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
-    position: relative;
-    z-index: 1;
 }
 .btn-secondary:hover {
     background-color: #e5e5ea;
