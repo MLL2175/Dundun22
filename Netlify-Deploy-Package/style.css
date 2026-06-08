@@ -1286,8 +1286,12 @@ body {
     border-bottom: 1px solid rgba(0,0,0,0.1);
     margin-top: 0;
     flex-shrink: 0;
-    position: relative;
-    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    transform: translateZ(0);
     height: calc(44px + env(safe-area-inset-top));
     background-color: #ffffff !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -1431,9 +1435,12 @@ body {
     margin-top: 0;
     background-color: #ffffff !important;
     height: calc(44px + env(safe-area-inset-top));
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    transform: translateZ(0);
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -1468,7 +1475,7 @@ body {
     -webkit-overflow-scrolling: touch;
     position: relative;
     background-color: #ffffff;
-    z-index: 1;
+    padding-top: calc(44px + env(safe-area-inset-top));
 }
 
 /* 聊天页面样式 */
@@ -1620,6 +1627,7 @@ body {
     }
     
     .app-page-content {
+        padding-top: calc(40px + env(safe-area-inset-top));
     }
 }
 
@@ -1692,6 +1700,7 @@ body {
     }
     
     .app-page-content {
+        padding-top: calc(48px + env(safe-area-inset-top));
     }
 }
 
@@ -1741,6 +1750,7 @@ body {
     }
     
     .app-page-content {
+        padding-top: calc(52px + env(safe-area-inset-top));
     }
 }
 
