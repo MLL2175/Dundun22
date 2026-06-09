@@ -658,16 +658,21 @@ window.closeAppIframe = function() {
         }
     }
     
-    // 如果当前是查岗页面，先尝试关闭应用详情页
+    // 如果当前是查岗页面，先尝试关闭子页面
     if (fileName === 'check-device.html') {
         try {
-            // 通过 postMessage 调用 iframe 内部的函数
-            iframe.contentWindow.postMessage({
-                type: 'callIframeFunction',
-                funcName: 'handleBackNavigation'
-            }, '*');
-            console.log('[iframe] 查岗页面，尝试关闭子页面');
-            return;
+            if (container.dataset.checkBackNavigationCalled === 'true') {
+                console.log('[iframe] 查岗页面，已调用过handleBackNavigation，直接关闭');
+                delete container.dataset.checkBackNavigationCalled;
+            } else {
+                container.dataset.checkBackNavigationCalled = 'true';
+                iframe.contentWindow.postMessage({
+                    type: 'callIframeFunction',
+                    funcName: 'handleBackNavigation'
+                }, '*');
+                console.log('[iframe] 查岗页面，尝试关闭子页面');
+                return;
+            }
         } catch(e) {
             console.warn('[iframe] 无法访问查岗 iframe 内容:', e);
         }

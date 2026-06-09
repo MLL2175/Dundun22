@@ -960,7 +960,7 @@ window.addEventListener('visibilitychange', () => {
 // 判断是否为图片 URL
 function isImageUrl(str) {
     if (!str) return false;
-    const hasProtocol = str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:');
+    const hasProtocol = str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:') || str.startsWith('blob:');
     const hasExt = /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i.test(str);
     return hasProtocol || hasExt;
 }
@@ -10329,16 +10329,18 @@ function isImageUrl(str) {
     
     // 支持多种格式:
     // 1. data:image/ 开头的 base64
-    // 2. http:// 或 https:// 开头
-    // 3. 包含图片扩展名
-    // 4. 看起来像 URL 的字符串
+    // 2. blob: 开头的 blob URL
+    // 3. http:// 或 https:// 开头
+    // 4. 包含图片扩展名
+    // 5. 看起来像 URL 的字符串
     
     const hasDataProtocol = str.startsWith('data:image/');
+    const hasBlobProtocol = str.startsWith('blob:');
     const hasProtocol = str.startsWith('http://') || str.startsWith('https://');
     const hasExtension = /\.(jpeg|jpg|gif|png|webp|bmp|svg|ico)$/i.test(str);
     const looksLikeURL = str.includes('.') && !str.includes(' ') && str.length > 5;
     
-    return hasDataProtocol || hasProtocol || hasExtension || looksLikeURL;
+    return hasDataProtocol || hasBlobProtocol || hasProtocol || hasExtension || looksLikeURL;
 }
 
 // HTML 转义
