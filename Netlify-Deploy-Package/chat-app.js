@@ -1315,7 +1315,7 @@ ${personaInfo ? '\n【角色设定】\n' + personaInfo : ''}
         // 4. 包含斜杠的 URL (如：i.imgur.com/xxx.png)
         // 5. 常见的图片扩展名
         
-        const hasProtocol = str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:');
+        const hasProtocol = str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:') || str.startsWith('blob:');
         const hasExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg|ico)$/i.test(str);
         const hasDotAndSlash = str.includes('.') && (str.includes('/') || str.includes('\\'));
         const looksLikeURL = str.includes('.') && !str.includes(' ');
