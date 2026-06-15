@@ -153,42 +153,87 @@
         });
 
         // 壁纸设置
-        document.getElementById('wallpaper-input')?.addEventListener('change', function() {
+        // 1. URL 输入框：仅预览，不立即保存
+        document.getElementById('wallpaper-url')?.addEventListener('input', function() {
             const wallpaperUrl = this.value.trim();
+            const preview = document.getElementById('wallpaper-preview');
+            if (preview && wallpaperUrl) {
+                preview.style.backgroundImage = `url(${wallpaperUrl})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.textContent = '';
+            } else if (preview) {
+                preview.style.backgroundImage = '';
+                preview.textContent = '暂无壁纸';
+            }
+        });
+
+        // 2. 本地上传文件：选择图片后更新输入框和预览
+        document.getElementById('wallpaper-file')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    const urlInput = document.getElementById('wallpaper-url');
+                    if (urlInput) urlInput.value = dataUrl;
+                    const preview = document.getElementById('wallpaper-preview');
+                    if (preview) {
+                        preview.style.backgroundImage = `url(${dataUrl})`;
+                        preview.style.backgroundSize = 'cover';
+                        preview.style.backgroundPosition = 'center';
+                        preview.textContent = '';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 3. 应用壁纸按钮：立即把输入框的内容设置为桌面壁纸（不持久化）
+        document.getElementById('apply-wallpaper-btn')?.addEventListener('click', function() {
+            const urlInput = document.getElementById('wallpaper-url');
+            const wallpaperUrl = urlInput ? urlInput.value.trim() : '';
+            if (!wallpaperUrl) {
+                showToast('请先输入或选择壁纸图片');
+                return;
+            }
+            const homeScreen = document.getElementById('home-screen');
+            if (homeScreen) {
+                homeScreen.style.backgroundImage = `url(${wallpaperUrl})`;
+                homeScreen.style.backgroundSize = 'cover';
+                homeScreen.style.backgroundPosition = 'center';
+                homeScreen.style.backgroundRepeat = 'no-repeat';
+            }
+            showToast('已应用壁纸');
+        });
+
+        // 4. 保存按钮：把当前输入框的壁纸保存到配置，下次打开仍然生效
+        document.getElementById('save-wallpaper-btn')?.addEventListener('click', function() {
+            const urlInput = document.getElementById('wallpaper-url');
+            const wallpaperUrl = urlInput ? urlInput.value.trim() : '';
+            if (!wallpaperUrl) {
+                showToast('请先输入或选择壁纸图片');
+                return;
+            }
             beautifyConfig.customWallpaper = wallpaperUrl;
             saveConfig();
             applyConfig();
-            showToast('壁纸链接已保存');
+            showToast('壁纸已保存');
         });
 
-        document.getElementById('reset-wallpaper-btn')?.addEventListener('click', function() {
+        // 5. 删除壁纸按钮：清空配置和预览
+        document.getElementById('delete-wallpaper-btn')?.addEventListener('click', function() {
             beautifyConfig.customWallpaper = '';
-            document.getElementById('wallpaper-input').value = '';
+            const urlInput = document.getElementById('wallpaper-url');
+            if (urlInput) urlInput.value = '';
+            const preview = document.getElementById('wallpaper-preview');
+            if (preview) {
+                preview.style.backgroundImage = '';
+                preview.textContent = '暂无壁纸';
+            }
             saveConfig();
             applyConfig();
-            showToast('壁纸已重置');
-        });
-
-        // 壁纸本地上传
-        document.getElementById('upload-wallpaper-btn')?.addEventListener('click', function() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        beautifyConfig.customWallpaper = e.target.result;
-                        document.getElementById('wallpaper-input').value = e.target.result;
-                        saveConfig();
-                        applyConfig();
-                        showToast('壁纸已设置并保存');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            input.click();
+            showToast('壁纸已删除');
         });
     }
 
@@ -255,7 +300,20 @@
 
         // 填充表单
         document.getElementById('font-input').value = beautifyConfig.customFontUrl || '';
-        document.getElementById('wallpaper-input').value = beautifyConfig.customWallpaper || '';
+        const urlInput = document.getElementById('wallpaper-url');
+        if (urlInput) urlInput.value = beautifyConfig.customWallpaper || '';
+        const preview = document.getElementById('wallpaper-preview');
+        if (preview) {
+            if (beautifyConfig.customWallpaper) {
+                preview.style.backgroundImage = `url(${beautifyConfig.customWallpaper})`;
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
+                preview.textContent = '';
+            } else {
+                preview.style.backgroundImage = '';
+                preview.textContent = '暂无壁纸';
+            }
+        }
     }
 
     // 显示提示
