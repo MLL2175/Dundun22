@@ -1506,6 +1506,7 @@ window.onload = function() {
     initDockDrag();  // 初始化 Dock 栏拖拽
     initTimeBubbleEditing();  // 初始化时间组件气泡编辑
     initWidgetImageFromStorage();  // 初始化时间组件图片
+    initWidgetAvatarFromStorage(); // 初始化时间组件头像
     loadAllPositions();
     loadCuteWidgetData(); // 加载保存的可爱组件数据
 };
@@ -3441,10 +3442,14 @@ function editDialogAvatar(avatarElement) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = avatarElement.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    }
+                    // 使用背景图方式显示头像
+                    avatarElement.style.backgroundImage = 'url(' + event.target.result + ')';
+                    avatarElement.style.backgroundSize = 'cover';
+                    avatarElement.style.backgroundPosition = 'center';
+                    avatarElement.style.backgroundRepeat = 'no-repeat';
+                    // 隐藏占位文字
+                    const placeholder = avatarElement.querySelector('.avatar-placeholder');
+                    if (placeholder) placeholder.style.display = 'none';
                 };
                 reader.readAsDataURL(file);
             }
@@ -3482,10 +3487,12 @@ function editDialogAvatar(avatarElement) {
         urlModal.querySelector('#btn-confirm').onclick = function() {
             const url = urlInput.value.trim();
             if (url) {
-                const img = avatarElement.querySelector('img');
-                if (img) {
-                    img.src = url;
-                }
+                avatarElement.style.backgroundImage = 'url(' + url + ')';
+                avatarElement.style.backgroundSize = 'cover';
+                avatarElement.style.backgroundPosition = 'center';
+                avatarElement.style.backgroundRepeat = 'no-repeat';
+                const placeholder = avatarElement.querySelector('.avatar-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -3600,10 +3607,15 @@ function editDialogImage(item, index) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = item.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    }
+                    // 使用背景图方式显示
+                    item.style.backgroundImage = 'url(' + event.target.result + ')';
+                    item.style.backgroundSize = 'cover';
+                    item.style.backgroundPosition = 'center';
+                    item.style.backgroundRepeat = 'no-repeat';
+                    const placeholder = item.querySelector('.polaroid-placeholder');
+                    if (placeholder) placeholder.style.display = 'none';
+                    // 保存到 localStorage
+                    localStorage.setItem('polaroid-image-' + index, event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3641,10 +3653,13 @@ function editDialogImage(item, index) {
         urlModal.querySelector('#btn-confirm').onclick = function() {
             const url = urlInput.value.trim();
             if (url) {
-                const img = item.querySelector('img');
-                if (img) {
-                    img.src = url;
-                }
+                item.style.backgroundImage = 'url(' + url + ')';
+                item.style.backgroundSize = 'cover';
+                item.style.backgroundPosition = 'center';
+                item.style.backgroundRepeat = 'no-repeat';
+                const placeholder = item.querySelector('.polaroid-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+                localStorage.setItem('polaroid-image-' + index, url);
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -4693,27 +4708,32 @@ function loadSquarePhotos() {
         console.log('widget not found');
         return;
     }
-    
-    // 不显示图片,只显示提示文字
+    // 从 localStorage 加载已保存的照片
     const photos = widget.querySelectorAll('.square-photo');
     console.log('found photos:', photos.length);
     photos.forEach((photo, index) => {
-        // 清除所有背景相关样式
-        photo.style.removeProperty('background-image');
-        photo.style.backgroundImage = 'none';
-        photo.style.background = 'rgba(240, 240, 240, 0.6)';
-        photo.style.display = 'flex';
-        photo.style.alignItems = 'center';
-        photo.style.justifyContent = 'center';
-        photo.style.color = '#999';
-        photo.style.fontSize = '12px';
-        photo.style.height = '100%';
-        photo.style.width = '100%';
-        photo.style.aspectRatio = '1';
-        photo.textContent = '点击可编辑图片';
-        console.log('photo ' + index + ' text:', photo.textContent);
+        const savedPhoto = localStorage.getItem('square-photo-squarePhoto-' + index);
+        if (savedPhoto) {
+            // 有已保存的照片 -> 显示
+            photo.style.backgroundImage = 'url(' + savedPhoto + ')';
+            photo.style.backgroundSize = 'cover';
+            photo.style.backgroundPosition = 'center';
+            photo.style.backgroundRepeat = 'no-repeat';
+            photo.textContent = '';
+        } else {
+            // 没有保存的照片 -> 显示占位
+            photo.style.backgroundImage = 'none';
+            photo.style.background = 'rgba(240,240,240,0.6)';
+            photo.style.display = 'flex';
+            photo.style.alignItems = 'center';
+            photo.style.justifyContent = 'center';
+            photo.style.color = '#999';
+            photo.style.fontSize = '12px';
+            photo.textContent = '点击可编辑图片';
+        }
+        console.log('photo ' + index + ' done');
     });
-    
+
     // 加载颜文字气泡
     loadSquareDecorations();
 }
@@ -6756,14 +6776,16 @@ window.triggerWidgetImageUpload = function() {
 
 // 设置图片
 function setWidgetImage(imageSrc) {
-    const placeholder = document.getElementById('widget-image-placeholder');
-    if (placeholder) {
-        // 显示图片链接或提示
-        if (imageSrc.startsWith('data:')) {
-            placeholder.textContent = '已选择本地图片 ✓';
-        } else {
-            placeholder.textContent = '已设置图片链接 ✓';
-        }
+    const imageDiv = document.querySelector('.time-image-editable');
+    if (imageDiv) {
+        // 设置背景图
+        imageDiv.style.backgroundImage = 'url(' + imageSrc + ')';
+        imageDiv.style.backgroundSize = 'cover';
+        imageDiv.style.backgroundPosition = 'center';
+        imageDiv.style.backgroundRepeat = 'no-repeat';
+        // 隐藏 placeholder 文字
+        const placeholder = imageDiv.querySelector('#widget-image-placeholder');
+        if (placeholder) placeholder.style.display = 'none';
     }
     // 保存到 localStorage
     localStorage.setItem('widgetCustomImage', imageSrc);
@@ -6777,6 +6799,67 @@ function initWidgetImageFromStorage() {
     }
 }
 
+// 设置时间组件头像
+window.setWidgetAvatar = function() {
+    console.log('📷 触发时间组件头像上传');
+    const modal = document.createElement('div');
+    modal.id = 'widget-avatar-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;';
+    modal.innerHTML = '<div style="background:white;border-radius:24px;padding:32px 24px;width:320px;max-width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);"><h3 style="margin:0 0 24px;font-size:16px;color:#333;text-align:center;font-weight:600;">选择图片来源</h3><div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;"><button id="btn-avatar-local" style="width:100%;padding:14px;background:#f5f5f5;color:#333;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:500;">本地相册</button><button id="btn-avatar-url" style="width:100%;padding:14px;background:#f5f5f5;color:#333;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:500;">图片链接</button></div><div id="avatar-url-input-area" style="display:none;"><input type="text" id="avatar-url-input" placeholder="请输入图片链接" style="width:100%;padding:12px 14px;border:1px solid #e0e0e0;border-radius:12px;font-size:14px;box-sizing:border-box;margin-bottom:12px;outline:none;"><button id="btn-avatar-confirm-url" style="width:100%;padding:12px;background:#333;color:white;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:500;">确认</button></div><button onclick="document.getElementById(\'widget-avatar-modal\').remove()" style="width:100%;padding:12px;background:transparent;color:#999;border:none;border-radius:12px;cursor:pointer;font-size:14px;margin-top:4px;">取消</button></div>';
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-avatar-local').onclick = function() {
+        modal.remove();
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    applyWidgetAvatar(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        input.click();
+    };
+    document.getElementById('btn-avatar-url').onclick = function() {
+        document.getElementById('avatar-url-input-area').style.display = 'block';
+    };
+    document.getElementById('btn-avatar-confirm-url').onclick = function() {
+        const url = document.getElementById('avatar-url-input').value.trim();
+        if (url) {
+            applyWidgetAvatar(url);
+            modal.remove();
+        }
+    };
+};
+
+// 应用时间组件头像
+function applyWidgetAvatar(imageSrc) {
+    const avatarDiv = document.querySelector('.time-avatar-editable');
+    if (!avatarDiv) return;
+    // 设置背景图并隐藏占位文字
+    avatarDiv.style.backgroundImage = 'url(' + imageSrc + ')';
+    avatarDiv.style.backgroundSize = 'cover';
+    avatarDiv.style.backgroundPosition = 'center';
+    avatarDiv.style.backgroundRepeat = 'no-repeat';
+    // 隐藏 placeholder 文字
+    const placeholder = avatarDiv.querySelector('#widget-avatar-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    // 保存到 localStorage
+    localStorage.setItem('widgetCustomAvatar', imageSrc);
+}
+
+// 加载时间组件头像（页面打开时）
+function initWidgetAvatarFromStorage() {
+    const savedAvatar = localStorage.getItem('widgetCustomAvatar');
+    if (savedAvatar) {
+        applyWidgetAvatar(savedAvatar);
+    }
+}
 
 
 // ========================================
