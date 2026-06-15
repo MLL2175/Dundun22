@@ -1507,6 +1507,8 @@ window.onload = function() {
     initTimeBubbleEditing();  // 初始化时间组件气泡编辑
     initWidgetImageFromStorage();  // 初始化时间组件图片
     initWidgetAvatarFromStorage(); // 初始化时间组件头像
+    initPolaroidImagesFromStorage(); // 初始化拍立得图片
+    initDialogBubbleAvatarsFromStorage(); // 初始化对话气泡头像
     loadAllPositions();
     loadCuteWidgetData(); // 加载保存的可爱组件数据
 };
@@ -3356,7 +3358,7 @@ function initSettings() {
 }
 
 // 编辑可爱对话组件的头像
-function editDialogAvatar(avatarElement) {
+window.editDialogAvatar = function(avatarElement) {
     console.log('编辑对话组件头像');
     
     // 创建手机风格弹窗
@@ -3447,9 +3449,14 @@ function editDialogAvatar(avatarElement) {
                     avatarElement.style.backgroundSize = 'cover';
                     avatarElement.style.backgroundPosition = 'center';
                     avatarElement.style.backgroundRepeat = 'no-repeat';
+                    avatarElement.style.backgroundColor = 'transparent';
                     // 隐藏占位文字
                     const placeholder = avatarElement.querySelector('.avatar-placeholder');
                     if (placeholder) placeholder.style.display = 'none';
+                    // 保存到 localStorage
+                    const widget = avatarElement.closest('[data-widget-id]');
+                    const widgetId = widget ? widget.getAttribute('data-widget-id') : 'dialogBubble';
+                    localStorage.setItem('dialog-avatar-' + widgetId, event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3491,8 +3498,13 @@ function editDialogAvatar(avatarElement) {
                 avatarElement.style.backgroundSize = 'cover';
                 avatarElement.style.backgroundPosition = 'center';
                 avatarElement.style.backgroundRepeat = 'no-repeat';
+                avatarElement.style.backgroundColor = 'transparent';
                 const placeholder = avatarElement.querySelector('.avatar-placeholder');
                 if (placeholder) placeholder.style.display = 'none';
+                // 保存到 localStorage
+                const widget = avatarElement.closest('[data-widget-id]');
+                const widgetId = widget ? widget.getAttribute('data-widget-id') : 'dialogBubble';
+                localStorage.setItem('dialog-avatar-' + widgetId, url);
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -3521,7 +3533,7 @@ function editDialogAvatar(avatarElement) {
 }
 
 // 编辑可爱对话组件的图片
-function editDialogImage(item, index) {
+window.editDialogImage = function(item, index) {
     console.log('编辑对话组件图片', index);
     
     // 创建手机风格弹窗
@@ -3612,6 +3624,7 @@ function editDialogImage(item, index) {
                     item.style.backgroundSize = 'cover';
                     item.style.backgroundPosition = 'center';
                     item.style.backgroundRepeat = 'no-repeat';
+                    item.style.backgroundColor = 'transparent';
                     const placeholder = item.querySelector('.polaroid-placeholder');
                     if (placeholder) placeholder.style.display = 'none';
                     // 保存到 localStorage
@@ -3657,6 +3670,7 @@ function editDialogImage(item, index) {
                 item.style.backgroundSize = 'cover';
                 item.style.backgroundPosition = 'center';
                 item.style.backgroundRepeat = 'no-repeat';
+                item.style.backgroundColor = 'transparent';
                 const placeholder = item.querySelector('.polaroid-placeholder');
                 if (placeholder) placeholder.style.display = 'none';
                 localStorage.setItem('polaroid-image-' + index, url);
@@ -6859,6 +6873,48 @@ function initWidgetAvatarFromStorage() {
     if (savedAvatar) {
         applyWidgetAvatar(savedAvatar);
     }
+}
+
+// 加载拍立得组件图片（页面打开时）
+function initPolaroidImagesFromStorage() {
+    const polaroidWidgets = document.querySelectorAll('.polaroid-widget');
+    polaroidWidgets.forEach(widget => {
+        const widgetId = widget.getAttribute('data-widget-id') || 'polaroidWidget';
+        const items = widget.querySelectorAll('.polaroid-item');
+        items.forEach((item, index) => {
+            const savedImage = localStorage.getItem('polaroid-image-' + index);
+            if (savedImage) {
+                item.style.backgroundImage = 'url(' + savedImage + ')';
+                item.style.backgroundSize = 'cover';
+                item.style.backgroundPosition = 'center';
+                item.style.backgroundRepeat = 'no-repeat';
+                item.style.backgroundColor = 'transparent';
+                const placeholder = item.querySelector('.polaroid-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+            }
+        });
+    });
+}
+
+// 加载可爱对话组件头像（页面打开时）
+function initDialogBubbleAvatarsFromStorage() {
+    const dialogWidgets = document.querySelectorAll('.cute-dialog-widget');
+    dialogWidgets.forEach(widget => {
+        const widgetId = widget.getAttribute('data-widget-id') || 'dialogBubble';
+        const avatars = widget.querySelectorAll('.dialog-avatar');
+        avatars.forEach((avatar) => {
+            const savedAvatar = localStorage.getItem('dialog-avatar-' + widgetId);
+            if (savedAvatar) {
+                avatar.style.backgroundImage = 'url(' + savedAvatar + ')';
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.style.backgroundRepeat = 'no-repeat';
+                avatar.style.backgroundColor = 'transparent';
+                const placeholder = avatar.querySelector('.avatar-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+            }
+        });
+    });
 }
 
 
