@@ -10473,6 +10473,10 @@ async function saveChatData() {
                 compressed.ir = true;
                 compressed.t = 'recalled';  // 确保撤回类型被保存
             }
+            // 保存心声消息的时间显示
+            if (msg.type === 'inner_voice' && (msg.timeDisplay || msg.td)) {
+                compressed.td = msg.timeDisplay || msg.td;
+            }
             // 保存旁白数据（兼容旧格式）
             if (msg.narration) compressed.n = msg.narration;
             // 🛡️ 关键修复：同时检查压缩格式和解压格式，防止字段丢失

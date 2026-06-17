@@ -205,8 +205,8 @@ window.globalApiRequest = async function(params) {
             body: method === 'POST' ? JSON.stringify({
                 model: globalApiConfig.model,
                 temperature: globalApiConfig.temperature,
-                max_tokens: globalApiConfig.maxTokens,
-                ...body
+                max_tokens: globalApiConfig.max_tokens,
+                ...(body && typeof body === 'object' && !Array.isArray(body) ? body : {})
             }) : undefined
         });
 
