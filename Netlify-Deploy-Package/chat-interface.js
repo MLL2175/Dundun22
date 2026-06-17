@@ -17037,24 +17037,21 @@ function syncSingleChatTitle() {
             const avatarEl = document.getElementById('chat-avatar');
             if (avatarEl) {
                 const avatarUrl = currentContact.avatar;
-                const imgEl = avatarEl.querySelector('img');
                 
                 if (avatarUrl && isImageUrl(avatarUrl)) {
-                    // 有自定义头像
-                    if (imgEl) {
-                        imgEl.src = avatarUrl;
-                    }
+                    // 有自定义头像 - 使用 img 标签显示
+                    avatarEl.innerHTML = `
+                        <img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+                        <div id="whisper-badge" style="display: none; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #ff9500; border-radius: 50%; border: 2px solid white; z-index: 10;"></div>
+                    `;
                 } else {
                     // 没有头像，使用默认图标
-                    if (imgEl) {
-                        imgEl.src = '';
-                    }
                     avatarEl.innerHTML = `
                         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#999" stroke-width="1.5">
                             <circle cx="12" cy="8" r="4"/>
                             <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
                         </svg>
-                        <div id="whisper-badge" style="display: none; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #ff3b30; border-radius: 50%; border: 2px solid white; z-index: 10;"></div>
+                        <div id="whisper-badge" style="display: none; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #ff9500; border-radius: 50%; border: 2px solid white; z-index: 10;"></div>
                     `;
                 }
                 

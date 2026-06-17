@@ -1476,25 +1476,19 @@ window.addEventListener('message', function(event) {
                 console.error('[iframe] 调用函数失败:', err);
             }
         }
-    } else if (data && data.type === 'showWhisperBadge') {
-        // 显示外层小红点
-        const badge = document.getElementById('iframe-whisper-badge');
-        if (badge) {
-            badge.style.display = 'block';
-            console.log('[main] 显示外层小红点');
-        }
-    } else if (data && data.type === 'hideWhisperBadge') {
-        // 隐藏外层小红点
-        const badge = document.getElementById('iframe-whisper-badge');
-        if (badge) {
-            badge.style.display = 'none';
-            console.log('[main] 隐藏外层小红点');
-        }
     }
 });
 
 // 页面加载初始化
 window.onload = function() {
+    // 检查是否需要显示开屏动画
+    const hasShownBoot = sessionStorage.getItem('bootAnimationShown');
+    if (!hasShownBoot && !window.location.href.includes('start.html')) {
+        sessionStorage.setItem('bootAnimationShown', 'true');
+        window.location.href = 'start.html';
+        return;
+    }
+
     updateTime();
     setInterval(updateTime, 1000);
     initAppClick();

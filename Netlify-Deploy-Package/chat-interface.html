@@ -859,7 +859,14 @@
                     <div class="chat-title" id="group-chat-title" style="font-size: 16px; margin-left: 10px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">群聊</div>
                 </div>
             </div>
-            <div class="chat-title-wrapper">
+            <div class="chat-title-wrapper" style="display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center;">
+                <div id="chat-avatar" style="display: none; width: 36px; height: 36px; border-radius: 8px; overflow: hidden; background: #f0f0f0; position: relative; flex-shrink: 0; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#999" stroke-width="1.5">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                    </svg>
+                    <div id="whisper-badge" style="display: none; position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #ff9500; border-radius: 50%; border: 2px solid white; z-index: 10;"></div>
+                </div>
                 <div class="chat-title" id="chat-title">聊天</div>
             </div>
             <div class="header-right">
