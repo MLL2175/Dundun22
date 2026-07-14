@@ -1503,6 +1503,8 @@ window.onload = function() {
     initWidgetImageFromStorage();  // 初始化时间组件图片
     loadAllPositions();
     loadCuteWidgetData(); // 加载保存的可爱组件数据
+    initTimeWidgetAvatarFromStorage(); // 恢复时间组件大头像
+    initDialogAvatarFromStorage(); // 恢复对话组件头像
 };
 
 // 实时更新时间
@@ -2882,17 +2884,26 @@ function initCuteWidget() {
         item.style.display = 'block';
     });
     
-    // 不显示图片,只保留提示文字
+    // 只隐藏没有真实图片的项（有真实图片的保持显示，避免覆盖已上传的图片）
     const imageItems = document.querySelectorAll('.cute-desktop-widget .cute-image img');
     imageItems.forEach(img => {
-        img.style.display = 'none';
+        const src = img.getAttribute('src') || '';
+        const hasRealImage = src && !src.includes('picsum.photos');
+        img.style.display = hasRealImage ? 'block' : 'none';
     });
     
-    // 显示图片占位符提示
+    // 只有在没有真实图片时才显示占位符提示
     const imagePlaceholders = document.querySelectorAll('.cute-desktop-widget .cute-image .image-placeholder');
     imagePlaceholders.forEach(placeholder => {
-        placeholder.textContent = '点击可编辑图片';
-        placeholder.style.display = 'block';
+        const img = placeholder.parentElement ? placeholder.parentElement.querySelector('img') : null;
+        const src = img ? (img.getAttribute('src') || '') : '';
+        const hasRealImage = src && !src.includes('picsum.photos');
+        if (hasRealImage) {
+            placeholder.style.display = 'none';
+        } else {
+            placeholder.textContent = '点击可编辑图片';
+            placeholder.style.display = 'block';
+        }
     });
     
     console.log('✅ 可爱桌面小组件已初始化');
@@ -2972,6 +2983,24 @@ function handleImageClick(element) {
     // 其他图片组件
     console.log('🎯 点击了其他图片');
     editImage(element);
+}
+
+// 通用工具：把上传/输入的图片真正渲染到容器里，并隐藏占位文字
+function showUploadedImage(container, imageSrc) {
+    if (!container) return;
+    let img = container.querySelector('img');
+    if (!img) {
+        img = document.createElement('img');
+        container.appendChild(img);
+    }
+    img.src = imageSrc;
+    img.style.display = 'block';
+    // 隐藏容器内除图片以外的其他子元素（占位文字/占位emoji等）
+    Array.from(container.children).forEach(child => {
+        if (child !== img) {
+            child.style.display = 'none';
+        }
+    });
 }
 
 // 编辑时间组件头像
@@ -3058,10 +3087,8 @@ function editTimeWidgetAvatar(avatarElement) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = avatarElement.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    }
+                    showUploadedImage(avatarElement, event.target.result);
+                    localStorage.setItem('timeWidgetAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3123,10 +3150,8 @@ function editTimeWidgetAvatar(avatarElement) {
         urlModal.querySelector('#btn-confirm').onclick = function() {
             const url = urlModal.querySelector('.cute-url-input').value.trim();
             if (url) {
-                const img = avatarElement.querySelector('img');
-                if (img) {
-                    img.src = url;
-                }
+                showUploadedImage(avatarElement, url);
+                localStorage.setItem('timeWidgetAvatarImage', url);
             }
             urlModal.remove();
         };
@@ -3135,6 +3160,26 @@ function editTimeWidgetAvatar(avatarElement) {
             urlModal.querySelector('.cute-url-input').focus();
         }, 100);
     };
+}
+
+// 从存储恢复时间组件大头像
+function initTimeWidgetAvatarFromStorage() {
+    const saved = localStorage.getItem('timeWidgetAvatarImage');
+    if (!saved) return;
+    const avatarElement = document.querySelector('.time-avatar-editable');
+    if (avatarElement) {
+        showUploadedImage(avatarElement, saved);
+    }
+}
+
+// 从存储恢复对话组件头像
+function initDialogAvatarFromStorage() {
+    const saved = localStorage.getItem('dialogAvatarImage');
+    if (!saved) return;
+    const avatarElement = document.querySelector('.dialog-avatar');
+    if (avatarElement) {
+        showUploadedImage(avatarElement, saved);
+    }
 }
 
 // 编辑虚线头像
@@ -3436,10 +3481,8 @@ function editDialogAvatar(avatarElement) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = avatarElement.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    }
+                    showUploadedImage(avatarElement, event.target.result);
+                    localStorage.setItem('dialogAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3477,10 +3520,8 @@ function editDialogAvatar(avatarElement) {
         urlModal.querySelector('#btn-confirm').onclick = function() {
             const url = urlInput.value.trim();
             if (url) {
-                const img = avatarElement.querySelector('img');
-                if (img) {
-                    img.src = url;
-                }
+                showUploadedImage(avatarElement, url);
+                localStorage.setItem('dialogAvatarImage', url);
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -3595,10 +3636,8 @@ function editDialogImage(item, index) {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = item.querySelector('img');
-                    if (img) {
-                        img.src = event.target.result;
-                    }
+                    showUploadedImage(item, event.target.result);
+                    saveCuteWidgetData();
                 };
                 reader.readAsDataURL(file);
             }
@@ -3636,10 +3675,8 @@ function editDialogImage(item, index) {
         urlModal.querySelector('#btn-confirm').onclick = function() {
             const url = urlInput.value.trim();
             if (url) {
-                const img = item.querySelector('img');
-                if (img) {
-                    img.src = url;
-                }
+                showUploadedImage(item, url);
+                saveCuteWidgetData();
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -3992,17 +4029,13 @@ function loadCuteWidgetData() {
         const widget = document.querySelector('.cute-desktop-widget');
         if (!widget) return;
         
-        // 恢复图片
+        // 恢复图片：把保存的图片真正显示出来，而不是只显示确认文字
         if (data.images && data.images.length > 0) {
-            const images = widget.querySelectorAll('.cute-item.cute-image img');
-            images.forEach((img, index) => {
-                img.style.display = 'none';  // 不显示图片
-            });
-            // 显示提示文字
-            const placeholders = widget.querySelectorAll('.cute-item.cute-image .image-placeholder');
-            placeholders.forEach(placeholder => {
-                placeholder.textContent = '已选择图片 ✓';
-                placeholder.style.display = 'block';
+            const items = widget.querySelectorAll('.cute-item.cute-image');
+            items.forEach((itemEl, index) => {
+                if (data.images[index]) {
+                    showUploadedImage(itemEl, data.images[index]);
+                }
             });
         }
         
@@ -6753,12 +6786,20 @@ window.triggerWidgetImageUpload = function() {
 function setWidgetImage(imageSrc) {
     const placeholder = document.getElementById('widget-image-placeholder');
     if (placeholder) {
-        // 显示图片链接或提示
-        if (imageSrc.startsWith('data:')) {
-            placeholder.textContent = '已选择本地图片 ✓';
-        } else {
-            placeholder.textContent = '已设置图片链接 ✓';
+        // 容器就是 .time-image-editable（占位文字的父元素）
+        const container = placeholder.parentElement;
+        if (container) {
+            // 查找已存在的 img，没有就创建一个
+            let img = container.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                container.appendChild(img);
+            }
+            img.src = imageSrc;
+            img.style.display = 'block';
         }
+        // 隐藏占位文字，不再只是改文字
+        placeholder.style.display = 'none';
     }
     // 保存到 localStorage
     localStorage.setItem('widgetCustomImage', imageSrc);
