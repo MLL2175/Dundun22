@@ -83,7 +83,26 @@
     function loadConfig() {
         const saved = localStorage.getItem('beautifyConfig');
         if (saved) {
-            beautifyConfig = JSON.parse(saved);
+            try {
+                const parsed = JSON.parse(saved);
+                // 用默认值兜底合并，避免旧版本存的数据缺字段（比如缺 customIcons）
+                // 导致后面 beautifyConfig.customIcons[appId] = ... 直接报错崩掉
+                beautifyConfig = Object.assign({
+                    wallpaper: '',
+                    statusBarVisible: true,
+                    customIcons: {},
+                    fontUrl: '',
+                    fontName: '',
+                    customCss: '',
+                    widgetAvatar: ''
+                }, parsed);
+                // customIcons 本身也要保证是对象，不能是 undefined/null/其他类型
+                if (!beautifyConfig.customIcons || typeof beautifyConfig.customIcons !== 'object') {
+                    beautifyConfig.customIcons = {};
+                }
+            } catch (e) {
+                console.error('解析 beautifyConfig 失败，使用默认配置：', e);
+            }
         }
     }
 
@@ -422,6 +441,9 @@
             if (fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
+                    if (!beautifyConfig.customIcons || typeof beautifyConfig.customIcons !== 'object') {
+                        beautifyConfig.customIcons = {};
+                    }
                     beautifyConfig.customIcons[appId] = event.target.result;
                     saveConfig();
                     applyConfig();
@@ -436,6 +458,9 @@
                 const url = urlInput.value.trim();
                 // 验证URL格式
                 if (url.match(/^https?:\/\//)) {
+                    if (!beautifyConfig.customIcons || typeof beautifyConfig.customIcons !== 'object') {
+                        beautifyConfig.customIcons = {};
+                    }
                     beautifyConfig.customIcons[appId] = url;
                     saveConfig();
                     applyConfig();
