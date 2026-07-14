@@ -46,6 +46,37 @@
         
         // 在所有页面都应用配置（壁纸、图标、字体、CSS）
         applyConfig();
+
+        // 恢复拍立得图片 & 对话头像（这两个组件原本完全没有持久化逻辑）
+        restorePolaroidAndDialogImages();
+    }
+
+    // 恢复拍立得图片和对话头像（页面加载时调用）
+    function restorePolaroidAndDialogImages() {
+        if (typeof showUploadedImage !== 'function') return;
+
+        // 拍立得照片：按所在 widget + 格子序号恢复
+        document.querySelectorAll('.polaroid-image-grid').forEach(grid => {
+            const widgetEl = grid.closest('[data-widget-id]');
+            const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
+            const items = grid.querySelectorAll('.polaroid-item');
+            items.forEach((item, index) => {
+                const saved = localStorage.getItem(`polaroidImage-${widgetId}-${index}`);
+                if (saved) {
+                    showUploadedImage(item, saved);
+                }
+            });
+        });
+
+        // 对话头像：按所在 widget 恢复
+        document.querySelectorAll('.dialog-avatar').forEach(avatarEl => {
+            const widgetEl = avatarEl.closest('[data-widget-id]');
+            const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
+            const saved = localStorage.getItem(`dialogAvatarImage-${widgetId}`);
+            if (saved) {
+                showUploadedImage(avatarEl, saved);
+            }
+        });
     }
 
     // 加载配置
@@ -95,10 +126,24 @@
             }
         });
 
-        // 应用组件头像
-        const avatarImg = document.getElementById('widget-avatar-img');
-        if (avatarImg && beautifyConfig.widgetAvatar) {
-            avatarImg.src = beautifyConfig.widgetAvatar;
+        // 应用组件头像（真实容器是 .time-avatar-editable，需要真正显示图片并隐藏占位文字）
+        const avatarContainer = document.querySelector('.time-avatar-editable');
+        if (avatarContainer && beautifyConfig.widgetAvatar) {
+            if (typeof showUploadedImage === 'function') {
+                showUploadedImage(avatarContainer, beautifyConfig.widgetAvatar);
+            } else {
+                // 兜底：main.js 未加载时的备用逻辑
+                let img = avatarContainer.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    avatarContainer.appendChild(img);
+                }
+                img.src = beautifyConfig.widgetAvatar;
+                img.style.display = 'block';
+                Array.from(avatarContainer.children).forEach(child => {
+                    if (child !== img) child.style.display = 'none';
+                });
+            }
         }
 
         // 应用虚线头像
@@ -1186,10 +1231,12 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        const img = element.querySelector('img');
-                        if (img) {
-                            img.src = event.target.result;
+                        if (typeof showUploadedImage === 'function') {
+                            showUploadedImage(element, event.target.result);
                         }
+                        const widgetEl = element.closest('[data-widget-id]');
+                        const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
+                        localStorage.setItem(`polaroidImage-${widgetId}-${index}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1275,10 +1322,12 @@
             document.getElementById('polaroid-url-confirm-btn').addEventListener('click', function() {
                 const url = document.getElementById('polaroid-url-input').value.trim();
                 if (url && url.match(/^https?:\/\//)) {
-                    const img = element.querySelector('img');
-                    if (img) {
-                        img.src = url;
+                    if (typeof showUploadedImage === 'function') {
+                        showUploadedImage(element, url);
                     }
+                    const widgetEl = element.closest('[data-widget-id]');
+                    const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
+                    localStorage.setItem(`polaroidImage-${widgetId}-${index}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {
@@ -1378,10 +1427,12 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        const img = element.querySelector('img');
-                        if (img) {
-                            img.src = event.target.result;
+                        if (typeof showUploadedImage === 'function') {
+                            showUploadedImage(element, event.target.result);
                         }
+                        const widgetEl = element.closest('[data-widget-id]');
+                        const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
+                        localStorage.setItem(`dialogAvatarImage-${widgetId}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1467,10 +1518,12 @@
             document.getElementById('url-confirm-btn').addEventListener('click', function() {
                 const url = document.getElementById('avatar-url-input').value.trim();
                 if (url && url.match(/^https?:\/\//)) {
-                    const img = element.querySelector('img');
-                    if (img) {
-                        img.src = url;
+                    if (typeof showUploadedImage === 'function') {
+                        showUploadedImage(element, url);
                     }
+                    const widgetEl = element.closest('[data-widget-id]');
+                    const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
+                    localStorage.setItem(`dialogAvatarImage-${widgetId}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {

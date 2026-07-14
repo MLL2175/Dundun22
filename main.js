@@ -4706,7 +4706,10 @@ function setSquarePhoto(widgetId, photoIndex, imageUrl) {
     const photos = widget.querySelectorAll('.square-photo');
     if (photos[photoIndex]) {
         photos[photoIndex].style.backgroundImage = `url('${imageUrl}')`;
-        
+        photos[photoIndex].style.backgroundSize = 'cover';
+        photos[photoIndex].style.backgroundPosition = 'center';
+        photos[photoIndex].textContent = '';  // 清除占位文字，避免盖在图片上
+
         // 保存到 localStorage
         const storageKey = `square-photo-${widgetId}-${photoIndex}`;
         localStorage.setItem(storageKey, imageUrl);
@@ -4722,23 +4725,32 @@ function loadSquarePhotos() {
         return;
     }
     
-    // 不显示图片,只显示提示文字
+    // 有保存过的图片就恢复图片，没有的才显示提示文字
     const photos = widget.querySelectorAll('.square-photo');
     console.log('found photos:', photos.length);
     photos.forEach((photo, index) => {
-        // 清除所有背景相关样式
-        photo.style.removeProperty('background-image');
-        photo.style.backgroundImage = 'none';
-        photo.style.background = 'rgba(240, 240, 240, 0.6)';
-        photo.style.display = 'flex';
-        photo.style.alignItems = 'center';
-        photo.style.justifyContent = 'center';
-        photo.style.color = '#999';
-        photo.style.fontSize = '12px';
-        photo.style.height = '100%';
-        photo.style.width = '100%';
-        photo.style.aspectRatio = '1';
-        photo.textContent = '点击可编辑图片';
+        const storageKey = `square-photo-${widget.getAttribute('data-widget-id')}-${index}`;
+        const savedImage = localStorage.getItem(storageKey);
+        if (savedImage) {
+            photo.style.backgroundImage = `url('${savedImage}')`;
+            photo.style.backgroundSize = 'cover';
+            photo.style.backgroundPosition = 'center';
+            photo.textContent = '';
+        } else {
+            // 清除所有背景相关样式
+            photo.style.removeProperty('background-image');
+            photo.style.backgroundImage = 'none';
+            photo.style.background = 'rgba(240, 240, 240, 0.6)';
+            photo.style.display = 'flex';
+            photo.style.alignItems = 'center';
+            photo.style.justifyContent = 'center';
+            photo.style.color = '#999';
+            photo.style.fontSize = '12px';
+            photo.style.height = '100%';
+            photo.style.width = '100%';
+            photo.style.aspectRatio = '1';
+            photo.textContent = '点击可编辑图片';
+        }
         console.log('photo ' + index + ' text:', photo.textContent);
     });
     
