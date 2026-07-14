@@ -1,5 +1,5 @@
 // Service Worker for PWA Chat - 后台消息处理
-const CACHE_NAME = 'chat-pwa-v4';
+const CACHE_NAME = 'chat-pwa-v5';  // 版本号升级：强制清除旧缓存，拉取最新文件
 const BACKGROUND_SYNC_TAG = 'ai-reply-sync';
 const HEARTBEAT_INTERVAL = 30000; // 30秒心跳
 
@@ -63,10 +63,18 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // 缓存静态资源
+    // 网络优先：先尝试请求最新文件，成功就更新缓存；
+    // 只有在断网/请求失败时才退回到缓存里的旧版本。
+    // （原来是"缓存优先"，导致更新代码后手机上一直跑旧版本，改的东西怎么都不生效）
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+        fetch(event.request).then((networkResponse) => {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone);
+            });
+            return networkResponse;
+        }).catch(() => {
+            return caches.match(event.request);
         })
     );
 });
