@@ -108,7 +108,15 @@
 
     // 保存配置
     function saveConfig() {
-        localStorage.setItem('beautifyConfig', JSON.stringify(beautifyConfig));
+        try {
+            localStorage.setItem('beautifyConfig', JSON.stringify(beautifyConfig));
+            return true;
+        } catch (e) {
+            // 最常见的情况：localStorage 存储空间超限（壁纸+多个图标的 base64 图片叠加超过了浏览器限制）
+            console.error('保存配置失败：', e);
+            showToast('保存失败：存储空间已满，请使用体积更小的图片，或改用"图片链接"方式上传', 'error');
+            return false;
+        }
     }
 
     // 应用配置
@@ -444,12 +452,17 @@
                     if (!beautifyConfig.customIcons || typeof beautifyConfig.customIcons !== 'object') {
                         beautifyConfig.customIcons = {};
                     }
+                    const prevValue = beautifyConfig.customIcons[appId];
                     beautifyConfig.customIcons[appId] = event.target.result;
-                    saveConfig();
-                    applyConfig();
-                    renderIconPreviews();
-                    dialog.remove();
-                    showToast('图标已保存');
+                    if (saveConfig()) {
+                        applyConfig();
+                        renderIconPreviews();
+                        dialog.remove();
+                        showToast('图标已保存');
+                    } else {
+                        // 保存失败（多半是存储空间超限），回滚，不关闭弹窗，让用户可以换图重试
+                        beautifyConfig.customIcons[appId] = prevValue;
+                    }
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             }
@@ -461,12 +474,16 @@
                     if (!beautifyConfig.customIcons || typeof beautifyConfig.customIcons !== 'object') {
                         beautifyConfig.customIcons = {};
                     }
+                    const prevValue = beautifyConfig.customIcons[appId];
                     beautifyConfig.customIcons[appId] = url;
-                    saveConfig();
-                    applyConfig();
-                    renderIconPreviews();
-                    dialog.remove();
-                    showToast('图标已保存');
+                    if (saveConfig()) {
+                        applyConfig();
+                        renderIconPreviews();
+                        dialog.remove();
+                        showToast('图标已保存');
+                    } else {
+                        beautifyConfig.customIcons[appId] = prevValue;
+                    }
                 } else {
                     showToast('请输入有效的图片URL（以http://或https://开头）', 'error');
                 }
@@ -541,9 +558,11 @@
         const saveWallpaperBtn = document.getElementById('save-wallpaper-btn');
         if (saveWallpaperBtn) {
             saveWallpaperBtn.addEventListener('click', function() {
-                saveConfig();
-                applyConfig();
-                showToast('壁纸设置已保存！');
+                if (saveConfig()) {
+                    applyConfig();
+                    showToast('壁纸设置已保存！');
+                }
+                // 保存失败时 saveConfig() 内部已经用 showToast 提示了具体原因，这里不用重复提示
             });
         }
 
@@ -1261,7 +1280,7 @@
                         }
                         const widgetEl = element.closest('[data-widget-id]');
                         const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
-                        localStorage.setItem(`polaroidImage-${widgetId}-${index}`, event.target.result);
+                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`polaroidImage-${widgetId}-${index}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1352,7 +1371,7 @@
                     }
                     const widgetEl = element.closest('[data-widget-id]');
                     const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
-                    localStorage.setItem(`polaroidImage-${widgetId}-${index}`, url);
+                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`polaroidImage-${widgetId}-${index}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {
@@ -1457,7 +1476,7 @@
                         }
                         const widgetEl = element.closest('[data-widget-id]');
                         const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
-                        localStorage.setItem(`dialogAvatarImage-${widgetId}`, event.target.result);
+                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dialogAvatarImage-${widgetId}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1548,7 +1567,7 @@
                     }
                     const widgetEl = element.closest('[data-widget-id]');
                     const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
-                    localStorage.setItem(`dialogAvatarImage-${widgetId}`, url);
+                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dialogAvatarImage-${widgetId}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {

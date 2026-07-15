@@ -2985,6 +2985,20 @@ function handleImageClick(element) {
     editImage(element);
 }
 
+// 通用工具：安全写入 localStorage，失败时（多半是存储空间超限）给出明确提示而不是静默失败
+function safeSetLocalStorage(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (e) {
+        console.error('localStorage 写入失败：', key, e);
+        // 这里必须保证用户一定能看到提示，所以直接用 alert，
+        // 不用横幅通知系统（横幅通知有开关，关掉的话这个重要提示会被吞掉）
+        alert('保存失败：存储空间已满，请使用体积更小的图片，或删除一些不用的图片后重试');
+        return false;
+    }
+}
+
 // 通用工具：把上传/输入的图片真正渲染到容器里，并隐藏占位文字
 function showUploadedImage(container, imageSrc) {
     if (!container) return;
@@ -3088,7 +3102,7 @@ function editTimeWidgetAvatar(avatarElement) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     showUploadedImage(avatarElement, event.target.result);
-                    localStorage.setItem('timeWidgetAvatarImage', event.target.result);
+                    safeSetLocalStorage('timeWidgetAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3151,7 +3165,7 @@ function editTimeWidgetAvatar(avatarElement) {
             const url = urlModal.querySelector('.cute-url-input').value.trim();
             if (url) {
                 showUploadedImage(avatarElement, url);
-                localStorage.setItem('timeWidgetAvatarImage', url);
+                safeSetLocalStorage('timeWidgetAvatarImage', url);
             }
             urlModal.remove();
         };
@@ -3482,7 +3496,7 @@ function editDialogAvatar(avatarElement) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     showUploadedImage(avatarElement, event.target.result);
-                    localStorage.setItem('dialogAvatarImage', event.target.result);
+                    safeSetLocalStorage('dialogAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3521,7 +3535,7 @@ function editDialogAvatar(avatarElement) {
             const url = urlInput.value.trim();
             if (url) {
                 showUploadedImage(avatarElement, url);
-                localStorage.setItem('dialogAvatarImage', url);
+                safeSetLocalStorage('dialogAvatarImage', url);
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -4132,7 +4146,7 @@ function initPhotoWidget(widgetId) {
                 photoImg.src = e.target.result;
                 photoImg.style.display = 'block';
                 photoPlaceholder.style.display = 'none';
-                localStorage.setItem(`photo-${widgetId}`, e.target.result);
+                safeSetLocalStorage(`photo-${widgetId}`, e.target.result);
             }
         };
         reader.readAsDataURL(file);
@@ -4467,7 +4481,7 @@ function setPhotoForWidget(widgetId, imageUrl) {
         photoImg.src = imageUrl;
         photoImg.style.display = 'block';
         photoPlaceholder.style.display = 'none';
-        localStorage.setItem(`photo-${widgetId}`, imageUrl);
+        safeSetLocalStorage(`photo-${widgetId}`, imageUrl);
     }
 };
 
@@ -4712,7 +4726,7 @@ function setSquarePhoto(widgetId, photoIndex, imageUrl) {
 
         // 保存到 localStorage
         const storageKey = `square-photo-${widgetId}-${photoIndex}`;
-        localStorage.setItem(storageKey, imageUrl);
+        safeSetLocalStorage(storageKey, imageUrl);
     }
 }
 
@@ -6814,7 +6828,7 @@ function setWidgetImage(imageSrc) {
         placeholder.style.display = 'none';
     }
     // 保存到 localStorage
-    localStorage.setItem('widgetCustomImage', imageSrc);
+    safeSetLocalStorage('widgetCustomImage', imageSrc);
 }
 
 // 从存储加载图片
