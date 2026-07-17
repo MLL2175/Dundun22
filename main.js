@@ -661,13 +661,22 @@ window.closeAppIframe = function() {
     // 如果当前是查岗页面，先尝试关闭应用详情页
     if (fileName === 'check-device.html') {
         try {
-            // 通过 postMessage 调用 iframe 内部的函数
-            iframe.contentWindow.postMessage({
-                type: 'callIframeFunction',
-                funcName: 'handleBackNavigation'
-            }, '*');
-            console.log('[iframe] 查岗页面，尝试关闭子页面');
-            return;
+            // 检查是否已经调用过一次handleBackNavigation，防止死循环
+            // （如果不加这个标记，iframe 回复"没有子页面了"之后，
+            //  这里会再次进入这个 if 分支，又问一遍，永远关不掉）
+            if (container.dataset.checkDeviceBackNavigationCalled === 'true') {
+                console.log('[iframe] 查岗页面，已调用过handleBackNavigation，直接关闭');
+                delete container.dataset.checkDeviceBackNavigationCalled;
+                // 继续执行后续的关闭逻辑（删除container，返回桌面）
+            } else {
+                container.dataset.checkDeviceBackNavigationCalled = 'true';
+                iframe.contentWindow.postMessage({
+                    type: 'callIframeFunction',
+                    funcName: 'handleBackNavigation'
+                }, '*');
+                console.log('[iframe] 查岗页面，尝试关闭子页面');
+                return;
+            }
         } catch(e) {
             console.warn('[iframe] 无法访问查岗 iframe 内容:', e);
         }
