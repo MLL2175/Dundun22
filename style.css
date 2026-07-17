@@ -352,11 +352,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: -24px;  /* 时间往上移（配合更小字号缩短偏移） */
+    margin-top: -20px;  /* 时间往上移（配合更小字号缩短偏移） */
 }
 
 .time-main-new {
-    font-size: 42px;
+    font-size: 36px;
     font-weight: 500;
     line-height: 1;
     letter-spacing: 2px;
@@ -407,7 +407,7 @@ body {
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid #ccc;
     border-radius: 16px;
-    padding: 8px 10px;  /* 进一步缩短留白 */
+    padding: 5px 8px;  /* 进一步缩短留白 */
     width: 100%;
     box-sizing: border-box;
 }
@@ -526,10 +526,10 @@ body {
 }
 
 .time-avatar-editable {
-    width: 68px !important;
-    height: 68px !important;
-    min-width: 68px !important;
-    min-height: 68px !important;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
     border-radius: 50% !important;
     border: 3px solid #fff;
     display: flex;
@@ -578,7 +578,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 6px;
-    min-height: 70px;
+    min-height: 60px;
 }
 
 .time-image-editable {
@@ -2517,7 +2517,7 @@ body {
 .square-photo-widget {
     grid-column: 2;
     grid-row: 3;
-    aspect-ratio: 1.5 / 1;  /* 改成更扁的比例（原来是正方形），省出垂直空间给下方图标 */
+    aspect-ratio: 1;  /* 改回正方形，避免和图标区域重叠错位 */
     background-color: rgba(255, 255, 255, 0.65);  /* 更透明的白色背景 */
     backdrop-filter: blur(10px);  /* 毛玻璃模糊效果 */
     -webkit-backdrop-filter: blur(10px);
