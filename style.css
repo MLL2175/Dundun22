@@ -85,7 +85,7 @@ body {
 #home-screen {
     width: 100%;
     height: 100%;
-    padding: 8px 0 90px;
+    padding: 4px 0 84px;  /* 进一步压缩留白,给底部图标腾出更多空间 */
     position: relative;
     overflow: hidden;
     background: transparent;  /* 改为透明，否则会挡住 #phone-container 的壁纸 */
@@ -577,8 +577,8 @@ body {
 .time-lower-section {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: 8px;
-    min-height: 88px;
+    gap: 6px;
+    min-height: 70px;
 }
 
 .time-image-editable {
@@ -1135,7 +1135,7 @@ body {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 74px;
+    grid-auto-rows: 68px;  /* 进一步缩小每行高度 */
     gap: 2px 4px;  /* 行间距2px，列间距4px */
     min-height: auto;
     margin-top: 0px !important;  /* 恢复默认 */
@@ -2517,7 +2517,7 @@ body {
 .square-photo-widget {
     grid-column: 2;
     grid-row: 3;
-    aspect-ratio: 1;  /* 外框必须是正方形 */
+    aspect-ratio: 1.5 / 1;  /* 改成更扁的比例（原来是正方形），省出垂直空间给下方图标 */
     background-color: rgba(255, 255, 255, 0.65);  /* 更透明的白色背景 */
     backdrop-filter: blur(10px);  /* 毛玻璃模糊效果 */
     -webkit-backdrop-filter: blur(10px);
@@ -2632,6 +2632,13 @@ body {
     color: #ccc;
     cursor: text;
     white-space: nowrap;
+    overflow-x: auto;       /* 文字太长时可以横向滑动看完整，而不是被截断 */
+    overflow-y: hidden;
+    scrollbar-width: none;      /* 隐藏滚动条（Firefox） */
+    -ms-overflow-style: none;   /* 隐藏滚动条（IE/Edge） */
+}
+.dialog-main-text::-webkit-scrollbar {
+    display: none;              /* 隐藏滚动条（Chrome/Safari） */
 }
 
 .cute-dialog-content {
