@@ -61,7 +61,7 @@
             const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
             const items = grid.querySelectorAll('.polaroid-item');
             items.forEach((item, index) => {
-                const saved = localStorage.getItem(`polaroidImage-${widgetId}-${index}`);
+                const saved = localStorage.getItem(`dundun22_polaroidImage-${widgetId}-${index}`);
                 if (saved) {
                     showUploadedImage(item, saved);
                 }
@@ -72,7 +72,7 @@
         document.querySelectorAll('.dialog-avatar').forEach(avatarEl => {
             const widgetEl = avatarEl.closest('[data-widget-id]');
             const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
-            const saved = localStorage.getItem(`dialogAvatarImage-${widgetId}`);
+            const saved = localStorage.getItem(`dundun22_dialogAvatarImage-${widgetId}`);
             if (saved) {
                 showUploadedImage(avatarEl, saved);
             }
@@ -81,7 +81,7 @@
 
     // 加载配置
     function loadConfig() {
-        const saved = localStorage.getItem('beautifyConfig');
+        const saved = localStorage.getItem('dundun22_beautifyConfig');
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
@@ -109,7 +109,7 @@
     // 保存配置
     function saveConfig() {
         try {
-            localStorage.setItem('beautifyConfig', JSON.stringify(beautifyConfig));
+            localStorage.setItem('dundun22_beautifyConfig', JSON.stringify(beautifyConfig));
             return true;
         } catch (e) {
             // 最常见的情况：localStorage 存储空间超限（壁纸+多个图标的 base64 图片叠加超过了浏览器限制）
@@ -176,7 +176,7 @@
         // 应用虚线头像
         const avatarImg2 = document.getElementById('widget-avatar-img-2');
         if (avatarImg2) {
-            const savedAvatar2 = localStorage.getItem('widgetAvatar2');
+            const savedAvatar2 = localStorage.getItem('dundun22_widgetAvatar2');
             if (savedAvatar2) {
                 avatarImg2.src = savedAvatar2;
             }
@@ -185,7 +185,7 @@
         // 应用副文本
         const subText = document.querySelector('.time-sub-text');
         if (subText) {
-            const savedSubText = localStorage.getItem('widgetSubText');
+            const savedSubText = localStorage.getItem('dundun22_widgetSubText');
             if (savedSubText) {
                 subText.innerText = savedSubText;
             }
@@ -658,7 +658,7 @@
         const listEl = document.getElementById('beautify-preset-list');
         if (!listEl) return;
 
-        const saved = localStorage.getItem('beautifyPresets');
+        const saved = localStorage.getItem('dundun22_beautifyPresets');
         const presets = saved ? JSON.parse(saved) : [];
 
         if (presets.length === 0) {
@@ -693,13 +693,13 @@
         
         saveConfig();
 
-        const saved = localStorage.getItem('beautifyPresets');
+        const saved = localStorage.getItem('dundun22_beautifyPresets');
         const presets = saved ? JSON.parse(saved) : [];
         presets.push({
             name: name,
             config: JSON.parse(JSON.stringify(beautifyConfig))
         });
-        localStorage.setItem('beautifyPresets', JSON.stringify(presets));
+        localStorage.setItem('dundun22_beautifyPresets', JSON.stringify(presets));
 
         loadPresets();
         showToast('方案已保存！');
@@ -712,7 +712,7 @@
     };
     
     window.applyBeautifyPreset = function(index) {
-        const saved = localStorage.getItem('beautifyPresets');
+        const saved = localStorage.getItem('dundun22_beautifyPresets');
         const presets = saved ? JSON.parse(saved) : [];
         if (presets[index]) {
             beautifyConfig = JSON.parse(JSON.stringify(presets[index].config));
@@ -727,10 +727,10 @@
     window.deleteBeautifyPreset = function(index) {
         if (!confirm('确定要删除这个方案吗？')) return;
 
-        const saved = localStorage.getItem('beautifyPresets');
+        const saved = localStorage.getItem('dundun22_beautifyPresets');
         const presets = saved ? JSON.parse(saved) : [];
         presets.splice(index, 1);
-        localStorage.setItem('beautifyPresets', JSON.stringify(presets));
+        localStorage.setItem('dundun22_beautifyPresets', JSON.stringify(presets));
 
         loadPresets();
         showToast('方案已删除');
@@ -1037,7 +1037,7 @@
                         const avatarImg = document.getElementById('widget-avatar-img-2');
                         if (avatarImg) {
                             avatarImg.src = event.target.result;
-                            localStorage.setItem('widgetAvatar2', event.target.result);
+                            localStorage.setItem('dundun22_widgetAvatar2', event.target.result);
                         }
                         dialog.remove();
                         showToast('头像已保存');
@@ -1128,7 +1128,7 @@
                     const avatarImg = document.getElementById('widget-avatar-img-2');
                     if (avatarImg) {
                         avatarImg.src = url;
-                        localStorage.setItem('widgetAvatar2', url);
+                        localStorage.setItem('dundun22_widgetAvatar2', url);
                     }
                     urlDialog.remove();
                     dialog.remove();
@@ -1147,7 +1147,7 @@
         const subText = document.querySelector('.time-sub-text');
         if (subText) {
             subText.addEventListener('blur', function() {
-                localStorage.setItem('widgetSubText', this.innerText);
+                localStorage.setItem('dundun22_widgetSubText', this.innerText);
             }, { once: true });
         }
     };
@@ -1280,7 +1280,7 @@
                         }
                         const widgetEl = element.closest('[data-widget-id]');
                         const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
-                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`polaroidImage-${widgetId}-${index}`, event.target.result);
+                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dundun22_polaroidImage-${widgetId}-${index}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1371,7 +1371,7 @@
                     }
                     const widgetEl = element.closest('[data-widget-id]');
                     const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'polaroidWidget';
-                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`polaroidImage-${widgetId}-${index}`, url);
+                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dundun22_polaroidImage-${widgetId}-${index}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {
@@ -1476,7 +1476,7 @@
                         }
                         const widgetEl = element.closest('[data-widget-id]');
                         const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
-                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dialogAvatarImage-${widgetId}`, event.target.result);
+                        (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dundun22_dialogAvatarImage-${widgetId}`, event.target.result);
                         dialog.remove();
                     };
                     reader.readAsDataURL(file);
@@ -1567,7 +1567,7 @@
                     }
                     const widgetEl = element.closest('[data-widget-id]');
                     const widgetId = widgetEl ? widgetEl.getAttribute('data-widget-id') : 'dialogAvatar';
-                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dialogAvatarImage-${widgetId}`, url);
+                    (typeof safeSetLocalStorage === 'function' ? safeSetLocalStorage : localStorage.setItem.bind(localStorage))(`dundun22_dialogAvatarImage-${widgetId}`, url);
                     urlDialog.remove();
                     dialog.remove();
                 } else {

@@ -500,7 +500,7 @@ window.openAppIframe = function(url, title, options) {
                 }, 100);
                     
                 // 应用美化CSS到iframe
-                const savedCss = localStorage.getItem('mainBeautifyCss');
+                const savedCss = localStorage.getItem('dundun22_mainBeautifyCss');
                 if (savedCss) {
                     console.log('[iframe] 检测到已保存的美化CSS，长度:', savedCss.length);
                     const beautifyStyle = iframeDoc.createElement('style');
@@ -661,22 +661,13 @@ window.closeAppIframe = function() {
     // 如果当前是查岗页面，先尝试关闭应用详情页
     if (fileName === 'check-device.html') {
         try {
-            // 检查是否已经调用过一次handleBackNavigation，防止死循环
-            // （如果不加这个标记，iframe 回复"没有子页面了"之后，
-            //  这里会再次进入这个 if 分支，又问一遍，永远关不掉）
-            if (container.dataset.checkDeviceBackNavigationCalled === 'true') {
-                console.log('[iframe] 查岗页面，已调用过handleBackNavigation，直接关闭');
-                delete container.dataset.checkDeviceBackNavigationCalled;
-                // 继续执行后续的关闭逻辑（删除container，返回桌面）
-            } else {
-                container.dataset.checkDeviceBackNavigationCalled = 'true';
-                iframe.contentWindow.postMessage({
-                    type: 'callIframeFunction',
-                    funcName: 'handleBackNavigation'
-                }, '*');
-                console.log('[iframe] 查岗页面，尝试关闭子页面');
-                return;
-            }
+            // 通过 postMessage 调用 iframe 内部的函数
+            iframe.contentWindow.postMessage({
+                type: 'callIframeFunction',
+                funcName: 'handleBackNavigation'
+            }, '*');
+            console.log('[iframe] 查岗页面，尝试关闭子页面');
+            return;
         } catch(e) {
             console.warn('[iframe] 无法访问查岗 iframe 内容:', e);
         }
@@ -2425,13 +2416,13 @@ function saveAllWidgets() {
         }
     });
     
-    localStorage.setItem('createdWidgets', JSON.stringify(widgets));
+    localStorage.setItem('dundun22_createdWidgets', JSON.stringify(widgets));
     console.log('组件信息已保存:', widgets);
 }
 
 // 添加单个组件时调用
 function saveWidgetCreationData(type, widgetId, page) {
-    const widgets = JSON.parse(localStorage.getItem('createdWidgets') || '[]');
+    const widgets = JSON.parse(localStorage.getItem('dundun22_createdWidgets') || '[]');
     
     // 检查是否已存在
     const existingIndex = widgets.findIndex(w => w.id === widgetId);
@@ -2441,19 +2432,19 @@ function saveWidgetCreationData(type, widgetId, page) {
         widgets.push({ id: widgetId, type, page, containerId: '' });
     }
     
-    localStorage.setItem('createdWidgets', JSON.stringify(widgets));
+    localStorage.setItem('dundun22_createdWidgets', JSON.stringify(widgets));
 }
 
 // 删除组件创建信息
 function removeWidgetCreationData(widgetId) {
-    let widgets = JSON.parse(localStorage.getItem('createdWidgets') || '[]');
+    let widgets = JSON.parse(localStorage.getItem('dundun22_createdWidgets') || '[]');
     widgets = widgets.filter(w => w.id !== widgetId);
-    localStorage.setItem('createdWidgets', JSON.stringify(widgets));
+    localStorage.setItem('dundun22_createdWidgets', JSON.stringify(widgets));
 }
 
 // 恢复所有动态创建的组件
 function restoreCreatedWidgets() {
-    const widgets = JSON.parse(localStorage.getItem('createdWidgets') || '[]');
+    const widgets = JSON.parse(localStorage.getItem('dundun22_createdWidgets') || '[]');
     
     if (widgets.length === 0) {
         console.log('没有动态创建的组件需要恢复');
@@ -2508,7 +2499,7 @@ function restoreCreatedWidgets() {
             const widget = document.querySelector('[data-widget-id="dialogBubble-page2"]');
             if (widget) {
                 // 只有当用户没有主动隐藏时才显示
-                if (localStorage.getItem('hideDialogBubble') !== 'true') {
+                if (localStorage.getItem('dundun22_hideDialogBubble') !== 'true') {
                     widget.style.display = '';
                 } else {
                     widget.style.display = 'none';
@@ -2648,7 +2639,7 @@ function saveAllPositions() {
         };
     });
     
-    localStorage.setItem('itemPositions', JSON.stringify(positions));
+    localStorage.setItem('dundun22_itemPositions', JSON.stringify(positions));
     
     // 同时保存动态创建的组件信息
     saveAllWidgets();
@@ -2662,7 +2653,7 @@ function loadAllPositions() {
     clearMusicAppPosition();
     
     // 清除旧的布局缓存
-    localStorage.removeItem('itemPositions');
+    localStorage.removeItem('dundun22_itemPositions');
     console.log('🗑️ 已清除旧的itemPositions缓存');
     
     // 先恢复动态创建的组件
@@ -2683,11 +2674,11 @@ function loadAllPositions() {
 // 清除音乐应用的旧位置数据（让它从HTML中重新加载）
 function clearMusicAppPosition() {
     try {
-        const positions = JSON.parse(localStorage.getItem('itemPositions') || '{}');
+        const positions = JSON.parse(localStorage.getItem('dundun22_itemPositions') || '{}');
         // 删除icon-music的位置数据
         if (positions['icon-music']) {
             delete positions['icon-music'];
-            localStorage.setItem('itemPositions', JSON.stringify(positions));
+            localStorage.setItem('dundun22_itemPositions', JSON.stringify(positions));
             console.log('已清除一起听应用的旧位置数据');
         }
     } catch (e) {
@@ -3111,7 +3102,7 @@ function editTimeWidgetAvatar(avatarElement) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     showUploadedImage(avatarElement, event.target.result);
-                    safeSetLocalStorage('timeWidgetAvatarImage', event.target.result);
+                    safeSetLocalStorage('dundun22_timeWidgetAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3174,7 +3165,7 @@ function editTimeWidgetAvatar(avatarElement) {
             const url = urlModal.querySelector('.cute-url-input').value.trim();
             if (url) {
                 showUploadedImage(avatarElement, url);
-                safeSetLocalStorage('timeWidgetAvatarImage', url);
+                safeSetLocalStorage('dundun22_timeWidgetAvatarImage', url);
             }
             urlModal.remove();
         };
@@ -3187,7 +3178,7 @@ function editTimeWidgetAvatar(avatarElement) {
 
 // 从存储恢复时间组件大头像
 function initTimeWidgetAvatarFromStorage() {
-    const saved = localStorage.getItem('timeWidgetAvatarImage');
+    const saved = localStorage.getItem('dundun22_timeWidgetAvatarImage');
     if (!saved) return;
     const avatarElement = document.querySelector('.time-avatar-editable');
     if (avatarElement) {
@@ -3197,7 +3188,7 @@ function initTimeWidgetAvatarFromStorage() {
 
 // 从存储恢复对话组件头像
 function initDialogAvatarFromStorage() {
-    const saved = localStorage.getItem('dialogAvatarImage');
+    const saved = localStorage.getItem('dundun22_dialogAvatarImage');
     if (!saved) return;
     const avatarElement = document.querySelector('.dialog-avatar');
     if (avatarElement) {
@@ -3402,7 +3393,7 @@ function initSettings() {
         });
         
         // 从localStorage加载温度值
-        const savedTemp = localStorage.getItem('api-temperature');
+        const savedTemp = localStorage.getItem('dundun22_api-temperature');
         if (savedTemp !== null) {
             const tempValue = parseFloat(savedTemp);
             temperatureSlider.value = tempValue;
@@ -3412,7 +3403,7 @@ function initSettings() {
         
         // 保存温度值
         temperatureSlider.addEventListener('change', function() {
-            localStorage.setItem('api-temperature', this.value);
+            localStorage.setItem('dundun22_api-temperature', this.value);
         });
     }
 }
@@ -3505,7 +3496,7 @@ function editDialogAvatar(avatarElement) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     showUploadedImage(avatarElement, event.target.result);
-                    safeSetLocalStorage('dialogAvatarImage', event.target.result);
+                    safeSetLocalStorage('dundun22_dialogAvatarImage', event.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -3544,7 +3535,7 @@ function editDialogAvatar(avatarElement) {
             const url = urlInput.value.trim();
             if (url) {
                 showUploadedImage(avatarElement, url);
-                safeSetLocalStorage('dialogAvatarImage', url);
+                safeSetLocalStorage('dundun22_dialogAvatarImage', url);
             }
             urlModal.classList.add('modal-closing');
             setTimeout(() => urlModal.remove(), 300);
@@ -4035,12 +4026,12 @@ function saveCuteWidgetData() {
         data.texts.push(text.textContent);
     });
     
-    localStorage.setItem('cuteWidgetData', JSON.stringify(data));
+    localStorage.setItem('dundun22_cuteWidgetData', JSON.stringify(data));
 }
 
 // 加载可爱组件数据
 function loadCuteWidgetData() {
-    const saved = localStorage.getItem('cuteWidgetData');
+    const saved = localStorage.getItem('dundun22_cuteWidgetData');
     
     // 加载方形照片组件的照片（无论是否有数据都要加载）
     loadSquarePhotos();
@@ -4085,18 +4076,18 @@ window.deleteWidget = function(widgetId) {
     if (widget) {
         // 如果是照片组件，清除对应的照片存储
         if (widget.classList.contains('photo-widget')) {
-            localStorage.removeItem(`photo-${widgetId}`);
+            localStorage.removeItem(`dundun22_photo-${widgetId}`);
         }
         // 如果是便签组件，清除便签内容
         if (widget.classList.contains('note-widget')) {
-            localStorage.removeItem(`compactNote-${widgetId}`);
-            localStorage.removeItem(`compactNoteTime-${widgetId}`);
+            localStorage.removeItem(`dundun22_compactNote-${widgetId}`);
+            localStorage.removeItem(`dundun22_compactNoteTime-${widgetId}`);
         }
         
         // 如果是预置组件（对话气泡），只隐藏不删除
         if (widgetId === 'dialogBubble-page2') {
             widget.style.display = 'none';
-            localStorage.setItem('hideDialogBubble', 'true');
+            localStorage.setItem('dundun22_hideDialogBubble', 'true');
         } else {
             widget.remove();
         }
@@ -4138,7 +4129,7 @@ function initPhotoWidget(widgetId) {
     if (!photoInput) return;
     
     // 加载保存的照片
-    const savedPhoto = localStorage.getItem(`photo-${widgetId}`);
+    const savedPhoto = localStorage.getItem(`dundun22_photo-${widgetId}`);
     if (savedPhoto && photoImg && photoPlaceholder) {
         photoImg.src = savedPhoto;
         photoImg.style.display = 'block';
@@ -4155,7 +4146,7 @@ function initPhotoWidget(widgetId) {
                 photoImg.src = e.target.result;
                 photoImg.style.display = 'block';
                 photoPlaceholder.style.display = 'none';
-                safeSetLocalStorage(`photo-${widgetId}`, e.target.result);
+                safeSetLocalStorage(`dundun22_photo-${widgetId}`, e.target.result);
             }
         };
         reader.readAsDataURL(file);
@@ -4490,7 +4481,7 @@ function setPhotoForWidget(widgetId, imageUrl) {
         photoImg.src = imageUrl;
         photoImg.style.display = 'block';
         photoPlaceholder.style.display = 'none';
-        safeSetLocalStorage(`photo-${widgetId}`, imageUrl);
+        safeSetLocalStorage(`dundun22_photo-${widgetId}`, imageUrl);
     }
 };
 
@@ -4734,7 +4725,7 @@ function setSquarePhoto(widgetId, photoIndex, imageUrl) {
         photos[photoIndex].textContent = '';  // 清除占位文字，避免盖在图片上
 
         // 保存到 localStorage
-        const storageKey = `square-photo-${widgetId}-${photoIndex}`;
+        const storageKey = `dundun22_square-photo-${widgetId}-${photoIndex}`;
         safeSetLocalStorage(storageKey, imageUrl);
     }
 }
@@ -4752,7 +4743,7 @@ function loadSquarePhotos() {
     const photos = widget.querySelectorAll('.square-photo');
     console.log('found photos:', photos.length);
     photos.forEach((photo, index) => {
-        const storageKey = `square-photo-${widget.getAttribute('data-widget-id')}-${index}`;
+        const storageKey = `dundun22_square-photo-${widget.getAttribute('data-widget-id')}-${index}`;
         const savedImage = localStorage.getItem(storageKey);
         if (savedImage) {
             photo.style.backgroundImage = `url('${savedImage}')`;
@@ -4788,7 +4779,7 @@ function loadSquareDecorations() {
     
     const decorations = widget.querySelectorAll('.square-decoration');
     for (let i = 0; i < decorations.length; i++) {
-        const storageKey = `square-deco-squarePhoto-${i}`;
+        const storageKey = `dundun22_square-deco-squarePhoto-${i}`;
         const savedText = localStorage.getItem(storageKey);
         if (savedText && decorations[i]) {
             decorations[i].textContent = savedText;
@@ -4805,14 +4796,14 @@ function loadKoreanSearchWidget() {
         const decoElement = widget.querySelector('.korean-search-decoration');
         
         if (textElement) {
-            const savedText = localStorage.getItem(`korean-search-text-${widgetId}`);
+            const savedText = localStorage.getItem(`dundun22_korean-search-text-${widgetId}`);
             if (savedText) {
                 textElement.textContent = savedText;
             }
         }
         
         if (decoElement) {
-            const savedDeco = localStorage.getItem(`korean-search-deco-${widgetId}`);
+            const savedDeco = localStorage.getItem(`dundun22_korean-search-deco-${widgetId}`);
             if (savedDeco) {
                 decoElement.textContent = savedDeco;
             }
@@ -4821,13 +4812,13 @@ function loadKoreanSearchWidget() {
         // 绑定保存事件
         if (textElement) {
             textElement.addEventListener('blur', function() {
-                localStorage.setItem(`korean-search-text-${widgetId}`, textElement.textContent);
+                localStorage.setItem(`dundun22_korean-search-text-${widgetId}`, textElement.textContent);
             });
         }
         
         if (decoElement) {
             decoElement.addEventListener('blur', function() {
-                localStorage.setItem(`korean-search-deco-${widgetId}`, decoElement.textContent);
+                localStorage.setItem(`dundun22_korean-search-deco-${widgetId}`, decoElement.textContent);
             });
         }
     });
@@ -4921,7 +4912,7 @@ window.editSquareDecoration = function(widgetId, decorationIndex) {
             }
             
             // 保存到 localStorage
-            const storageKey = `square-deco-${widgetId}-${decorationIndex}`;
+            const storageKey = `dundun22_square-deco-${widgetId}-${decorationIndex}`;
             localStorage.setItem(storageKey, newText);
         }
         dialog.remove();
@@ -4983,10 +4974,10 @@ function addNoteToWidget(content) {
     noteList.insertBefore(noteItem, noteList.firstChild);
     noteList.querySelector('.note-empty')?.remove();
 
-    const savedNotes = JSON.parse(localStorage.getItem('noteList') || '[]');
+    const savedNotes = JSON.parse(localStorage.getItem('dundun22_noteList') || '[]');
     savedNotes.unshift({ id: Date.now(), content, time: `${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}` });
     if (savedNotes.length > 50) savedNotes.splice(50);
-    localStorage.setItem('noteList', JSON.stringify(savedNotes));
+    localStorage.setItem('dundun22_noteList', JSON.stringify(savedNotes));
 }
 
 // ========== 分页切换功能 ==========
@@ -5101,7 +5092,7 @@ function initDockDrag() {
     if (!dock) return;
     
     // 加载保存的位置
-    const savedPosition = localStorage.getItem('dockBottomPosition');
+    const savedPosition = localStorage.getItem('dundun22_dockBottomPosition');
     if (savedPosition) {
         dockCurrentBottom = parseInt(savedPosition);
         dock.style.bottom = dockCurrentBottom + 'px';
@@ -5209,7 +5200,7 @@ function updateDockPosition() {
 }
 
 function saveDockPosition() {
-    localStorage.setItem('dockBottomPosition', dockCurrentBottom.toString());
+    localStorage.setItem('dundun22_dockBottomPosition', dockCurrentBottom.toString());
 }
 
 // ========== 组件选择面板功能 ==========
@@ -5505,7 +5496,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (widget && widget.style.display === 'none') {
                     // 如果已隐藏，则显示它
                     widget.style.display = '';
-                    localStorage.removeItem('hideCuteDialog');
+                    localStorage.removeItem('dundun22_hideCuteDialog');
                     showToast('可爱对话组件已显示');
                     saveAllPositions(); // 保存布局
                     closeWidgetPicker();
@@ -5538,7 +5529,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCuteDialog('cuteDialog');
     
     // 检查是否隐藏了可爱对话组件
-    if (localStorage.getItem('hideCuteDialog') === 'true') {
+    if (localStorage.getItem('dundun22_hideCuteDialog') === 'true') {
         const widget = document.querySelector('[data-widget-id="cuteDialog"]');
         if (widget) {
             widget.style.display = 'none';
@@ -5546,7 +5537,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 检查是否隐藏了对话气泡组件
-    if (localStorage.getItem('hideDialogBubble') === 'true') {
+    if (localStorage.getItem('dundun22_hideDialogBubble') === 'true') {
         const widget = document.querySelector('[data-widget-id="dialogBubble-page2"]');
         if (widget) {
             widget.style.display = 'none';
@@ -5560,7 +5551,7 @@ function initCuteDialog(widgetId) {
     if (!widget) return;
     
     // 加载保存的内容
-    const savedData = localStorage.getItem(`widget_${widgetId}`);
+    const savedData = localStorage.getItem(`dundun22_widget_${widgetId}`);
     if (savedData) {
         try {
             const data = JSON.parse(savedData);
@@ -5603,7 +5594,7 @@ function initCuteDialog(widgetId) {
             subText: subText?.textContent || '',
             date: dateEl?.textContent || ''
         };
-        localStorage.setItem(`widget_${widgetId}`, JSON.stringify(data));
+        localStorage.setItem(`dundun22_widget_${widgetId}`, JSON.stringify(data));
     };
     
     [mainText, topDecor, bottomDecor, subText, dateEl].forEach(el => {
@@ -5620,7 +5611,7 @@ window.countdownWidget = {
     interval: null,
     
     init: function() {
-        const saved = localStorage.getItem('countdownTarget');
+        const saved = localStorage.getItem('dundun22_countdownTarget');
         if (saved) {
             this.targetDate = new Date(saved);
         } else {
@@ -5679,7 +5670,7 @@ window.setCountdown = function() {
         const date = new Date(input);
         if (!isNaN(date.getTime())) {
             window.countdownWidget.targetDate = date;
-            localStorage.setItem('countdownTarget', input);
+            localStorage.setItem('dundun22_countdownTarget', input);
             window.countdownWidget.updateTitle();
             window.countdownWidget.update();
         }
@@ -5691,7 +5682,7 @@ window.moneyWidget = {
     records: [],
     
     init: function() {
-        const saved = localStorage.getItem('moneyRecords');
+        const saved = localStorage.getItem('dundun22_moneyRecords');
         this.records = saved ? JSON.parse(saved) : [];
         this.render();
     },
@@ -5735,7 +5726,7 @@ window.moneyWidget = {
             note,
             date: new Date().toISOString()
         });
-        localStorage.setItem('moneyRecords', JSON.stringify(this.records));
+        localStorage.setItem('dundun22_moneyRecords', JSON.stringify(this.records));
         this.render();
     }
 };
@@ -5823,7 +5814,7 @@ window.submitCountdown = function() {
         const date = new Date(input);
         if (!isNaN(date.getTime())) {
             window.countdownWidget.targetDate = date;
-            localStorage.setItem('countdownTarget', input);
+            localStorage.setItem('dundun22_countdownTarget', input);
             window.countdownWidget.updateTitle();
             window.countdownWidget.update();
             closeMobileModal();
@@ -5840,8 +5831,8 @@ window.initNoteWidget = function(widgetId) {
     const editArea = widget.querySelector('.edit-textarea');
     const timestampSpan = widget.querySelector('.note-footer');
     
-    const savedContent = localStorage.getItem(`compactNote-${widgetId}`) || '点击编辑';
-    const savedTime = localStorage.getItem(`compactNoteTime-${widgetId}`) || '';
+    const savedContent = localStorage.getItem(`dundun22_compactNote-${widgetId}`) || '点击编辑';
+    const savedTime = localStorage.getItem(`dundun22_compactNoteTime-${widgetId}`) || '';
     
     if (displayDiv) displayDiv.textContent = savedContent;
     if (editArea) editArea.value = savedContent === '点击编辑' || savedContent === '（空白）' ? '' : savedContent;
@@ -5852,7 +5843,7 @@ window.initNoteWidget = function(widgetId) {
         const now = new Date();
         const formatted = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         timestampSpan.textContent = `更新 ${formatted}`;
-        localStorage.setItem(`compactNoteTime-${widgetId}`, formatted);
+        localStorage.setItem(`dundun22_compactNoteTime-${widgetId}`, formatted);
     }
 };
 
@@ -5865,7 +5856,7 @@ window.enterNoteEditMode = function(btn) {
     const editBtn = btn;
     const saveBtn = widget.querySelector('.action-buttons .text-btn:last-child');
     
-    const noteContent = localStorage.getItem(`compactNote-${widget.getAttribute('data-widget-id')}`) || '点击编辑';
+    const noteContent = localStorage.getItem(`dundun22_compactNote-${widget.getAttribute('data-widget-id')}`) || '点击编辑';
     editArea.value = noteContent === '点击编辑' || noteContent === '（空白）' ? '' : noteContent;
     
     displayDiv.style.display = 'none';
@@ -5888,13 +5879,13 @@ window.saveNote = function(btn) {
     if (!newContent) newContent = '（空白）';
     
     displayDiv.textContent = newContent;
-    localStorage.setItem(`compactNote-${widget.getAttribute('data-widget-id')}`, newContent);
+    localStorage.setItem(`dundun22_compactNote-${widget.getAttribute('data-widget-id')}`, newContent);
     
     // 更新时间戳
     const now = new Date();
     const formatted = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
     timestampSpan.textContent = `更新 ${formatted}`;
-    localStorage.setItem(`compactNoteTime-${widget.getAttribute('data-widget-id')}`, formatted);
+    localStorage.setItem(`dundun22_compactNoteTime-${widget.getAttribute('data-widget-id')}`, formatted);
     
     displayDiv.style.display = 'block';
     editArea.style.display = 'none';
@@ -5908,8 +5899,8 @@ window.initTextBanner = function(widgetId) {
     if (!widget) return;
     
     const contentEl = widget.querySelector('.text-banner-content');
-    const savedContent = localStorage.getItem(`banner-${widgetId}`);
-    const savedStyle = localStorage.getItem(`banner-style-${widgetId}`) || 'blue';
+    const savedContent = localStorage.getItem(`dundun22_banner-${widgetId}`);
+    const savedStyle = localStorage.getItem(`dundun22_banner-style-${widgetId}`) || 'blue';
     
     if (savedContent && contentEl) {
         contentEl.textContent = savedContent;
@@ -5921,7 +5912,7 @@ window.initTextBanner = function(widgetId) {
     // 监听内容变化
     if (contentEl) {
         contentEl.addEventListener('blur', function() {
-            localStorage.setItem(`banner-${widgetId}`, this.textContent);
+            localStorage.setItem(`dundun22_banner-${widgetId}`, this.textContent);
         });
     }
 };
@@ -5932,7 +5923,7 @@ window.setBannerStyle = function(btn, style) {
     
     widget.className = `widget text-banner style-${style}`;
     const widgetId = widget.getAttribute('data-widget-id');
-    localStorage.setItem(`banner-style-${widgetId}`, style);
+    localStorage.setItem(`dundun22_banner-style-${widgetId}`, style);
 };
 
 // ========== 心情组件功能 ==========
@@ -5940,7 +5931,7 @@ window.moodWidget = {
     records: [],
     
     init: function() {
-        const saved = localStorage.getItem('moodRecords');
+        const saved = localStorage.getItem('dundun22_moodRecords');
         this.records = saved ? JSON.parse(saved) : [];
         this.render();
     },
@@ -5974,7 +5965,7 @@ window.moodWidget = {
         this.records = this.records.filter(r => new Date(r.date).toDateString() !== today);
         // 添加新记录
         this.records.push({ mood, date: new Date().toISOString() });
-        localStorage.setItem('moodRecords', JSON.stringify(this.records));
+        localStorage.setItem('dundun22_moodRecords', JSON.stringify(this.records));
         
         // 更新UI
         document.querySelectorAll('.mood-emoji').forEach(btn => {
@@ -6652,19 +6643,19 @@ function initTimeBubbleEditing() {
     if (!bubbleShort || !bubbleLong) return;
     
     // 从 localStorage 加载保存的文字
-    const savedShort = localStorage.getItem('timeBubbleShort');
-    const savedLong = localStorage.getItem('timeBubbleLong');
+    const savedShort = localStorage.getItem('dundun22_timeBubbleShort');
+    const savedLong = localStorage.getItem('dundun22_timeBubbleLong');
     
     if (savedShort) bubbleShort.textContent = savedShort;
     if (savedLong) bubbleLong.textContent = savedLong;
     
     // 监听输入事件，自动保存
     bubbleShort.addEventListener('input', function() {
-        localStorage.setItem('timeBubbleShort', this.textContent);
+        localStorage.setItem('dundun22_timeBubbleShort', this.textContent);
     });
     
     bubbleLong.addEventListener('input', function() {
-        localStorage.setItem('timeBubbleLong', this.textContent);
+        localStorage.setItem('dundun22_timeBubbleLong', this.textContent);
     });
     
     // 防止回车换行（保持单行）
@@ -6837,12 +6828,12 @@ function setWidgetImage(imageSrc) {
         placeholder.style.display = 'none';
     }
     // 保存到 localStorage
-    safeSetLocalStorage('widgetCustomImage', imageSrc);
+    safeSetLocalStorage('dundun22_widgetCustomImage', imageSrc);
 }
 
 // 从存储加载图片
 function initWidgetImageFromStorage() {
-    const savedImage = localStorage.getItem('widgetCustomImage');
+    const savedImage = localStorage.getItem('dundun22_widgetCustomImage');
     if (savedImage) {
         setWidgetImage(savedImage);
     }
@@ -8494,7 +8485,7 @@ window.saveMainBeautifyCss = function() {
     if (!cssInput) return;
     
     const css = cssInput.value.trim();
-    localStorage.setItem('mainBeautifyCss', css);
+    localStorage.setItem('dundun22_mainBeautifyCss', css);
     applyBeautifyCss(css);
     showToast('✅ 美化设置已保存');
 };
@@ -8505,7 +8496,7 @@ window.clearMainBeautifyCss = function() {
     if (!cssInput) return;
     
     cssInput.value = '';
-    localStorage.removeItem('mainBeautifyCss');
+    localStorage.removeItem('dundun22_mainBeautifyCss');
     
     const oldStyle = document.getElementById('main-beautify-style');
     if (oldStyle) oldStyle.remove();
@@ -8547,7 +8538,7 @@ window.applyNightModePreset = function() {
     
     console.log('📝 设置CSS值到输入框');
     cssInput.value = DARK_MODE_CSS;
-    localStorage.setItem('mainBeautifyCss', DARK_MODE_CSS);
+    localStorage.setItem('dundun22_mainBeautifyCss', DARK_MODE_CSS);
     
     console.log('🎨 调用applyBeautifyCss');
     applyBeautifyCss(DARK_MODE_CSS);
@@ -8559,7 +8550,7 @@ window.applyNightModePreset = function() {
 // 方案管理功能
 window.getBeautifyPresets = function() {
     try {
-        return JSON.parse(localStorage.getItem('mainBeautifyPresets') || '[]');
+        return JSON.parse(localStorage.getItem('dundun22_mainBeautifyPresets') || '[]');
     } catch (e) {
         return [];
     }
@@ -8592,7 +8583,7 @@ window.saveBeautifyPreset = function() {
         time: new Date().toLocaleString()
     });
     
-    localStorage.setItem('mainBeautifyPresets', JSON.stringify(presets));
+    localStorage.setItem('dundun22_mainBeautifyPresets', JSON.stringify(presets));
     renderBeautifyPresetList();
     showToast('✅ 方案已保存');
 };
@@ -8606,7 +8597,7 @@ window.useBeautifyPreset = function(id) {
     if (!cssInput) return;
     
     cssInput.value = preset.css;
-    localStorage.setItem('mainBeautifyCss', preset.css);
+    localStorage.setItem('dundun22_mainBeautifyCss', preset.css);
     applyBeautifyCss(preset.css);
     showToast('✅ 已切换：' + preset.name);
 };
@@ -8619,7 +8610,7 @@ window.deleteBeautifyPreset = function(id) {
     if (!confirm(`确定删除「${preset.name}」？`)) return;
     
     presets = presets.filter(p => p.id !== id);
-    localStorage.setItem('mainBeautifyPresets', JSON.stringify(presets));
+    localStorage.setItem('dundun22_mainBeautifyPresets', JSON.stringify(presets));
     renderBeautifyPresetList();
     showToast('✅ 已删除');
 };
@@ -8652,7 +8643,7 @@ window.resetBeautify = function() {
     if (!confirm('确定要恢复默认美化设置吗？这将清空所有自定义样式。')) return;
     
     window.clearMainBeautifyCss();
-    localStorage.removeItem('mainBeautifyPresets');
+    localStorage.removeItem('dundun22_mainBeautifyPresets');
     renderBeautifyPresetList();
     showToast('✅ 已恢复默认');
 };
@@ -8693,7 +8684,7 @@ window.initMainBeautify = function() {
     renderBeautifyPresetList();
     
     // 加载已保存的 CSS
-    const savedCss = localStorage.getItem('mainBeautifyCss');
+    const savedCss = localStorage.getItem('dundun22_mainBeautifyCss');
     if (savedCss) {
         const cssInput = document.getElementById('custom-css');
         if (cssInput) cssInput.value = savedCss;
