@@ -770,7 +770,7 @@
 
     <script>
         // 数据存储
-        let ifLines = JSON.parse(localStorage.getItem('if_lines') || '[]');
+        let ifLines = JSON.parse(localStorage.getItem('dundun22_if_lines') || '[]');
         let currentLineId = null;
         let editingLineId = null;
         let currentTab = 'online'; // 当前选中的 Tab
@@ -831,7 +831,7 @@
             }
 
             listContainer.innerHTML = filteredLines.map(line => {
-                const isActive = line.id === localStorage.getItem('active_if_line');
+                const isActive = line.id === localStorage.getItem('dundun22_active_if_line');
                 const nodeCount = line.nodes ? line.nodes.length : 0;
                 const createdDate = new Date(line.createdAt).toLocaleDateString('zh-CN');
                 
@@ -839,8 +839,8 @@
                 let characterHtml = '';
                 if (line.character) {
                     try {
-                        const personaId = localStorage.getItem('currentPersonaId') || 'default';
-                        const contacts = JSON.parse(localStorage.getItem(`persona_${personaId}_chatContacts`) || '[]');
+                        const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+                        const contacts = JSON.parse(localStorage.getItem(`dundun22_persona_${personaId}_chatContacts`) || '[]');
                         const character = contacts.find(c => c.id === line.character);
                         if (character) {
                             const charName = character.remark || character.name || '未知角色';
@@ -927,7 +927,7 @@
                 showToast('创建成功');
             }
 
-            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            localStorage.setItem('dundun22_if_lines', JSON.stringify(ifLines));
             renderIfLines();
             closeModal();
         }
@@ -939,10 +939,10 @@
             }
 
             ifLines = ifLines.filter(l => l.id !== id);
-            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            localStorage.setItem('dundun22_if_lines', JSON.stringify(ifLines));
             
-            if (localStorage.getItem('active_if_line') === id) {
-                localStorage.removeItem('active_if_line');
+            if (localStorage.getItem('dundun22_active_if_line') === id) {
+                localStorage.removeItem('dundun22_active_if_line');
             }
             
             renderIfLines();
@@ -965,7 +965,7 @@
                 <div class="meta-item">🔀 ${nodeCount} 个节点</div>
             `;
 
-            const isActive = id === localStorage.getItem('active_if_line');
+            const isActive = id === localStorage.getItem('dundun22_active_if_line');
             const switchBtn = document.getElementById('switch-btn');
             if (isActive) {
                 switchBtn.textContent = '取消主线';
@@ -1049,7 +1049,7 @@
             });
 
             line.updatedAt = new Date().toISOString();
-            localStorage.setItem('if_lines', JSON.stringify(ifLines));
+            localStorage.setItem('dundun22_if_lines', JSON.stringify(ifLines));
             
             renderBranchNodes(line);
             renderIfLines();
@@ -1073,15 +1073,15 @@
 
         // 切换主线
         function toggleActiveLine() {
-            const activeId = localStorage.getItem('active_if_line');
+            const activeId = localStorage.getItem('dundun22_active_if_line');
             
             if (activeId === currentLineId) {
                 // 取消主线
-                localStorage.removeItem('active_if_line');
+                localStorage.removeItem('dundun22_active_if_line');
                 showToast('已取消主线');
             } else {
                 // 设置为主线
-                localStorage.setItem('active_if_line', currentLineId);
+                localStorage.setItem('dundun22_active_if_line', currentLineId);
                 showToast('已切换为主线');
             }
 
@@ -1098,8 +1098,8 @@
             
             try {
                 // 读取当前人设的通讯录
-                const personaId = localStorage.getItem('currentPersonaId') || 'default';
-                const contactsKey = `persona_${personaId}_chatContacts`;
+                const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+                const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
                 const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                 
                 console.log('加载角色列表:', contactsKey, '数量:', contacts.length);
@@ -1135,8 +1135,8 @@
             let displayName = line.title;
             if (!displayName && line.character) {
                 try {
-                    const personaId = localStorage.getItem('currentPersonaId') || 'default';
-                    const contactsKey = `persona_${personaId}_chatContacts`;
+                    const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+                    const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const character = contacts.find(c => c.id === line.character);
                     if (character) {

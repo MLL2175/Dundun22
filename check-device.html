@@ -1946,8 +1946,8 @@
 
         // 加载联系人列表
         function loadContacts() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
 
             const container = document.getElementById('contact-list');
@@ -1998,8 +1998,8 @@
 
         // 打开联系人详情
         function openContact(contactId) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             currentContact = contacts.find(c => c.id === contactId);
@@ -2240,7 +2240,7 @@
 
         // 保存查岗记录
         function saveCheckRecord(contactId) {
-            const recordsKey = `check_records_${contactId}`;
+            const recordsKey = `dundun22_check_records_${contactId}`;
             const records = JSON.parse(localStorage.getItem(recordsKey) || '[]');
             
             // 添加新记录
@@ -2294,7 +2294,7 @@
         // 加载聊天记录
         function loadWechatChatHistory(contact, messageId) {
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_wechat_${contactId}`;
+            const storageKey = `dundun22_app_data_wechat_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             if (!cachedData) {
@@ -2358,7 +2358,7 @@
             }
             
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_wechat_${contactId}`;
+            const storageKey = `dundun22_app_data_wechat_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             if (!cachedData) return;
@@ -2472,7 +2472,7 @@
             try {
                 // 保存回复记录
                 const contactId = currentContact ? currentContact.id : 'default';
-                const replyRecordsKey = `user_reply_records_${contactId}`;
+                const replyRecordsKey = `dundun22_user_reply_records_${contactId}`;
                 const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
                 
                 const newReply = {
@@ -2557,7 +2557,7 @@
 
             try {
                 const contactId = currentContact ? currentContact.id : 'default';
-                const replyRecordsKey = `user_reply_records_${contactId}`;
+                const replyRecordsKey = `dundun22_user_reply_records_${contactId}`;
                 const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
                 
                 const newReply = {
@@ -2585,7 +2585,7 @@
         // 更新聊天历史
         async function updateChatHistory(contact, replyContent) {
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_wechat_${contactId}`;
+            const storageKey = `dundun22_app_data_wechat_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             if (!cachedData) return;
@@ -2611,7 +2611,7 @@
 
         // 获取未读的帮回记录（用于聊天时提及）
         function getUnreadReplyRecords(contactId) {
-            const replyRecordsKey = `user_reply_records_${contactId}`;
+            const replyRecordsKey = `dundun22_user_reply_records_${contactId}`;
             const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
             
             // 返回未读的记录
@@ -2620,7 +2620,7 @@
 
         // 标记帮回记录为已读
         function markReplyAsRead(contactId, replyId) {
-            const replyRecordsKey = `user_reply_records_${contactId}`;
+            const replyRecordsKey = `dundun22_user_reply_records_${contactId}`;
             const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
             
             const record = replyRecords.find(r => r.id === replyId);
@@ -2640,7 +2640,7 @@
                 let apiUrl = '';
                 let apiModel = '';
                 
-                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
                 if (globalConfigStr) {
                     try {
                         const globalConfig = JSON.parse(globalConfigStr);
@@ -2661,9 +2661,9 @@
                 
                 // 兼容旧格式
                 if (!apiKey) {
-                    apiKey = localStorage.getItem('apiKey') || '';
-                    apiUrl = localStorage.getItem('apiUrl') || 'https://api.minimaxi.chat/v1/text/chatcompletion_v2';
-                    apiModel = localStorage.getItem('apiModel') || 'abab6.5-chat';
+                    apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                    apiUrl = localStorage.getItem('dundun22_apiUrl') || 'https://api.minimaxi.chat/v1/text/chatcompletion_v2';
+                    apiModel = localStorage.getItem('dundun22_apiModel') || 'abab6.5-chat';
                 }
                 
                 if (!apiKey || !apiUrl) {
@@ -2672,8 +2672,8 @@
                 }
                 
                 // 读取角色配置（当前查岗的角色）
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const personaKey = `persona_${currentPersona}`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const personaKey = `dundun22_persona_${currentPersona}`;
                 const personaData = JSON.parse(localStorage.getItem(personaKey) || '{}');
                 const roleName = personaData.name || '角色';
                 const rolePersonality = personaData.personality || '普通';
@@ -2684,7 +2684,7 @@
                 
                 // 获取当前聊天历史
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_wechat_${contactId}`;
+                const storageKey = `dundun22_app_data_wechat_${contactId}`;
                 const cachedData = localStorage.getItem(storageKey);
                 
                 if (!cachedData) {
@@ -2862,7 +2862,7 @@ ${chatHistoryText}
         
         // 加载查岗记录
         function loadCheckRecords(contactId) {
-            const recordsKey = `check_records_${contactId}`;
+            const recordsKey = `dundun22_check_records_${contactId}`;
             const records = JSON.parse(localStorage.getItem(recordsKey) || '[]');
             
             const container = document.getElementById('check-records-list');
@@ -2886,7 +2886,7 @@ ${chatHistoryText}
 
         // 删除查岗记录
         function deleteCheckRecord(index, contactId) {
-            const recordsKey = `check_records_${contactId}`;
+            const recordsKey = `dundun22_check_records_${contactId}`;
             const records = JSON.parse(localStorage.getItem(recordsKey) || '[]');
             
             // 删除指定索引的记录
@@ -2915,7 +2915,7 @@ ${chatHistoryText}
             };
 
             // 保存记录
-            const recordsKey = `check_records_${currentContact.id}`;
+            const recordsKey = `dundun22_check_records_${currentContact.id}`;
             const records = JSON.parse(localStorage.getItem(recordsKey) || '[]');
             records.unshift(record);
             localStorage.setItem(recordsKey, JSON.stringify(records));
@@ -3212,7 +3212,7 @@ ${chatHistoryText}
             
             // 尝试从缓存数据中获取聊天记录
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_wechat_${contactId}`;
+            const storageKey = `dundun22_app_data_wechat_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             let chatHistory = null;
@@ -3266,8 +3266,8 @@ ${chatHistoryText}
         
         // 生成模拟聊天记录
         function generateChatHistory(contactName) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const personasKey = `persona_${currentPersona}_personas`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const personasKey = `dundun22_persona_${currentPersona}_personas`;
             const personas = JSON.parse(localStorage.getItem(personasKey) || '{}');
             const persona = personas[contactName] || {};
             const personality = persona.personality || '';
@@ -3378,7 +3378,7 @@ ${chatHistoryText}
         function loadAppData(appType) {
             console.log('loadAppData called with:', appType);
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_${appType}_${contactId}`;
+            const storageKey = `dundun22_app_data_${appType}_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             console.log('storageKey:', storageKey);
@@ -3422,7 +3422,7 @@ ${chatHistoryText}
             try {
                 const data = await fetchAppDataFromAPI(appType);
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_${appType}_${contactId}`;
+                const storageKey = `dundun22_app_data_${appType}_${contactId}`;
                 
                 localStorage.setItem(storageKey, JSON.stringify(data));
                 renderAppData(appType, data);
@@ -3458,7 +3458,7 @@ ${chatHistoryText}
                 let apiUrl = '';
                 let apiModel = '';
                 
-                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
                 if (globalConfigStr) {
                     try {
                         const globalConfig = JSON.parse(globalConfigStr);
@@ -3472,7 +3472,7 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    const apiConfigStr = localStorage.getItem('apiConfig');
+                    const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
                     if (apiConfigStr) {
                         try {
                             const apiConfig = JSON.parse(apiConfigStr);
@@ -3486,9 +3486,9 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    apiKey = localStorage.getItem('apiKey') || '';
-                    apiUrl = localStorage.getItem('apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
-                    apiModel = localStorage.getItem('apiModel') || 'abab6.5-chat';
+                    apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                    apiUrl = localStorage.getItem('dundun22_apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+                    apiModel = localStorage.getItem('dundun22_apiModel') || 'abab6.5-chat';
                 }
                 
                 // 调试：打印最终使用的API配置
@@ -3561,7 +3561,7 @@ ${chatHistoryText}
                 
                 // 更新缓存中的消息部分
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_wechat_${contactId}`;
+                const storageKey = `dundun22_app_data_wechat_${contactId}`;
                 const cachedData = localStorage.getItem(storageKey);
                 
                 let wechatData = cachedData ? JSON.parse(cachedData) : { messages: [], moments: [], profile: {} };
@@ -3592,7 +3592,7 @@ ${chatHistoryText}
                 let apiUrl = '';
                 let apiModel = '';
                 
-                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
                 if (globalConfigStr) {
                     try {
                         const globalConfig = JSON.parse(globalConfigStr);
@@ -3606,7 +3606,7 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    const apiConfigStr = localStorage.getItem('apiConfig');
+                    const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
                     if (apiConfigStr) {
                         try {
                             const apiConfig = JSON.parse(apiConfigStr);
@@ -3620,9 +3620,9 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    apiKey = localStorage.getItem('apiKey') || '';
-                    apiUrl = localStorage.getItem('apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
-                    apiModel = localStorage.getItem('apiModel') || 'abab6.5-chat';
+                    apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                    apiUrl = localStorage.getItem('dundun22_apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+                    apiModel = localStorage.getItem('dundun22_apiModel') || 'abab6.5-chat';
                 }
                 
                 // 调试：打印最终使用的API配置
@@ -3700,7 +3700,7 @@ ${chatHistoryText}
                 
                 // 更新缓存中的朋友圈部分
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_wechat_${contactId}`;
+                const storageKey = `dundun22_app_data_wechat_${contactId}`;
                 const cachedData = localStorage.getItem(storageKey);
                 
                 let wechatData = cachedData ? JSON.parse(cachedData) : { messages: [], moments: [], profile: {} };
@@ -3731,7 +3731,7 @@ ${chatHistoryText}
                 let apiUrl = '';
                 let apiModel = '';
                 
-                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
                 if (globalConfigStr) {
                     try {
                         const globalConfig = JSON.parse(globalConfigStr);
@@ -3745,7 +3745,7 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    const apiConfigStr = localStorage.getItem('apiConfig');
+                    const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
                     if (apiConfigStr) {
                         try {
                             const apiConfig = JSON.parse(apiConfigStr);
@@ -3759,9 +3759,9 @@ ${chatHistoryText}
                 }
                 
                 if (!apiKey) {
-                    apiKey = localStorage.getItem('apiKey') || '';
-                    apiUrl = localStorage.getItem('apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
-                    apiModel = localStorage.getItem('apiModel') || 'abab6.5-chat';
+                    apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                    apiUrl = localStorage.getItem('dundun22_apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+                    apiModel = localStorage.getItem('dundun22_apiModel') || 'abab6.5-chat';
                 }
                 
                 // 调试：打印最终使用的API配置
@@ -3816,7 +3816,7 @@ ${chatHistoryText}
                 
                 // 更新缓存中的个人主页部分
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_wechat_${contactId}`;
+                const storageKey = `dundun22_app_data_wechat_${contactId}`;
                 const cachedData = localStorage.getItem(storageKey);
                 
                 let wechatData = cachedData ? JSON.parse(cachedData) : { messages: [], moments: [], profile: {} };
@@ -3843,14 +3843,14 @@ ${chatHistoryText}
             
             // 调试：查看所有相关配置
             console.log('=== API配置调试信息 ===');
-            console.log('globalApiConfig 原始值:', localStorage.getItem('globalApiConfig'));
-            console.log('apiConfig 原始值:', localStorage.getItem('apiConfig'));
-            console.log('apiKey:', localStorage.getItem('apiKey'));
-            console.log('apiUrl:', localStorage.getItem('apiUrl'));
-            console.log('apiModel:', localStorage.getItem('apiModel'));
+            console.log('globalApiConfig 原始值:', localStorage.getItem('dundun22_globalApiConfig'));
+            console.log('apiConfig 原始值:', localStorage.getItem('dundun22_apiConfig'));
+            console.log('apiKey:', localStorage.getItem('dundun22_apiKey'));
+            console.log('apiUrl:', localStorage.getItem('dundun22_apiUrl'));
+            console.log('apiModel:', localStorage.getItem('dundun22_apiModel'));
             
             // 优先使用 globalApiConfig
-            const globalConfigStr = localStorage.getItem('globalApiConfig');
+            const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
             if (globalConfigStr) {
                 try {
                     const globalConfig = JSON.parse(globalConfigStr);
@@ -3872,7 +3872,7 @@ ${chatHistoryText}
             
             // 如果没有，尝试 apiConfig
             if (!apiKey) {
-                const apiConfigStr = localStorage.getItem('apiConfig');
+                const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
                 if (apiConfigStr) {
                     try {
                         const apiConfig = JSON.parse(apiConfigStr);
@@ -3888,9 +3888,9 @@ ${chatHistoryText}
             
             // 最后尝试旧格式的单独字段
             if (!apiKey) {
-                apiKey = localStorage.getItem('apiKey') || '';
-                apiUrl = localStorage.getItem('apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
-                apiModel = localStorage.getItem('apiModel') || 'abab6.5-chat';
+                apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                apiUrl = localStorage.getItem('dundun22_apiUrl') || 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+                apiModel = localStorage.getItem('dundun22_apiModel') || 'abab6.5-chat';
             }
             
             console.log('最终使用的配置:', { apiKey: apiKey ? '***' + apiKey.slice(-4) : '未设置', apiUrl, apiModel });
@@ -4780,8 +4780,8 @@ ${chatHistoryText}
                     const contactAvatar = rawAvatar && (rawAvatar.startsWith('http://') || rawAvatar.startsWith('https://') || rawAvatar.startsWith('data:')) ? rawAvatar : '';
                     
                     // 获取人设信息生成个性化签名
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const personasKey = `persona_${currentPersona}_personas`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const personasKey = `dundun22_persona_${currentPersona}_personas`;
                     const personas = JSON.parse(localStorage.getItem(personasKey) || '{}');
                     const persona = personas[contactName] || {};
                     const personality = persona.personality || '';
@@ -5103,7 +5103,7 @@ ${chatHistoryText}
             
             try {
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_photo_${contactId}`;
+                const storageKey = `dundun22_app_data_photo_${contactId}`;
                 
                 // 找出没有描述的照片
                 const photosWithoutDesc = [];
@@ -5214,7 +5214,7 @@ ${chatHistoryText}
             console.log('点击了照片:', index);
             
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_photo_${contactId}`;
+            const storageKey = `dundun22_app_data_photo_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             console.log('storageKey:', storageKey);
@@ -5437,7 +5437,7 @@ ${chatHistoryText}
         // 重新生成照片描述
         async function regeneratePhotoDescription(index) {
             const contactId = currentContact ? currentContact.id : 'default';
-            const storageKey = `app_data_photo_${contactId}`;
+            const storageKey = `dundun22_app_data_photo_${contactId}`;
             const cachedData = localStorage.getItem(storageKey);
             
             if (!cachedData) return;
@@ -5475,7 +5475,7 @@ ${chatHistoryText}
             let apiUrl = '';
             let apiModel = '';
             
-            const globalConfigStr = localStorage.getItem('globalApiConfig');
+            const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
             if (globalConfigStr) {
                 try {
                     const globalConfig = JSON.parse(globalConfigStr);
@@ -5488,9 +5488,9 @@ ${chatHistoryText}
             }
             
             if (!apiKey) {
-                apiKey = localStorage.getItem('apiKey') || '';
-                apiUrl = localStorage.getItem('apiUrl') || '';
-                apiModel = localStorage.getItem('apiModel') || 'GLM-4-air';
+                apiKey = localStorage.getItem('dundun22_apiKey') || '';
+                apiUrl = localStorage.getItem('dundun22_apiUrl') || '';
+                apiModel = localStorage.getItem('dundun22_apiModel') || 'GLM-4-air';
             }
             
             if (!apiKey || !apiUrl) {
@@ -6227,7 +6227,7 @@ ${chatHistoryText}
                 
                 // 保存到localStorage
                 const contactId = currentContact ? currentContact.id : 'default';
-                const storageKey = `app_data_taobao_${contactId}`;
+                const storageKey = `dundun22_app_data_taobao_${contactId}`;
                 const taobaoData = {
                     purchases: window.taobaoData.purchases || [],
                     cart: window.taobaoData.cart
@@ -6267,9 +6267,9 @@ ${chatHistoryText}
                     };
                     
                     // 保存到localStorage
-                    const chatHistory = JSON.parse(localStorage.getItem(`chat_history_${currentPersona}`) || '[]');
+                    const chatHistory = JSON.parse(localStorage.getItem(`dundun22_chat_history_${currentPersona}`) || '[]');
                     chatHistory.push(message);
-                    localStorage.setItem(`chat_history_${currentPersona}`, JSON.stringify(chatHistory));
+                    localStorage.setItem(`dundun22_chat_history_${currentPersona}`, JSON.stringify(chatHistory));
                     
                     console.log('代付通知已发送:', replyContent);
                 }
@@ -6281,7 +6281,7 @@ ${chatHistoryText}
         // 生成AI回复
         async function generateAIReply(message) {
             const config = window.APP_SETTINGS || {};
-            const apiKey = config.apiKey || localStorage.getItem('chat_api_key');
+            const apiKey = config.apiKey || localStorage.getItem('dundun22_chat_api_key');
             
             if (!apiKey) {
                 console.log('API Key未配置，使用默认回复');

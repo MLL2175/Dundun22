@@ -83,12 +83,12 @@ function loadCollectionPanelContent() {
     const contentDiv = document.getElementById('collection-panel-body');
     if (!contentDiv) return;
     
-    const currentPersona = localStorage.getItem('currentPersona') || 'default';
+    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
     const collections = [];
     
     // 收集所有聊天消息收藏
     try {
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         
         for (let i = 0; i < localStorage.length; i++) {
@@ -127,7 +127,7 @@ function loadCollectionPanelContent() {
     
     // 收集情侣空间信件收藏
     try {
-        const lettersKey = `persona_${currentPersona}_coupleLetters`;
+        const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
         const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
         letters.filter(l => l.isCollected).forEach(letter => {
             collections.push({
@@ -144,7 +144,7 @@ function loadCollectionPanelContent() {
     
     // 收集日记收藏
     try {
-        const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+        const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
         diaries.filter(d => d.isCollected).forEach(diary => {
             collections.push({
                 type: '日记',
@@ -200,7 +200,7 @@ window.updateCollectionCount = function() {
     if (!countDiv) return;
     
     let totalCount = 0;
-    const currentPersona = localStorage.getItem('currentPersona') || 'default';
+    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
     
     // 统计消息收藏
     try {
@@ -215,14 +215,14 @@ window.updateCollectionCount = function() {
     
     // 统计信件收藏
     try {
-        const lettersKey = `persona_${currentPersona}_coupleLetters`;
+        const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
         const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
         totalCount += letters.filter(l => l.isCollected).length;
     } catch (e) {}
     
     // 统计日记收藏
     try {
-        const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+        const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
         totalCount += diaries.filter(d => d.isCollected).length;
     } catch (e) {}
     

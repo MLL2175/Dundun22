@@ -403,7 +403,7 @@
 
         // 加载书架
         function loadBooks() {
-            const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+            const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
             const bookList = document.getElementById('bookList');
         
             if (books.length === 0) {
@@ -497,7 +497,7 @@
 
         // 显示章节列表
         function showChapterList(index) {
-            const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+            const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
             const book = books[index];
             
             if (!book || !book.content) {
@@ -590,7 +590,7 @@
                 console.log('📚 发送阅读感想:', book.title);
                 
                 // 获取角色信息
-                const contactsKey = `persona_${localStorage.getItem('currentPersona') || 'default'}_chatContacts`;
+                const contactsKey = `dundun22_persona_${localStorage.getItem('dundun22_currentPersona') || 'default'}_chatContacts`;
                 const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                 const character = contacts.find(c => c.id === charId);
                 
@@ -600,7 +600,7 @@
                 }
                 
                 // 获取当前阅读进度
-                const progressKey = `reading_progress_${book.id}`;
+                const progressKey = `dundun22_reading_progress_${book.id}`;
                 const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
                 const currentChapter = progress.currentChapter || 0;
                 
@@ -627,7 +627,7 @@
 现在请用一句话说出感想：`;
 
                 // 调用AI API生成感想
-                const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 if (!apiConfig.mainApi || !apiConfig.mainApi.url) {
                     console.warn('⚠️ API配置不存在，跳过感想生成');
                     return;
@@ -722,7 +722,7 @@
         // 发送感到到聊天界面
         async function sendThoughtToChat(charId, thought, book) {
             try {
-                const chatKey = `chat_${charId}`;
+                const chatKey = `dundun22_chat_${charId}`;
                 let chatMessages = [];
                 
                 // 从 IndexedDB 加载
@@ -798,7 +798,7 @@
             currentBookIndex = bookIndex;
             currentChapterIndex = chapterIndex;
             
-            const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+            const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
             const book = books[bookIndex];
             const chapters = extractChapters(book.content);
             const chapter = chapters[chapterIndex];
@@ -960,7 +960,7 @@
         
         // 续更小说
         async function continueNovel(index) {
-            const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+            const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
             const book = books[index];
             
             if (!book || book.type !== 'ai') {
@@ -973,7 +973,7 @@
             try {
                 // 获取API配置
                 let apiConfig = null;
-                const globalConfigStr = localStorage.getItem('globalApiConfig');
+                const globalConfigStr = localStorage.getItem('dundun22_globalApiConfig');
                 if (globalConfigStr) {
                     apiConfig = JSON.parse(globalConfigStr);
                 }
@@ -1054,7 +1054,7 @@ ${book.content.substring(0, 3000)}...
                 book.content = book.content + '\n\n' + newContent;
                 book.lastUpdated = new Date().toISOString();
                 books[index] = book;
-                localStorage.setItem('myBooks', JSON.stringify(books));
+                localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 
                 // 更新阅读界面
                 const readContent = document.getElementById('readContent');
@@ -1077,9 +1077,9 @@ ${book.content.substring(0, 3000)}...
         // 删除书籍
         function deleteBook(index) {
             if (confirm('确定要删除这本书吗？')) {
-                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
                 books.splice(index, 1);
-                localStorage.setItem('myBooks', JSON.stringify(books));
+                localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 loadBooks();
                 showToast('已删除');
             }
@@ -1127,20 +1127,20 @@ ${book.content.substring(0, 3000)}...
         // 加载角色列表用于书籍邀请
         function loadCharactersForBookInvite() {
             // 获取当前 persona
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             
             // 尝试从 persona 相关 key 读取
             let characters = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             // 如果为空，尝试从通用 key 读取
             if (characters.length === 0) {
-                characters = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+                characters = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
             }
             
             // 如果还是空，尝试从 default persona 读取
             if (characters.length === 0) {
-                characters = JSON.parse(localStorage.getItem('persona_default_chatContacts') || '[]');
+                characters = JSON.parse(localStorage.getItem('dundun22_persona_default_chatContacts') || '[]');
             }
             
             const select = document.getElementById('inviteCharacterSelect');
@@ -1184,13 +1184,13 @@ ${book.content.substring(0, 3000)}...
             }
             
             // 更新书籍的邀请信息
-            const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+            const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
             if (books[bookIndex]) {
                 const book = books[bookIndex];
                 book.inviteCharacterId = charId;
                 book.invitedAt = new Date().toISOString();
                 book.inviteStatus = 'pending'; // 待接受
-                localStorage.setItem('myBooks', JSON.stringify(books));
+                localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 
                 // 发送邀请消息到聊天界面
                 sendReadingInviteToChat(book, charId);
@@ -1209,16 +1209,16 @@ ${book.content.substring(0, 3000)}...
                 }
                 
                 // 获取角色信息
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const contactsKey = `persona_${currentPersona}_chatContacts`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                 let characters = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                 
                 if (characters.length === 0) {
-                    characters = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+                    characters = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
                 }
                 
                 if (characters.length === 0) {
-                    characters = JSON.parse(localStorage.getItem('persona_default_chatContacts') || '[]');
+                    characters = JSON.parse(localStorage.getItem('dundun22_persona_default_chatContacts') || '[]');
                 }
                 
                 const companion = characters.find(c => c.id === book.inviteCharacterId);
@@ -1240,7 +1240,7 @@ ${book.content.substring(0, 3000)}...
         // 📚 同步阅读进度
         function syncReadingProgress(bookIndex, chapterIndex, totalChapters) {
             try {
-                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
                 const book = books[bookIndex];
                 
                 if (!book) return;
@@ -1250,7 +1250,7 @@ ${book.content.substring(0, 3000)}...
                 book.totalChapters = totalChapters;
                 book.lastReadAt = new Date().toISOString();
                 
-                localStorage.setItem('myBooks', JSON.stringify(books));
+                localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 
                 console.log('📚 阅读进度已同步:', {
                     bookTitle: book.title,
@@ -1296,7 +1296,7 @@ ${book.content.substring(0, 3000)}...
             }
             
             // 获取角色信息
-            const contactsKey = `persona_${localStorage.getItem('currentPersona') || 'default'}_chatContacts`;
+            const contactsKey = `dundun22_persona_${localStorage.getItem('dundun22_currentPersona') || 'default'}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const character = contacts.find(c => c.id === charId);
             const characterName = character ? character.name : '阅读伴侣';
@@ -1357,14 +1357,14 @@ ${book.content.substring(0, 3000)}...
                 console.log('📚 发送阅读邀请:', book.title, '角色:', charId);
                 
                 // 直接更新书籍的邀请状态为已接受
-                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
                 const bookIndex = books.findIndex(b => b.id === book.id);
                 if (bookIndex !== -1) {
                     books[bookIndex].inviteStatus = 'accepted';
                     books[bookIndex].inviteCharacterId = charId;
                     books[bookIndex].acceptedAt = new Date().toISOString();
                     books[bookIndex].currentChapter = 0; // 从头开始阅读
-                    localStorage.setItem('myBooks', JSON.stringify(books));
+                    localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                     console.log('✓ 已更新书籍邀请状态');
                 }
                 
@@ -1430,7 +1430,7 @@ ${book.content.substring(0, 3000)}...
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [书架] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html

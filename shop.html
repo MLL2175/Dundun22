@@ -1478,7 +1478,7 @@
 
     <script>
         let currentTab = 'shop';
-        let cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+        let cart = JSON.parse(localStorage.getItem('dundun22_shopCart') || '[]');
 
         // 初始化购物车
         function initCart() {
@@ -1537,7 +1537,7 @@
 
         // 保存购物车到localStorage
         function saveCart() {
-            localStorage.setItem('shopCart', JSON.stringify(cart));
+            localStorage.setItem('dundun22_shopCart', JSON.stringify(cart));
         }
 
         // 更新购物车徽章
@@ -1629,7 +1629,7 @@
             const ordersEmpty = document.getElementById('orders-empty');
             const ordersCount = document.getElementById('orders-count');
             
-            const orders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+            const orders = JSON.parse(localStorage.getItem('dundun22_shop_orders') || '[]');
             
             // 更新订单数量
             if (ordersCount) {
@@ -1718,8 +1718,8 @@
             const item = cart[index];
             
             // 获取联系人列表
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             if (contacts.length === 0) {
@@ -1791,9 +1791,9 @@
                     console.log('✅ 代付消息已保存到 IndexedDB:', messageData);
                 } else {
                     // 降级到 localStorage（也使用压缩格式）
-                    const chatMessages = JSON.parse(localStorage.getItem(`chat_${contactId}`) || '[]');
+                    const chatMessages = JSON.parse(localStorage.getItem(`dundun22_chat_${contactId}`) || '[]');
                     chatMessages.push(messageData);
-                    localStorage.setItem(`chat_${contactId}`, JSON.stringify(chatMessages));
+                    localStorage.setItem(`dundun22_chat_${contactId}`, JSON.stringify(chatMessages));
                     console.log('✅ 代付消息已保存到 localStorage:', messageData);
                 }
                 
@@ -1945,7 +1945,7 @@
             };
             
             // 获取API配置
-            const config = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+            const config = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
             if (!config.mainApi?.url || !config.mainApi?.token) {
                 showToast('请先配置API', false, true);
                 return;
@@ -2270,7 +2270,7 @@
         // AI搜索功能
         async function searchWithAI(keyword, type) {
             // 读取API配置
-            const apiConfig = JSON.parse(localStorage.getItem('apiConfig') || '{}');
+            const apiConfig = JSON.parse(localStorage.getItem('dundun22_apiConfig') || '{}');
             const apiKey = apiConfig.apiKey || 'demo-key';
             const apiBaseUrl = apiConfig.baseUrl || 'https://api.gemai.cc/v1';
             const model = apiConfig.model || 'glm-4';

@@ -4,7 +4,7 @@
  */
 
 const ChatDB = {
-    dbName: 'ChatStorageDB',
+    dbName: 'Dundun22_ChatStorageDB',
     dbVersion: 1,
     storeName: 'messages',
     db: null,

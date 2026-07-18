@@ -452,7 +452,7 @@
 
         // 获取所有分类
         function getAllCategories() {
-            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
             const categories = new Set();
             worldBooks.forEach(book => {
                 if (book.category) {
@@ -513,7 +513,7 @@
                 return;
             }
 
-            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
             
             const newBook = {
                 id: Date.now().toString(),
@@ -525,7 +525,7 @@
             };
 
             worldBooks.unshift(newBook);
-            localStorage.setItem('worldBooks', JSON.stringify(worldBooks));
+            localStorage.setItem('dundun22_worldBooks', JSON.stringify(worldBooks));
 
             closeAddModal();
             loadWorldBookList();
@@ -534,7 +534,7 @@
 
         // 加载世界书列表
         function loadWorldBookList() {
-            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
             const listEl = document.getElementById('worldbook-list');
 
             // 更新分类筛选按钮
@@ -602,7 +602,7 @@
 
         // 显示详情
         function showDetail(bookId) {
-            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
             const book = worldBooks.find(b => b.id === bookId);
             if (!book) return;
 
@@ -634,12 +634,12 @@
                 return;
             }
 
-            const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+            const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
             const index = worldBooks.findIndex(book => book.id === bookId);
             
             if (index >= 0) {
                 worldBooks.splice(index, 1);
-                localStorage.setItem('worldBooks', JSON.stringify(worldBooks));
+                localStorage.setItem('dundun22_worldBooks', JSON.stringify(worldBooks));
                 loadWorldBookList();
                 alert('已删除');
             }
@@ -659,7 +659,7 @@
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [世界书] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html

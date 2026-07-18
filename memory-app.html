@@ -506,7 +506,7 @@
             
             // 3. 加载全局记忆
             try {
-                const globalMemories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+                const globalMemories = JSON.parse(localStorage.getItem('dundun22_global_memories') || '[]');
                 globalMemories.forEach(record => {
                     allMemories.push({
                         ...record,
@@ -688,7 +688,7 @@
             }
             
             // 保存到通用记忆库
-            const memories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+            const memories = JSON.parse(localStorage.getItem('dundun22_global_memories') || '[]');
             memories.push({
                 id: Date.now(),
                 content: content,
@@ -696,7 +696,7 @@
                 source: source,
                 createdAt: Date.now()
             });
-            localStorage.setItem('global_memories', JSON.stringify(memories));
+            localStorage.setItem('dundun22_global_memories', JSON.stringify(memories));
             
             closeAddModal();
             loadAllMemories();
@@ -747,7 +747,7 @@
         
         // 保存聊天记忆
         window.saveChatMemory = function(chatId, content, source = 'chat') {
-            const memoryKey = `memory_records_${chatId}`;
+            const memoryKey = `dundun22_memory_records_${chatId}`;
             const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
             memories.push({
                 id: Date.now(),
@@ -762,7 +762,7 @@
 
         // 保存情侣记忆
         window.saveCoupleMemory = function(coupleId, content, source = 'couple') {
-            const memoryKey = `couple_memories_${coupleId}`;
+            const memoryKey = `dundun22_couple_memories_${coupleId}`;
             const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
             memories.push({
                 id: Date.now(),
@@ -777,7 +777,7 @@
 
         // 保存全局记忆
         window.saveGlobalMemory = function(content, source = 'manual') {
-            const memories = JSON.parse(localStorage.getItem('global_memories') || '[]');
+            const memories = JSON.parse(localStorage.getItem('dundun22_global_memories') || '[]');
             memories.push({
                 id: Date.now(),
                 content: content,
@@ -785,19 +785,19 @@
                 source: source,
                 createdAt: Date.now()
             });
-            localStorage.setItem('global_memories', JSON.stringify(memories));
+            localStorage.setItem('dundun22_global_memories', JSON.stringify(memories));
             notifyMemoryUpdate();
         };
 
         // 获取某个联系人的所有记忆
         window.getMemoriesByContact = function(contactId) {
-            const memoryKey = `memory_records_${contactId}`;
+            const memoryKey = `dundun22_memory_records_${contactId}`;
             return JSON.parse(localStorage.getItem(memoryKey) || '[]');
         };
 
         // 获取情侣空间的所有记忆
         window.getCoupleMemories = function(coupleId) {
-            const memoryKey = `couple_memories_${coupleId}`;
+            const memoryKey = `dundun22_couple_memories_${coupleId}`;
             return JSON.parse(localStorage.getItem(memoryKey) || '[]');
         };
     </script>

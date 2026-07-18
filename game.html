@@ -913,7 +913,7 @@
             document.getElementById('game-list-page').style.display = 'none';
             document.getElementById('gomoku-page').style.display = 'flex';
             // 使用 localStorage 标记当前在子游戏页面
-            localStorage.setItem('game_in_sub_game', 'true');
+            localStorage.setItem('dundun22_game_in_sub_game', 'true');
             initBoard();
             renderBoard();
             // 监听窗口大小变化，重新渲染棋盘
@@ -926,7 +926,7 @@
             document.getElementById('link-page').style.display = 'none';
             document.getElementById('game-list-page').style.display = 'block';
             // 清除 localStorage 标记
-            localStorage.removeItem('game_in_sub_game');
+            localStorage.removeItem('dundun22_game_in_sub_game');
         }
 
         // ========== 消消乐游戏 ==========
@@ -1523,7 +1523,7 @@
             document.getElementById('game-list-page').style.display = 'none';
             document.getElementById('link-page').style.display = 'flex';
             // 使用 localStorage 标记当前在子游戏页面
-            localStorage.setItem('game_in_sub_game', 'true');
+            localStorage.setItem('dundun22_game_in_sub_game', 'true');
             initLink();
             renderLinkBoard();
             // 监听窗口大小变化，重新渲染棋盘
@@ -1534,7 +1534,7 @@
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [游戏] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html

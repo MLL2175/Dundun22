@@ -258,7 +258,7 @@ function checkAndSendGiftForToday() {
         const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         
         // 获取所有情侣空间
-        const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+        const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
         
         if (couples.length === 0) {
             console.log('🎁 没有设置情侣空间');
@@ -281,7 +281,7 @@ function checkAndSendGiftForToday() {
                     reminder.sentAt = Date.now();
                     
                     // 保存到localStorage
-                    localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                    localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                     
                     // 发送礼物消息
                     sendGiftMessage(reminder);
@@ -396,8 +396,8 @@ function getCurrentCharacterInfo() {
             return null;
         }
         
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contact = contacts.find(c => c.id === currentChatId);
         
@@ -428,7 +428,7 @@ function getCurrentCharacterInfo() {
         // 获取用户名称（用于称呼）
         let userName = '你';
         try {
-            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
             userName = myProfile.name || myProfile.username || '你';
         } catch (e) {}
@@ -561,7 +561,7 @@ function generatePersonalizedGift(occasion) {
  */
 function getWorldbookContentForAI() {
     try {
-        const worldBooks = JSON.parse(localStorage.getItem('worldBooks') || '[]');
+        const worldBooks = JSON.parse(localStorage.getItem('dundun22_worldBooks') || '[]');
         
         if (worldBooks.length === 0) {
             return '';
@@ -731,7 +731,7 @@ function initTestRole() {
     };
     
     // 保存自动回复角色到 localStorage
-    const contactsKey = 'persona_default_chatContacts';
+    const contactsKey = 'dundun22_persona_default_chatContacts';
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     
     // 检查是否已存在自动回复角色
@@ -794,7 +794,7 @@ function handleServiceWorkerMessage(data) {
             
         case 'GET_PENDING_TASK':
             // 返回待处理任务
-            const task = localStorage.getItem('pendingAIReply');
+            const task = localStorage.getItem('dundun22_pendingAIReply');
             navigator.serviceWorker.controller?.postMessage({
                 type: 'PENDING_TASK_RESPONSE',
                 task: task ? JSON.parse(task) : null
@@ -804,19 +804,19 @@ function handleServiceWorkerMessage(data) {
         case 'SAVE_TASK':
             // 保存任务状态
             if (data.task) {
-                localStorage.setItem('pendingAIReply', JSON.stringify(data.task));
+                localStorage.setItem('dundun22_pendingAIReply', JSON.stringify(data.task));
             }
             break;
             
         case 'CLEAR_TASK':
             // 清除任务
-            localStorage.removeItem('pendingAIReply');
-            localStorage.removeItem('pendingAIReplyTrigger');
+            localStorage.removeItem('dundun22_pendingAIReply');
+            localStorage.removeItem('dundun22_pendingAIReplyTrigger');
             break;
             
         case 'GET_API_CONFIG':
             // 返回 API 配置
-            const config = localStorage.getItem('globalApiConfig');
+            const config = localStorage.getItem('dundun22_globalApiConfig');
             navigator.serviceWorker.controller?.postMessage({
                 type: 'API_CONFIG_RESPONSE',
                 config: config ? JSON.parse(config) : null
@@ -844,7 +844,7 @@ function handleServiceWorkerMessage(data) {
             // 🛡️ Service Worker 请求发送者名称
             console.log('[PWA]  收到发送者名称请求:', data.chatId);
             try {
-                const senderName = localStorage.getItem('currentChatName') || 'AI';
+                const senderName = localStorage.getItem('dundun22_currentChatName') || 'AI';
                 navigator.serviceWorker.controller.postMessage({
                     type: 'SENDER_NAME_RESPONSE',
                     name: senderName
@@ -859,8 +859,8 @@ function handleServiceWorkerMessage(data) {
 // 从 Service Worker 更新未读计数
 async function updateUnreadCountFromSW(chatId, messageCount) {
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const conversationsKey = `persona_${currentPersona}_chatConversations`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const conversationsKey = `dundun22_persona_${currentPersona}_chatConversations`;
         const conversations = JSON.parse(localStorage.getItem(conversationsKey) || '[]');
         
         const conversation = conversations.find(c => c.id === chatId);
@@ -877,7 +877,7 @@ async function updateUnreadCountFromSW(chatId, messageCount) {
         localStorage.setItem(conversationsKey, JSON.stringify(conversations));
         
         // 触发 storage 事件
-        localStorage.setItem('unreadCountUpdated', JSON.stringify({
+        localStorage.setItem('dundun22_unreadCountUpdated', JSON.stringify({
             chatId: chatId,
             unread: conversation.unread,
             timestamp: Date.now()
@@ -910,8 +910,8 @@ function handleAIReplyCompleted(data) {
     let senderName = 'AI';
     let avatarUrl = '';
     try {
-        senderName = localStorage.getItem('currentChatName') || 'AI';
-        const contactsKey = `persona_${localStorage.getItem('currentPersona') || 'default'}_chatContacts`;
+        senderName = localStorage.getItem('dundun22_currentChatName') || 'AI';
+        const contactsKey = `dundun22_persona_${localStorage.getItem('dundun22_currentPersona') || 'default'}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contact = contacts.find(c => c.id === currentChatId);
         if (contact) {
@@ -937,11 +937,11 @@ function handleAIReplyCompleted(data) {
 
 // 数据存储工具函数
 function getData(key) {
-    return JSON.parse(localStorage.getItem(key) || 'null');
+    return JSON.parse(localStorage.getItem('dundun22_' + key) || 'null');
 }
 
 function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
+    localStorage.setItem('dundun22_' + key, JSON.stringify(data));
 }
 
 // 横幅通知相关
@@ -969,7 +969,7 @@ function isImageUrl(str) {
 function getContactAvatar(chatId) {
     try {
         if (chatId) {
-            const contacts = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+            const contacts = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
             const contact = contacts.find(c => c.id === chatId);
             if (contact && contact.avatar && isImageUrl(contact.avatar)) {
                 return contact.avatar;
@@ -988,7 +988,7 @@ function showBannerNotification(senderName, messagePreview, avatarUrl) {
     
     // 检查是否开启了横幅通知
     try {
-        const config = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const config = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         if (!config.notification?.bannerEnabled) {
             console.log('横幅通知已关闭');
             return;
@@ -1172,7 +1172,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     initTokenCountBar();
     
     // ️ 删除自动回复测试角色（如果存在）
-    const contactsKey = 'persona_default_chatContacts';
+    const contactsKey = 'dundun22_persona_default_chatContacts';
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     const filteredContacts = contacts.filter(c => c.id !== 'test_role_001');
     if (filteredContacts.length !== contacts.length) {
@@ -1246,7 +1246,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         console.log('\n===== 调试信息 =====');
         console.log('当前聊天 ID:', currentChatId);
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const config = localStorage.getItem(chatKey);
         if (config) {
             const parsed = JSON.parse(config);
@@ -1274,7 +1274,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     // 从主项目获取 API 配置
     try {
-        const mainData = localStorage.getItem('chatContacts');
+        const mainData = localStorage.getItem('dundun22_chatContacts');
         if (mainData) {
             console.log('已从主项目加载数据');
         }
@@ -1552,8 +1552,8 @@ window.endOfflineMode = function() {
         offlineMode = null;
         offlineStartTime = null;
         // 按联系人清除持久化状态
-        localStorage.removeItem('offlineMode_' + currentChatId);
-        localStorage.removeItem('offlineStartTime_' + currentChatId);
+        localStorage.removeItem('dundun22_offlineMode_' + currentChatId);
+        localStorage.removeItem('dundun22_offlineStartTime_' + currentChatId);
     }
 };
 
@@ -1679,7 +1679,7 @@ window.exitWithMemory = async function() {
     showToast('正在生成记忆...');
     
     // 获取API配置
-    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+    const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
     if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
         showToast('请先配置API');
         exitWithoutMemory();
@@ -1797,7 +1797,7 @@ window.saveOfflineSettings = function() {
         style: style
     };
     
-    localStorage.setItem('offlineNarrativeSettings', JSON.stringify(settings));
+    localStorage.setItem('dundun22_offlineNarrativeSettings', JSON.stringify(settings));
     closeOfflineSettings();
     showToast('设置已保存');
 };
@@ -1805,7 +1805,7 @@ window.saveOfflineSettings = function() {
 // 加载线下设置
 function loadOfflineSettings() {
     try {
-        const settings = JSON.parse(localStorage.getItem('offlineNarrativeSettings') || '{}');
+        const settings = JSON.parse(localStorage.getItem('dundun22_offlineNarrativeSettings') || '{}');
         
         if (settings.perspective) {
             document.getElementById('offline-perspective').value = settings.perspective;
@@ -1824,7 +1824,7 @@ function loadOfflineSettings() {
 // 获取线下叙事设置
 function getOfflineSettings() {
     try {
-        return JSON.parse(localStorage.getItem('offlineNarrativeSettings') || '{}');
+        return JSON.parse(localStorage.getItem('dundun22_offlineNarrativeSettings') || '{}');
     } catch (e) {
         return {};
     }
@@ -1833,7 +1833,7 @@ function getOfflineSettings() {
 // 加载自定义文风列表
 function loadCustomStyles() {
     try {
-        const customStyles = JSON.parse(localStorage.getItem('offlineCustomStyles') || '[]');
+        const customStyles = JSON.parse(localStorage.getItem('dundun22_offlineCustomStyles') || '[]');
         const listContainer = document.getElementById('custom-styles-list');
         const styleSelect = document.getElementById('offline-style');
         
@@ -1908,7 +1908,7 @@ window.addCustomStyle = function() {
     if (!styleName) return;
     
     try {
-        const customStyles = JSON.parse(localStorage.getItem('offlineCustomStyles') || '[]');
+        const customStyles = JSON.parse(localStorage.getItem('dundun22_offlineCustomStyles') || '[]');
         
         // 检查是否已存在
         if (customStyles.includes(styleName)) {
@@ -1918,7 +1918,7 @@ window.addCustomStyle = function() {
         }
         
         customStyles.push(styleName);
-        localStorage.setItem('offlineCustomStyles', JSON.stringify(customStyles));
+        localStorage.setItem('dundun22_offlineCustomStyles', JSON.stringify(customStyles));
         
         input.value = '';
         loadCustomStyles();
@@ -1931,11 +1931,11 @@ window.addCustomStyle = function() {
 // 删除自定义文风
 window.removeCustomStyle = function(index) {
     try {
-        const customStyles = JSON.parse(localStorage.getItem('offlineCustomStyles') || '[]');
+        const customStyles = JSON.parse(localStorage.getItem('dundun22_offlineCustomStyles') || '[]');
         const removedStyle = customStyles[index];
         
         customStyles.splice(index, 1);
-        localStorage.setItem('offlineCustomStyles', JSON.stringify(customStyles));
+        localStorage.setItem('dundun22_offlineCustomStyles', JSON.stringify(customStyles));
         
         // 如果当前选中的是刚删除的文风，切换到默认
         const styleSelect = document.getElementById('offline-style');
@@ -1992,7 +1992,7 @@ window.generateOfflineNarrative = async function() {
     console.log('🎨 开始AI生成线下叙事');
     
     // 获取API配置
-    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+    const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
     if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
         showToast('请先配置API');
         return;
@@ -3113,8 +3113,8 @@ window.sendMessage = function() {
             let myProfileName = '我';  // 默认名称
             try {
                 //  关键：从 persona_${currentPersona}_myProfile 获取用户名（主页人设）
-                const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
-                const myProfileKey = `persona_${currentPersona}_myProfile`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || localStorage.getItem('dundun22_currentPersonaId') || 'default';
+                const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
                 const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
                 myProfileId = myProfile.id || '';
                 if (myProfile.isAlt) {
@@ -3335,7 +3335,7 @@ window.regenerateAIResponse = async function() {
         let apiConfig = null;
         try {
             // 尝试直接从 localStorage 读取 globalApiConfig (settings.js 保存的格式)
-            const savedConfig = localStorage.getItem('globalApiConfig');
+            const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
             console.log('重回 - 从 localStorage 读取 globalApiConfig:', savedConfig ? '找到配置' : '未找到');
             
             if (savedConfig) {
@@ -3354,9 +3354,9 @@ window.regenerateAIResponse = async function() {
             
             // 如果没有 globalApiConfig，尝试旧的 apiKey/apiUrl 格式 (兼容旧版)
             if (!apiConfig) {
-                const apiKey = localStorage.getItem('apiKey');
-                const apiUrl = localStorage.getItem('apiUrl');
-                const apiModel = localStorage.getItem('apiModel');
+                const apiKey = localStorage.getItem('dundun22_apiKey');
+                const apiUrl = localStorage.getItem('dundun22_apiUrl');
+                const apiModel = localStorage.getItem('dundun22_apiModel');
                 
                 console.log('重回 - 使用旧版 API 配置:', { apiKey: apiKey ? '***' : 'empty', apiUrl, apiModel });
                 
@@ -3378,8 +3378,8 @@ window.regenerateAIResponse = async function() {
         // 获取角色信息
         let personaInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersonaId') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const currentContact = contacts.find(c => c.id === currentChatId);
             if (currentContact) {
@@ -3392,8 +3392,8 @@ window.regenerateAIResponse = async function() {
         //  关键：获取用户信息（名字和人设）
         let userInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || localStorage.getItem('currentPersonaId') || 'default';
-            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || localStorage.getItem('dundun22_currentPersonaId') || 'default';
+            const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
             const isAlt = myProfile.isAlt === true;
 
@@ -3425,16 +3425,16 @@ window.regenerateAIResponse = async function() {
         // 📸 读取朋友圈动态（让角色看到用户的朋友圈）
         let momentsContext = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersonaId') || localStorage.getItem('currentPersona') || 'default';
-            const myProfileForAlt = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+            const currentPersona = localStorage.getItem('dundun22_currentPersonaId') || localStorage.getItem('dundun22_currentPersona') || 'default';
+            const myProfileForAlt = JSON.parse(localStorage.getItem(`dundun22_persona_${currentPersona}_myProfile`) || '{}');
             const isAltMode = myProfileForAlt.isAlt === true;
 
             if (!isAltMode) {
-                const momentsKey = `persona_${currentPersona}_moments`;
+                const momentsKey = `dundun22_persona_${currentPersona}_moments`;
                 const allMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
                 
                 if (allMoments && allMoments.length > 0) {
-                    const myProfile = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+                    const myProfile = JSON.parse(localStorage.getItem(`dundun22_persona_${currentPersona}_myProfile`) || '{}');
                     const userName = myProfile.realName || myProfile.name || '用户';
                     
                     const userMoments = allMoments
@@ -3462,7 +3462,7 @@ window.regenerateAIResponse = async function() {
         // 🔥 读取记忆库（让角色记得重要的记忆）
         let memoryContext = '';
         try {
-            const memoryKey = `memory_records_${currentChatId}`;
+            const memoryKey = `dundun22_memory_records_${currentChatId}`;
             const memoryRecords = JSON.parse(localStorage.getItem(memoryKey) || '[]');
             
             if (memoryRecords.length > 0) {
@@ -3905,7 +3905,7 @@ ${personaInfo ? '\n\n【角色设定】\n' + personaInfo : ''}${userInfo}${momen
         
         // 如果开启时间感知，注入当前时间信息
         try {
-            const chatKey = `chat_config_${currentChatId}`;
+            const chatKey = `dundun22_chat_config_${currentChatId}`;
             const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
             if (chatConfig.timeAwareness) {
                 const now = new Date();
@@ -3938,7 +3938,7 @@ ${personaInfo ? '\n\n【角色设定】\n' + personaInfo : ''}${userInfo}${momen
         });
         
         // 先读取聊天配置（两个分支都需要）
-        const chatConfig = JSON.parse(localStorage.getItem(`chat_config_${currentChatId}`) || '{}');
+        const chatConfig = JSON.parse(localStorage.getItem(`dundun22_chat_config_${currentChatId}`) || '{}');
         const translationModeEnabled = chatConfig.translationMode || false;
         const characterLanguage = chatConfig.characterLanguage || 'zh'; // 默认中文
         
@@ -4206,7 +4206,7 @@ ${langInfo.example}
             
             // 🚫 自主拉黑：注入角色自主意识指令
             try {
-                const autorejectKey = `role_${currentChatId}_autoreject`;
+                const autorejectKey = `dundun22_role_${currentChatId}_autoreject`;
                 const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
                 
                 if (autorejectSettings.enabled) {
@@ -4272,7 +4272,7 @@ ${langInfo.example}
             
             // 更新心情
             try {
-                const autorejectKey = `role_${currentChatId}_autoreject`;
+                const autorejectKey = `dundun22_role_${currentChatId}_autoreject`;
                 const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
                 autorejectSettings.mood = Math.max(0, autorejectSettings.mood - 5);
                 localStorage.setItem(autorejectKey, JSON.stringify(autorejectSettings));
@@ -4307,7 +4307,7 @@ ${langInfo.example}
         
         // 正常回复时心情变好
         try {
-            const autorejectKey = `role_${currentChatId}_autoreject`;
+            const autorejectKey = `dundun22_role_${currentChatId}_autoreject`;
             const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
             if (autorejectSettings.enabled) {
                 autorejectSettings.mood = Math.min(100, autorejectSettings.mood + 2);
@@ -4733,8 +4733,8 @@ window.deductUserBalance = function(amount, remark) {
         }
         
         if (!wallet) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             const walletData = localStorage.getItem(walletKey);
             if (walletData) {
                 wallet = JSON.parse(walletData);
@@ -4756,7 +4756,7 @@ window.deductUserBalance = function(amount, remark) {
         amount: amount,
         remark: remark || '转账',
         time: Date.now(),
-        to: localStorage.getItem('currentChatName') || '好友'
+        to: localStorage.getItem('dundun22_currentChatName') || '好友'
     });
     
     // 保存回主项目
@@ -4769,8 +4769,8 @@ window.deductUserBalance = function(amount, remark) {
                 mainFrame.contentWindow.renderWallet();
             }
         } else {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             localStorage.setItem(walletKey, JSON.stringify(wallet));
         }
     } catch (e) {
@@ -4813,7 +4813,7 @@ window.showTransferPopup = function(msgId) {
     
     const amount = parseFloat(transfer.amount);
     const remark = transfer.remark || '转账';
-    const senderName = msg.sender === 'ai' ? (localStorage.getItem('currentChatName') || '好友') : '你';
+    const senderName = msg.sender === 'ai' ? (localStorage.getItem('dundun22_currentChatName') || '好友') : '你';
     
     console.log('🎨 准备创建弹窗...');
     
@@ -4964,8 +4964,8 @@ window.receiveTransfer = function(msgId) {
         }
         
         if (!wallet) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             const walletData = localStorage.getItem(walletKey);
             if (walletData) {
                 wallet = JSON.parse(walletData);
@@ -4988,7 +4988,7 @@ window.receiveTransfer = function(msgId) {
         amount: amount,
         remark: transfer.remark || '收到转账',
         time: Date.now(),
-        from: localStorage.getItem('currentChatName') || '好友'
+        from: localStorage.getItem('dundun22_currentChatName') || '好友'
     });
     
     // 保存回主项目
@@ -5001,8 +5001,8 @@ window.receiveTransfer = function(msgId) {
                 mainFrame.contentWindow.renderWallet();
             }
         } else {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             localStorage.setItem(walletKey, JSON.stringify(wallet));
         }
     } catch (e) {
@@ -5049,7 +5049,7 @@ window.acceptFamilyCard = function(msgId) {
     
     const familyCard = msg.content;
     const limit = parseFloat(familyCard.limit);
-    const roleName = localStorage.getItem('currentChatName') || '角色';
+    const roleName = localStorage.getItem('dundun22_currentChatName') || '角色';
     
     console.log(`接受 ${roleName} 的亲属卡，额度：${limit}`);
     
@@ -5074,7 +5074,7 @@ window.acceptFamilyCard = function(msgId) {
                 // 备用方案：直接保存到 localStorage
                 console.log('🔄 使用备用方案保存到 localStorage...');
                 try {
-                    const familyCards = JSON.parse(localStorage.getItem('familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
+                    const familyCards = JSON.parse(localStorage.getItem('dundun22_familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
                     familyCards.received.push({
                         roleName: roleName,
                         limit: limit,
@@ -5085,7 +5085,7 @@ window.acceptFamilyCard = function(msgId) {
                         limit: limit,
                         time: Date.now()
                     });
-                    localStorage.setItem('familyCards', JSON.stringify(familyCards));
+                    localStorage.setItem('dundun22_familyCards', JSON.stringify(familyCards));
                     console.log('✅ 已通过备用方案保存到 localStorage');
                 } catch (e2) {
                     console.error('❌ 备用方案也失败:', e2);
@@ -5096,7 +5096,7 @@ window.acceptFamilyCard = function(msgId) {
             // 备用方案：直接保存到 localStorage
             console.log('🔄 使用备用方案保存到 localStorage...');
             try {
-                const familyCards = JSON.parse(localStorage.getItem('familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
+                const familyCards = JSON.parse(localStorage.getItem('dundun22_familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
                 familyCards.received.push({
                     roleName: roleName,
                     limit: limit,
@@ -5107,7 +5107,7 @@ window.acceptFamilyCard = function(msgId) {
                     limit: limit,
                     time: Date.now()
                 });
-                localStorage.setItem('familyCards', JSON.stringify(familyCards));
+                localStorage.setItem('dundun22_familyCards', JSON.stringify(familyCards));
                 console.log('✅ 已通过备用方案保存到 localStorage');
             } catch (e2) {
                 console.error('❌ 备用方案也失败:', e2);
@@ -5118,7 +5118,7 @@ window.acceptFamilyCard = function(msgId) {
         // 备用方案：直接保存到 localStorage
         console.log('🔄 使用备用方案保存到 localStorage...');
         try {
-            const familyCards = JSON.parse(localStorage.getItem('familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
+            const familyCards = JSON.parse(localStorage.getItem('dundun22_familyCards') || '{"sent":[],"received":[],"sentRecords":[],"receivedRecords":[]}');
             familyCards.received.push({
                 roleName: roleName,
                 limit: limit,
@@ -5129,7 +5129,7 @@ window.acceptFamilyCard = function(msgId) {
                 limit: limit,
                 time: Date.now()
             });
-            localStorage.setItem('familyCards', JSON.stringify(familyCards));
+            localStorage.setItem('dundun22_familyCards', JSON.stringify(familyCards));
             console.log('✅ 已通过备用方案保存到 localStorage');
         } catch (e2) {
             console.error('❌ 备用方案也失败:', e2);
@@ -5172,7 +5172,7 @@ window.rejectFamilyCard = function(msgId) {
     if (!msg || msg.type !== 'family-card') return;
     
     const familyCard = msg.content;
-    const roleName = localStorage.getItem('currentChatName') || '角色';
+    const roleName = localStorage.getItem('dundun22_currentChatName') || '角色';
     
     console.log(`拒绝 ${roleName} 的亲属卡`);
     
@@ -5384,15 +5384,15 @@ window.acceptCoupleInvite = function(msgId) {
     // 获取邀请者信息
     const inviterName = msg.inviter || '对方';
     const inviteeId = msg.inviteeId || currentChatId;
-    const currentUserName = localStorage.getItem('userName') || '我';
+    const currentUserName = localStorage.getItem('dundun22_userName') || '我';
     
     // 获取对方的头像和名字
     let partnerAvatar = '';
     let partnerName = inviterName;
     let myAvatar = ''; // 💕 获取用户的头像
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contact = contacts.find(c => c.id === inviteeId);
         if (contact) {
@@ -5401,7 +5401,7 @@ window.acceptCoupleInvite = function(msgId) {
         }
         
         // 获取用户自己的头像（从 myProfile 中读取）
-        const profileKey = `persona_${currentPersona}_myProfile`;
+        const profileKey = `dundun22_persona_${currentPersona}_myProfile`;
         const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
         myAvatar = profile.avatar || '';
         console.log('💕 前端：获取用户头像:', myAvatar, 'from', profileKey);
@@ -5410,7 +5410,7 @@ window.acceptCoupleInvite = function(msgId) {
     }
     
     // 激活情侣空间 - 保存到数组中（couple-space.html 从这里读取）
-    const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+    const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
     
     // 检查是否已经存在
     const existingIndex = couples.findIndex(c => c.id === inviteeId);
@@ -5434,10 +5434,10 @@ window.acceptCoupleInvite = function(msgId) {
         couples.push(coupleData);
     }
     
-    localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+    localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
     
     // 同时保存到旧的位置（兼容）
-    localStorage.setItem('coupleSpace', JSON.stringify(coupleData));
+    localStorage.setItem('dundun22_coupleSpace', JSON.stringify(coupleData));
     
     console.log('💕 情侣空间已激活:', coupleData);
     
@@ -5519,8 +5519,8 @@ window.triggerAIReply = async function() {
     // 🧪 测试模式检测
     let currentContact = null;
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         currentContact = contacts.find(c => c.id === currentChatId);
     } catch (e) {
@@ -5530,7 +5530,7 @@ window.triggerAIReply = async function() {
     //  检查是否有未读的帮回记录（用户帮角色回的消息）
     let unreadReplyRecords = [];
     try {
-        const replyRecordsKey = `user_reply_records_${currentChatId}`;
+        const replyRecordsKey = `dundun22_user_reply_records_${currentChatId}`;
         const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
         unreadReplyRecords = replyRecords.filter(r => !r.read);
         
@@ -5547,7 +5547,7 @@ window.triggerAIReply = async function() {
     // 读取记忆库（让角色记得重要的记忆）
     let memoryContext = '';
     try {
-        const memoryKey = `memory_records_${currentChatId}`;
+        const memoryKey = `dundun22_memory_records_${currentChatId}`;
         const memoryRecords = JSON.parse(localStorage.getItem(memoryKey) || '[]');
         
         if (memoryRecords.length > 0) {
@@ -5567,17 +5567,17 @@ window.triggerAIReply = async function() {
     
     // 📸 读取角色绑定的表情包分类
     try {
-        const roleKey = `persona_${localStorage.getItem('currentPersona') || 'default'}_roles`;
+        const roleKey = `dundun22_persona_${localStorage.getItem('dundun22_currentPersona') || 'default'}_roles`;
         const roles = JSON.parse(localStorage.getItem(roleKey) || '[]');
         const currentRole = roles.find(r => r.id === currentChatId);
         
         if (currentRole) {
             // 读取角色绑定的表情包分类
-            const emojiCategory = localStorage.getItem(`role_${currentChatId}_emoji_category`) || '';
+            const emojiCategory = localStorage.getItem(`dundun22_role_${currentChatId}_emoji_category`) || '';
             
             if (emojiCategory) {
                 // 从全局表情包库中获取该分类下的所有表情
-                const emojis = JSON.parse(localStorage.getItem('emojis') || '{"categories":["默认"],"items":{}}');
+                const emojis = JSON.parse(localStorage.getItem('dundun22_emojis') || '{"categories":["默认"],"items":{}}');
                 const categoryEmojis = emojis.items[emojiCategory] || [];
                 
                 if (categoryEmojis.length > 0) {
@@ -5734,7 +5734,7 @@ window.triggerAIReply = async function() {
     let apiConfig = null;
     try {
         // 尝试直接从 localStorage 读取 globalApiConfig (settings.js 保存的格式)
-        const savedConfig = localStorage.getItem('globalApiConfig');
+        const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
         console.log('从 localStorage 读取 globalApiConfig:', savedConfig ? '找到配置' : '未找到');
         console.log('globalApiConfig 原始内容:', savedConfig);
         
@@ -5758,9 +5758,9 @@ window.triggerAIReply = async function() {
         
         // 如果没有 globalApiConfig，尝试旧的 apiKey/apiUrl 格式 (兼容旧版)
         if (!apiConfig) {
-            const apiKey = localStorage.getItem('apiKey');
-            const apiUrl = localStorage.getItem('apiUrl');
-            const apiModel = localStorage.getItem('apiModel');
+            const apiKey = localStorage.getItem('dundun22_apiKey');
+            const apiUrl = localStorage.getItem('dundun22_apiUrl');
+            const apiModel = localStorage.getItem('dundun22_apiModel');
             
             console.log('使用旧版 API 配置:', { apiKey: apiKey ? '***' : 'empty', apiUrl, apiModel });
             
@@ -5810,8 +5810,8 @@ window.triggerAIReply = async function() {
         let relationship = ''; // 关系字段（朋友/恋人/家人等）
         let language = 'zh'; // 语言字段
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const currentContact = contacts.find(c => c.id === currentChatId);
             if (currentContact) {
@@ -5973,7 +5973,7 @@ ${personaInfo ? '\n\n【角色设定】\n' + personaInfo : ''}${relationshipDesc
         
         // 如果开启时间感知，在系统提示词最开始注入当前时间信息（更醒目）
         try {
-            const chatKey = `chat_config_${currentChatId}`;
+            const chatKey = `dundun22_chat_config_${currentChatId}`;
             const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
             if (chatConfig.timeAwareness) {
                 const now = new Date();
@@ -6193,7 +6193,7 @@ ${text}`;
                 
                 // 标记这条记录为已读
                 try {
-                    const replyRecordsKey = `user_reply_records_${currentChatId}`;
+                    const replyRecordsKey = `dundun22_user_reply_records_${currentChatId}`;
                     const replyRecords = JSON.parse(localStorage.getItem(replyRecordsKey) || '[]');
                     const record = replyRecords.find(r => r.id === randomRecord.id);
                     if (record) {
@@ -6213,7 +6213,7 @@ ${text}`;
         console.log('发送给 AI 的消息:', messageForAI);
         
         // 🛡️ 防止重复提交：检查是否已有待处理任务
-        const existingTask = localStorage.getItem('pendingAIReply');
+        const existingTask = localStorage.getItem('dundun22_pendingAIReply');
         if (existingTask) {
             try {
                 const parsed = JSON.parse(existingTask);
@@ -6234,7 +6234,7 @@ ${text}`;
             timestamp: Date.now(),
             status: 'pending'
         };
-        localStorage.setItem('pendingAIReply', JSON.stringify(replyTask));
+        localStorage.setItem('dundun22_pendingAIReply', JSON.stringify(replyTask));
         console.log('✅ 已保存 AI 回复任务到后台队列');
         console.log('📋 任务详情:', {
             chatId: currentChatId,
@@ -6262,7 +6262,7 @@ ${text}`;
         }
         
         // 触发 storage 事件，让主页面立即响应
-        localStorage.setItem('pendingAIReplyTrigger', Date.now().toString());
+        localStorage.setItem('dundun22_pendingAIReplyTrigger', Date.now().toString());
         console.log(' 已发送触发器信号');
         
         // 🛡️ 临时方案：直接调用后台处理函数（确保“正在输入”和逐句发送生效）
@@ -6309,8 +6309,8 @@ ${text}`;
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact) {
@@ -6365,8 +6365,8 @@ ${text}`;
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact) {
@@ -6407,8 +6407,8 @@ ${text}`;
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact) {
@@ -6449,8 +6449,8 @@ ${text}`;
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact) {
@@ -6468,7 +6468,7 @@ ${text}`;
             try {
                 const mainFrame = document.querySelector('iframe');
                 if (mainFrame && mainFrame.contentWindow && mainFrame.contentWindow.receiveFamilyCard) {
-                    mainFrame.contentWindow.receiveFamilyCard(localStorage.getItem('currentChatName') || '角色', limit);
+                    mainFrame.contentWindow.receiveFamilyCard(localStorage.getItem('dundun22_currentChatName') || '角色', limit);
                 }
             } catch (e) {
                 console.error('保存亲属卡失败:', e);
@@ -6501,8 +6501,8 @@ ${text}`;
                 try {
                     const groupInfo = JSON.parse(sessionStorage.getItem('currentGroupChat') || '{}');
                     const members = groupInfo.members || [];
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact) {
@@ -6838,8 +6838,8 @@ async function callAIAPI(message, apiConfig, systemPrompt) {
 
 // 转账
 window.transferMoney = function() {
-    const currentChatId = localStorage.getItem('currentChatId');
-    const currentChatName = localStorage.getItem('currentChatName') || '好友';
+    const currentChatId = localStorage.getItem('dundun22_currentChatId');
+    const currentChatName = localStorage.getItem('dundun22_currentChatName') || '好友';
     
     // 创建转账弹窗
     const modal = document.createElement('div');
@@ -7006,8 +7006,8 @@ window.confirmTransfer = function() {
         
         // 如果不在 iframe 中，尝试直接从 localStorage 读取 (带 persona 前缀)
         if (!wallet) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             const walletData = localStorage.getItem(walletKey);
             console.log('钱包数据:', walletData);
             
@@ -7015,7 +7015,7 @@ window.confirmTransfer = function() {
                 wallet = JSON.parse(walletData);
             } else {
                 // 尝试不带 persona 的 key
-                const simpleWalletData = localStorage.getItem('wallet');
+                const simpleWalletData = localStorage.getItem('dundun22_wallet');
                 if (simpleWalletData) {
                     wallet = JSON.parse(simpleWalletData);
                 } else {
@@ -7052,7 +7052,7 @@ window.confirmTransfer = function() {
         amount: transferAmount,
         remark: remark,
         time: Date.now(),
-        target: localStorage.getItem('currentChatName') || '好友'
+        target: localStorage.getItem('dundun22_currentChatName') || '好友'
     });
     
     // 保存回主页面
@@ -7065,8 +7065,8 @@ window.confirmTransfer = function() {
                 mainFrame.contentWindow.renderWallet();
             }
         } else {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const walletKey = `persona_${currentPersona}_wallet`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const walletKey = `dundun22_persona_${currentPersona}_wallet`;
             localStorage.setItem(walletKey, JSON.stringify(wallet));
         }
     } catch (e) {
@@ -7140,8 +7140,8 @@ window.sendEmoji = function() {
         
         // 如果不在 iframe 中，尝试直接从 localStorage 读取
         if (!emojis) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const emojiKey = `persona_${currentPersona}_emojis`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const emojiKey = `dundun22_persona_${currentPersona}_emojis`;
             const emojisData = localStorage.getItem(emojiKey);
             console.log('表情包数据:', emojisData);
             
@@ -7149,7 +7149,7 @@ window.sendEmoji = function() {
                 emojis = JSON.parse(emojisData);
             } else {
                 // 尝试不带 persona 的 key
-                const simpleEmojisData = localStorage.getItem('emojis');
+                const simpleEmojisData = localStorage.getItem('dundun22_emojis');
                 if (simpleEmojisData) {
                     emojis = JSON.parse(simpleEmojisData);
                 }
@@ -7240,13 +7240,13 @@ window.switchEmojiCategory = function(index) {
         }
         
         if (!emojis) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const emojiKey = `persona_${currentPersona}_emojis`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const emojiKey = `dundun22_persona_${currentPersona}_emojis`;
             const emojisData = localStorage.getItem(emojiKey);
             if (emojisData) {
                 emojis = JSON.parse(emojisData);
             } else {
-                emojis = JSON.parse(localStorage.getItem('emojis') || '{}');
+                emojis = JSON.parse(localStorage.getItem('dundun22_emojis') || '{}');
             }
         }
     } catch (e) {
@@ -7314,8 +7314,8 @@ window.videoCall = function() {
     let contactName = '对方';
     let contactAvatar = '';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -7422,7 +7422,7 @@ window.acceptIncomingCall = function() {
         const remoteVideo = document.getElementById('remote-video');
         if (remoteVideo) {
             // 获取用户自己的头像
-            let userAvatar = localStorage.getItem('myAvatar') || '';
+            let userAvatar = localStorage.getItem('dundun22_myAvatar') || '';
             
             remoteVideo.innerHTML = `
                 <div style="text-align: center; color: rgba(255,255,255,0.7); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -7526,8 +7526,8 @@ window.endVideoCall = async function() {
     // 获取联系人名称
     let contactName = '对方';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -7614,7 +7614,7 @@ async function saveCallSummaryToMemory(callType, contactName, durationText) {
         if (!callContent || callContent.length < 10) return;
         
         // 获取API配置
-        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) return;
         
         // 调用 AI 生成简短摘要（限制50字以内，节省token）
@@ -7626,7 +7626,7 @@ async function saveCallSummaryToMemory(callType, contactName, durationText) {
         const summary = response.trim().substring(0, 100); // 最多100字
         
         // 保存到记忆库
-        const memoryKey = `memory_records_${currentChatId}`;
+        const memoryKey = `dundun22_memory_records_${currentChatId}`;
         const memoryRecords = JSON.parse(localStorage.getItem(memoryKey) || '[]');
         memoryRecords.push({
             id: Date.now(),
@@ -7698,7 +7698,7 @@ function stopCallTimer() {
 async function generateCallOpeningNarration(contactName) {
     try {
         // 获取API配置
-        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
             return;
         }
@@ -7706,8 +7706,8 @@ async function generateCallOpeningNarration(contactName) {
         // 获取角色信息
         let personaInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const currentContact = contacts.find(c => c.id === currentChatId);
             if (currentContact) {
@@ -7819,8 +7819,8 @@ window.generateCallReply = async function() {
     // 获取联系人名称
     let contactName = '对方';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -7847,7 +7847,7 @@ window.generateCallReply = async function() {
     document.getElementById('call-chat-area').appendChild(typingEl);
     
     try {
-        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
             showToast('请先配置API');
             return;
@@ -7856,8 +7856,8 @@ window.generateCallReply = async function() {
         // 获取角色信息
         let personaInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const currentContact = contacts.find(c => c.id === currentChatId);
             if (currentContact) {
@@ -7892,7 +7892,7 @@ window.generateCallReply = async function() {
         // 读取记忆库（优化：只取最近 3 条记忆）
         let memoryContext = '';
         try {
-            const memoryKey = `memory_records_${currentChatId}`;
+            const memoryKey = `dundun22_memory_records_${currentChatId}`;
             const memoryRecords = JSON.parse(localStorage.getItem(memoryKey) || '[]');
             if (memoryRecords.length > 0) {
                 // 只取最近 3 条记忆（节省 token）
@@ -7912,14 +7912,14 @@ window.generateCallReply = async function() {
         let momentsContext = '';
         try {
             // 获取当前人设的朋友圈数据
-            const currentPersona = localStorage.getItem('currentPersonaId') || 'default';
-            const momentsKey = `persona_${currentPersona}_moments`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+            const momentsKey = `dundun22_persona_${currentPersona}_moments`;
             const allMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
             
             // 筛选出用户发布的朋友圈（不是角色的）
             if (allMoments && allMoments.length > 0) {
                 // 获取当前用户的名字
-                const myProfile = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+                const myProfile = JSON.parse(localStorage.getItem(`dundun22_persona_${currentPersona}_myProfile`) || '{}');
                 // 🔴 优先使用真实姓名
                 const userName = myProfile.realName || myProfile.name || '用户';
                 
@@ -8050,8 +8050,8 @@ window.sendCallMessage = async function() {
     // 获取联系人名称
     let contactName = '对方';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -8086,7 +8086,7 @@ window.sendCallMessage = async function() {
     
     // 调用AI生成回复（包含旁白）
     try {
-        const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
             showToast('请先配置API');
             return;
@@ -8095,8 +8095,8 @@ window.sendCallMessage = async function() {
         // 获取角色信息
         let personaInfo = '';
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const currentContact = contacts.find(c => c.id === currentChatId);
             if (currentContact) {
@@ -8164,8 +8164,8 @@ window.voiceCall = function() {
     let contactName = '对方';
     let contactAvatar = '';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -8221,7 +8221,7 @@ window.voiceCall = function() {
         const remoteVideo = document.getElementById('remote-video');
         if (remoteVideo) {
             // 获取用户自己的头像
-            let userAvatar = localStorage.getItem('myAvatar') || '';
+            let userAvatar = localStorage.getItem('dundun22_myAvatar') || '';
             
             remoteVideo.innerHTML = `
                 <div style="text-align: center; color: rgba(255,255,255,0.7); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -8338,8 +8338,8 @@ function showIncomingCallModal(callType) {
     let contactName = '对方';
     let contactAvatar = '';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -8377,7 +8377,7 @@ function showIncomingCallModal(callType) {
 
 // 发送定位
 window.sendLocation = function() {
-    const currentChatId = localStorage.getItem('currentChatId');
+    const currentChatId = localStorage.getItem('dundun22_currentChatId');
     
     // 创建定位弹窗
     const modal = document.createElement('div');
@@ -8558,7 +8558,7 @@ function scrollToBottom() {
 // 🎭 检测用户是否发送了头像URL，角色主动更换头像
 function checkAvatarChangeFromMessages() {
     // 获取当前角色的头像
-    const currentAvatar = localStorage.getItem(`chat_avatar_${currentChatId}`);
+    const currentAvatar = localStorage.getItem(`dundun22_chat_avatar_${currentChatId}`);
     
     // 只检查最近10条消息
     const recentMessages = chatMessages.slice(-10);
@@ -8583,7 +8583,7 @@ function checkAvatarChangeFromMessages() {
         
         if (imageUrl) {
             // 检查是否已经应用过这个头像
-            const appliedAvatar = localStorage.getItem(`applied_avatar_${currentChatId}_${imageUrl}`);
+            const appliedAvatar = localStorage.getItem(`dundun22_applied_avatar_${currentChatId}_${imageUrl}`);
             if (appliedAvatar) continue;
             
             // 智能检测：如果URL包含关键词，更可能是情侣头像
@@ -8591,21 +8591,21 @@ function checkAvatarChangeFromMessages() {
             
             if (isCoupleAvatar || confirm(`角色想换这个头像吗？\n\n${imageUrl}\n\n点击"确定"让角色更换头像`)) {
                 // 更新角色头像
-                const chatKey = `chat_config_${currentChatId}`;
+                const chatKey = `dundun22_chat_config_${currentChatId}`;
                 const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
                 chatConfig.avatar = imageUrl;
                 localStorage.setItem(chatKey, JSON.stringify(chatConfig));
                 
                 // 更新联系人列表中的头像
-                const contacts = JSON.parse(localStorage.getItem('contacts') || '[]');
+                const contacts = JSON.parse(localStorage.getItem('dundun22_contacts') || '[]');
                 const contactIndex = contacts.findIndex(c => c.id === currentChatId);
                 if (contactIndex !== -1) {
                     contacts[contactIndex].avatar = imageUrl;
-                    localStorage.setItem('contacts', JSON.stringify(contacts));
+                    localStorage.setItem('dundun22_contacts', JSON.stringify(contacts));
                 }
                 
                 // 标记已应用，避免重复询问
-                localStorage.setItem(`applied_avatar_${currentChatId}_${imageUrl}`, '1');
+                localStorage.setItem(`dundun22_applied_avatar_${currentChatId}_${imageUrl}`, '1');
                 
                 // 显示提示
                 showToast('💕 角色已更换头像', 'success');
@@ -8663,7 +8663,7 @@ function _doRenderMessages() {
     let isTranslationModeOn = false; // 默认关闭（使用不同的变量名避免冲突）
     let avatarShape = 'square'; // 默认方形
     try {
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
         showAvatarEnabled = chatConfig.showAvatar !== undefined ? chatConfig.showAvatar : true;
         isTranslationModeOn = chatConfig.translationMode || false;
@@ -8798,7 +8798,7 @@ function _doRenderMessages() {
                         senderId = groupInfo.owner || '';
                         if (!senderId) {
                             try {
-                                const myProfile = JSON.parse(localStorage.getItem('persona_myProfile') || '{}');
+                                const myProfile = JSON.parse(localStorage.getItem('dundun22_persona_myProfile') || '{}');
                                 senderId = myProfile.id || 'user';
                             } catch (e) {
                                 senderId = 'user';
@@ -8816,8 +8816,8 @@ function _doRenderMessages() {
                     if (isSent) {
                         // 自己发送的消息：从 persona_${currentPersona}_myProfile 获取用户名（主页人设）
                         try {
-                            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                            const myProfileKey = `persona_${currentPersona}_myProfile`;
+                            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                            const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
                             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
                             // 🔴 优先使用真实姓名
                             senderName = myProfile.realName || myProfile.name || '我';
@@ -9724,7 +9724,7 @@ function _doRenderMessages() {
                             ${(() => {
                                 // 检查是否开启显示时间戳
                                 try {
-                                    const chatKey = `chat_config_${currentChatId}`;
+                                    const chatKey = `dundun22_chat_config_${currentChatId}`;
                                     const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
                                     if (chatConfig.showTimestamp && msg.time) {
                                         const timestamp = typeof msg.time === 'number' ? msg.time : Date.parse(msg.time);
@@ -9749,7 +9749,7 @@ function _doRenderMessages() {
                             ${(() => {
                                 // 检查是否开启显示时间戳
                                 try {
-                                    const chatKey = `chat_config_${currentChatId}`;
+                                    const chatKey = `dundun22_chat_config_${currentChatId}`;
                                     const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
                                     if (chatConfig.showTimestamp && msg.time) {
                                         const timestamp = typeof msg.time === 'number' ? msg.time : Date.parse(msg.time);
@@ -9774,7 +9774,7 @@ function _doRenderMessages() {
                             ${(() => {
                                 // 检查是否开启显示时间戳
                                 try {
-                                    const chatKey = `chat_config_${currentChatId}`;
+                                    const chatKey = `dundun22_chat_config_${currentChatId}`;
                                     const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
                                     if (chatConfig.showTimestamp && msg.time) {
                                         const timestamp = typeof msg.time === 'number' ? msg.time : Date.parse(msg.time);
@@ -9807,7 +9807,7 @@ function _doRenderMessages() {
                         ${(() => {
                             // 检查是否开启显示时间戳
                             try {
-                                const chatKey = `chat_config_${currentChatId}`;
+                                const chatKey = `dundun22_chat_config_${currentChatId}`;
                                 const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
                                 if (chatConfig.showTimestamp && msg.time) {
                                     const timestamp = typeof msg.time === 'number' ? msg.time : Date.parse(msg.time);
@@ -9851,7 +9851,7 @@ function showTypingIndicator() {
     // 获取当前聊天的头像显示配置
     let showAvatarEnabled = true; // 默认开启
     try {
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
         showAvatarEnabled = chatConfig.showAvatar !== undefined ? chatConfig.showAvatar : true;
     } catch (e) {
@@ -9935,7 +9935,7 @@ function updateTokenCountBar() {
     
     // 检查是否开启显示token数
     try {
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
         
         if (chatConfig.showTokenCount) {
@@ -10100,8 +10100,8 @@ function renderForwardContactList() {
     const listContainer = document.getElementById('forward-contact-list');
     if (!listContainer) return;
     
-    const personaId = localStorage.getItem('currentPersonaId') || 'default';
-    const contactsKey = `persona_${personaId}_chatContacts`;
+    const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+    const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     
     if (contacts.length === 0) {
@@ -10165,8 +10165,8 @@ window.forwardToContact = async function(targetChatId) {
     });
     
     // 获取目标联系人名称
-    const personaId = localStorage.getItem('currentPersonaId') || 'default';
-    const contactsKey = `persona_${personaId}_chatContacts`;
+    const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+    const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     const targetContact = contacts.find(c => c.id === targetChatId);
     const targetName = targetContact ? (targetContact.name || '未知') : '未知';
@@ -10234,13 +10234,13 @@ window.forwardToContact = async function(targetChatId) {
         console.log(`✓ 已转发消息到 ${targetName} (${targetChatId})`);
         
         // 同时保存到 localStorage 作为备份
-        const chatKey = `chat_${targetChatId}`;
+        const chatKey = `dundun22_chat_${targetChatId}`;
         localStorage.setItem(chatKey, JSON.stringify(compressedMessages));
         
     } catch (error) {
         console.error('保存转发消息失败:', error);
         // 降级方案：直接保存到 localStorage
-        const chatKey = `chat_${targetChatId}`;
+        const chatKey = `dundun22_chat_${targetChatId}`;
         const existingData = localStorage.getItem(chatKey);
         let existingMessages = existingData ? JSON.parse(existingData) : [];
         
@@ -10362,8 +10362,8 @@ function getUserAvatar() {
         }
         
         // 如果不在 iframe 中，尝试从 localStorage 读取 (带 persona)
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const profileKey = `persona_${currentPersona}_myProfile`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const profileKey = `dundun22_persona_${currentPersona}_myProfile`;
         const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
         if (profile.avatar) {
             console.log('从 localStorage 获取用户头像:', profile.avatar);
@@ -10385,7 +10385,7 @@ function getAIAvatar() {
             // 尝试从主页面框架获取
             const mainFrame = document.querySelector('iframe');
             if (mainFrame && mainFrame.contentWindow) {
-                const contacts = mainFrame.contentWindow.getData('chatContacts');
+                const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts');
                 if (contacts && contacts.length > 0) {
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact && contact.avatar) {
@@ -10396,8 +10396,8 @@ function getAIAvatar() {
             }
             
             // 尝试从 localStorage 读取
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const contact = contacts.find(c => c.id === currentChatId);
             if (contact && contact.avatar) {
@@ -10422,7 +10422,7 @@ function getAIName() {
             // 尝试从主页面框架获取
             const mainFrame = document.querySelector('iframe');
             if (mainFrame && mainFrame.contentWindow) {
-                const contacts = mainFrame.contentWindow.getData('chatContacts');
+                const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts');
                 if (contacts && contacts.length > 0) {
                     const contact = contacts.find(c => c.id === currentChatId);
                     if (contact && contact.name) {
@@ -10432,8 +10432,8 @@ function getAIName() {
             }
             
             // 尝试从 localStorage 读取
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const contact = contacts.find(c => c.id === currentChatId);
             if (contact && contact.name) {
@@ -10514,7 +10514,7 @@ async function saveChatData() {
             await window.ChatDB.saveMessages(currentChatId, compressedMessages);
             
             // 同时保存到 localStorage（供主页面读取）
-            const key = `chat_${currentChatId}`;
+            const key = `dundun22_chat_${currentChatId}`;
             localStorage.setItem(key, JSON.stringify(compressedMessages));
             
             const size = JSON.stringify(compressedMessages).length / 1024;
@@ -10523,7 +10523,7 @@ async function saveChatData() {
             console.error('保存失败 (IndexedDB):', e);
             // 降级到 localStorage
             try {
-                const key = `chat_${currentChatId}`;
+                const key = `dundun22_chat_${currentChatId}`;
                 localStorage.setItem(key, JSON.stringify(compressedMessages));
                 console.warn('⚠️ 降级使用 localStorage');
             } catch (localError) {
@@ -10567,7 +10567,7 @@ function loadGroupChatInfo() {
         
         if (mainFrame && mainFrame.contentWindow) {
             try {
-                contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+                contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
                 console.log('从主页面 iframe 获取联系人:', contacts.length, '个');
                 
                 // 🔍 调试：检查群聊数据中的 memberTitles
@@ -10585,8 +10585,8 @@ function loadGroupChatInfo() {
         // 如果无法从主页面获取，尝试从 localStorage 读取
         if (contacts.length === 0) {
             console.log('尝试从 localStorage 读取...');
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             console.log('从 localStorage 获取联系人:', contacts.length, '个, key:', contactsKey);
             
@@ -10826,7 +10826,7 @@ async function loadChatData() {
     console.log('IF 线 ID:', iflineId);
     console.log('IF 线标题:', iflineTitle);
     console.log('IF 线类型:', iflineType);
-    console.log('localStorage 中的 lastChatId:', localStorage.getItem('lastChatId'));
+    console.log('localStorage 中的 lastChatId:', localStorage.getItem('dundun22_lastChatId'));
     
     // 优先使用 URL 中的 ID，如果没有，使用之前保存的 ID
     if (chatIdFromUrl) {
@@ -10843,7 +10843,7 @@ async function loadChatData() {
         console.log('🌿 进入 IF 线对话模式:', iflineTitle);
     } else {
         // 尝试使用上次聊天的 ID
-        currentChatId = localStorage.getItem('lastChatId') || 'default';
+        currentChatId = localStorage.getItem('dundun22_lastChatId') || 'default';
     }
     
     console.log('最终聊天 ID:', currentChatId);
@@ -10976,7 +10976,7 @@ async function loadChatData() {
                 console.log(`  [${idx}] type=${msg.type}, sender=${msg.sender}, time=${msg.time}`);
             });
                         
-            localStorage.setItem('lastChatId', currentChatId);
+            localStorage.setItem('dundun22_lastChatId', currentChatId);
             return;
         }
     } catch (e) {
@@ -10985,7 +10985,7 @@ async function loadChatData() {
     
     // 降级：从 localStorage 加载
     console.log('尝试从 localStorage 加载...');
-    let saved = localStorage.getItem(`chat_${currentChatId}`);
+    let saved = localStorage.getItem(`dundun22_chat_${currentChatId}`);
     console.log('从 localStorage 读取的数据:', saved ? '找到数据' : '没有数据');
     
     // 添加调试：检查是否有情侣邀请卡片
@@ -11042,7 +11042,7 @@ async function loadChatData() {
         console.log(`✓ 从 localStorage 加载成功: ${currentChatId}, ${chatMessages.length} 条消息`);
         console.log('消息列表:', chatMessages);
         // 只有成功加载到消息时，才保存 lastChatId
-        localStorage.setItem('lastChatId', currentChatId);
+        localStorage.setItem('dundun22_lastChatId', currentChatId);
     } else {
         console.log('没有保存的聊天数据:', currentChatId);
         chatMessages = [];
@@ -11219,7 +11219,7 @@ window.collectMessage = function(msgId) {
     }
     
     // 获取当前收藏列表
-    const collectKey = `chat_collect_${currentChatId}`;
+    const collectKey = `dundun22_chat_collect_${currentChatId}`;
     const collected = JSON.parse(localStorage.getItem(collectKey) || '[]');
     
     // 检查是否已收藏
@@ -11230,8 +11230,8 @@ window.collectMessage = function(msgId) {
     }
     
     // 获取联系人列表
-    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     
     // 添加收藏
@@ -11269,7 +11269,7 @@ window.patMessage = function(msgId) {
     const patActor = isAIMessage ? '你' : (getAIName() || '对方');
     
     // 获取拍一拍后缀（从聊天设置中读取）
-    const chatConfig = JSON.parse(localStorage.getItem(`chat_config_${currentChatId}`) || '{}');
+    const chatConfig = JSON.parse(localStorage.getItem(`dundun22_chat_config_${currentChatId}`) || '{}');
     const patSuffix = chatConfig.patSuffix || '';
     
     // 构建拍一拍内容
@@ -11446,7 +11446,7 @@ function checkAndRecallAIMessage(msgId) {
 function checkAndTriggerAutoSummary() {
     try {
         // 获取当前聊天的配置
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
         
         // 检查是否开启自动总结
@@ -11465,7 +11465,7 @@ function checkAndTriggerAutoSummary() {
         }
         
         // 获取上次总结的消息数量
-        const lastSummaryCountKey = `last_summary_count_${currentChatId}`;
+        const lastSummaryCountKey = `dundun22_last_summary_count_${currentChatId}`;
         const lastSummaryCount = parseInt(localStorage.getItem(lastSummaryCountKey) || '0');
         
         // 检查是否已经总结过当前批次的消息
@@ -11493,7 +11493,7 @@ async function triggerAutoSummary(count) {
         console.log(`📝 开始自动总结，总结最近 ${count} 条消息`);
         
         // 获取当前聊天的配置，获取总结字数设置
-        const chatKey = `chat_config_${currentChatId}`;
+        const chatKey = `dundun22_chat_config_${currentChatId}`;
         const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
         const summaryLength = config.autoSummaryLength || 'medium';
         
@@ -11550,13 +11550,13 @@ window.recallMessage = function(msgId) {
     console.log('  - 撤回前 content:', msg.content);
     
     // 保存撤回的消息到 localStorage
-    const recalledMessages = JSON.parse(localStorage.getItem('recalledMessages') || '[]');
+    const recalledMessages = JSON.parse(localStorage.getItem('dundun22_recalledMessages') || '[]');
     recalledMessages.push({
         ...msg,
         recalledTime: Date.now(),
         chatId: currentChatId
     });
-    localStorage.setItem('recalledMessages', JSON.stringify(recalledMessages));
+    localStorage.setItem('dundun22_recalledMessages', JSON.stringify(recalledMessages));
     
     // 修改原消息为撤回状态
     msg.isRecalled = true;
@@ -11584,7 +11584,7 @@ window.viewRecalledMessage = function(msgId) {
     // 确保 msgId 是数字类型
     const numericMsgId = typeof msgId === 'string' ? parseInt(msgId) : msgId;
     
-    const recalledMessages = JSON.parse(localStorage.getItem('recalledMessages') || '[]');
+    const recalledMessages = JSON.parse(localStorage.getItem('dundun22_recalledMessages') || '[]');
     // 使用宽松比较，因为消息 ID 可能是数字或字符串
     const msg = recalledMessages.find(m => m.id == numericMsgId);
     
@@ -11760,7 +11760,7 @@ let translationCache = {};
 // 加载翻译缓存
 function loadTranslationCache() {
     try {
-        const cache = localStorage.getItem('translation_cache');
+        const cache = localStorage.getItem('dundun22_translation_cache');
         if (cache) {
             translationCache = JSON.parse(cache);
             console.log(`✅ 加载翻译缓存: ${Object.keys(translationCache).length} 条`);
@@ -11774,7 +11774,7 @@ function loadTranslationCache() {
 // 保存翻译缓存
 function saveTranslationCache() {
     try {
-        localStorage.setItem('translation_cache', JSON.stringify(translationCache));
+        localStorage.setItem('dundun22_translation_cache', JSON.stringify(translationCache));
     } catch (e) {
         console.error('❌ 保存翻译缓存失败:', e);
     }
@@ -12083,8 +12083,8 @@ window.generateVoice = async function() {
     let personaInfo = '';
     let characterName = '角色';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === chatId);
         if (currentContact) {
@@ -12098,7 +12098,7 @@ window.generateVoice = async function() {
     // 获取 API 配置
     let apiConfig = null;
     try {
-        const savedConfig = localStorage.getItem('globalApiConfig');
+        const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
         if (savedConfig) {
             apiConfig = JSON.parse(savedConfig);
         }
@@ -12279,7 +12279,7 @@ ${personaInfo ? '\n【角色设定】：\n' + personaInfo : ''}`;
 // 尝试生成心声（仅在用户明确要求时生成）
 async function tryGenerateVoice(chatId, messages) {
     // 旁白模式下禁止生成语音消息（面对面见面不发语音）
-    const offlineMode = localStorage.getItem('offlineMode');
+    const offlineMode = localStorage.getItem('dundun22_offlineMode');
     if (offlineMode === 'narration') {
         console.log('🎭 旁白模式：禁止生成语音消息');
         return;
@@ -12314,8 +12314,8 @@ async function tryGenerateVoice(chatId, messages) {
     let personaInfo = '';
     let characterName = '角色';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === chatId);
         if (currentContact) {
@@ -12334,14 +12334,14 @@ async function tryGenerateVoice(chatId, messages) {
     // 获取 API 配置
     let apiConfig = null;
     try {
-        const savedConfig = localStorage.getItem('globalApiConfig');
+        const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
         if (savedConfig) {
             apiConfig = JSON.parse(savedConfig);
         }
         if (!apiConfig) {
-            const apiKey = localStorage.getItem('apiKey');
-            const apiUrl = localStorage.getItem('apiUrl');
-            const apiModel = localStorage.getItem('apiModel');
+            const apiKey = localStorage.getItem('dundun22_apiKey');
+            const apiUrl = localStorage.getItem('dundun22_apiUrl');
+            const apiModel = localStorage.getItem('dundun22_apiModel');
             if (apiKey && apiUrl) {
                 apiConfig = {
                     mainApi: { url: apiUrl, token: apiKey },
@@ -12536,7 +12536,7 @@ ${personaInfo ? '\n【角色设定】：\n' + personaInfo : ''}`;
 // 🎭 检查并触发自定心声生成
 async function checkAndTriggerAutoInnerVoice(chatId, messages) {
     // 获取聊天配置
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     
     // 检查是否开启自动心声（默认开启）
@@ -12567,7 +12567,7 @@ async function checkAndTriggerAutoInnerVoice(chatId, messages) {
     // 获取 API 配置
     let apiConfig = null;
     try {
-        const savedConfig = localStorage.getItem('globalApiConfig');
+        const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
         if (savedConfig) {
             apiConfig = JSON.parse(savedConfig);
         }
@@ -12644,8 +12644,8 @@ async function generateInnerVoiceInternal(chatId, messages) {
     let personaInfo = '';
     let characterName = '角色';
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === chatId);
         if (currentContact) {
@@ -12660,7 +12660,7 @@ async function generateInnerVoiceInternal(chatId, messages) {
     // 获取 API 配置
     let apiConfig = null;
     try {
-        const savedConfig = localStorage.getItem('globalApiConfig');
+        const savedConfig = localStorage.getItem('dundun22_globalApiConfig');
         if (savedConfig) {
             apiConfig = JSON.parse(savedConfig);
         }
@@ -12840,7 +12840,7 @@ function loadChatSettingsData() {
         console.warn('未选择聊天，无法加载设置');
         return;
     }
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     
     console.log('===== 开始加载聊天设置 =====');
     console.log('当前聊天 ID:', chatId);
@@ -12962,7 +12962,7 @@ function renderGroupMembersList(groupInfo) {
     const ownerId = groupInfo.owner;
     
     // 获取当前用户ID
-    let myProfile = JSON.parse(localStorage.getItem('myProfile') || '{}');
+    let myProfile = JSON.parse(localStorage.getItem('dundun22_myProfile') || '{}');
     let currentUserId = myProfile.id;
     
     console.log('[开始获取用户 ID]', {
@@ -13002,7 +13002,7 @@ function renderGroupMembersList(groupInfo) {
     if (foundUserId) {
         currentUserId = foundUserId;
         myProfile = { id: currentUserId };
-        localStorage.setItem('myProfile', JSON.stringify(myProfile));
+        localStorage.setItem('dundun22_myProfile', JSON.stringify(myProfile));
         console.log('[已保存] myProfile:', myProfile);
     }
         
@@ -13073,22 +13073,22 @@ function renderGroupMembersList(groupInfo) {
         // 首先尝试从 iframe 获取
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            allContacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            allContacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             console.log('从 iframe 获取联系人:', allContacts.length, '个');
         }
         
         // 如果 iframe 获取失败，尝试从 localStorage 获取
         if (allContacts.length === 0) {
             console.log('iframe 获取失败，尝试从 localStorage 获取...');
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             allContacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             console.log('从 localStorage 获取联系人:', allContacts.length, '个, key:', contactsKey);
         }
         
         // 如果还是空的，尝试通用 key
         if (allContacts.length === 0) {
-            allContacts = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+            allContacts = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
             console.log('从通用 localStorage 获取联系人:', allContacts.length, '个');
         }
         
@@ -13134,8 +13134,8 @@ function renderGroupMembersList(groupInfo) {
         
         // 如果是群主但找不到联系人信息，从 myProfile 获取名称
         if (isGroupOwner && memberName === '未知成员') {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
             // 🔴 优先使用真实姓名
             memberName = myProfile.realName || myProfile.name || '我';
@@ -13576,11 +13576,11 @@ window.unbanMember = function(memberId, memberName) {
         // 同步到主界面的通讯录
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (contactIndex !== -1) {
                 contacts[contactIndex].members = members;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
@@ -13660,18 +13660,18 @@ window.saveMemberTitle = function(memberId, memberName) {
                 }
                 
                 // 2. 更新 chatContacts（联系人列表 - 包含群聊）
-                const currentContacts = mainFrame.contentWindow.getData('chatContacts');
+                const currentContacts = mainFrame.contentWindow.getData('dundun22_chatContacts');
                 console.log('  - 当前 iframe 中的联系人数量:', currentContacts ? currentContacts.length : 0);
                 
                 if (currentContacts) {
                     const updatedContacts = currentContacts.map(c => 
                         c.id === groupInfo.id ? {...c, ...groupInfo} : c
                     );
-                    mainFrame.contentWindow.setData('chatContacts', updatedContacts);
+                    mainFrame.contentWindow.setData('dundun22_chatContacts', updatedContacts);
                     console.log('✅ 已同步到 chatContacts');
                     
                     // 验证是否同步成功
-                    const verifyContacts = mainFrame.contentWindow.getData('chatContacts');
+                    const verifyContacts = mainFrame.contentWindow.getData('dundun22_chatContacts');
                     const verifiedContact = verifyContacts.find(c => c.id === groupInfo.id);
                     console.log(' 验证 chatContacts 数据:', verifiedContact ? verifiedContact.memberTitles : '未找到');
                 }
@@ -13686,10 +13686,10 @@ window.saveMemberTitle = function(memberId, memberName) {
         // 同步到 localStorage
         try {
             console.log('🔄 尝试同步到 localStorage...');
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
                     
             // 1. 更新 chatGroupChats（群聊列表）
-            const groupChatsKey = `persona_${currentPersona}_chatGroupChats`;
+            const groupChatsKey = `dundun22_persona_${currentPersona}_chatGroupChats`;
             const groupChats = JSON.parse(localStorage.getItem(groupChatsKey) || '[]');
             console.log('  - 同步前 groupChats:', groupChats.length, '个群聊');
             console.log('  - 当前群聊 ID:', groupInfo.id);
@@ -13716,7 +13716,7 @@ window.saveMemberTitle = function(memberId, memberName) {
             console.log('🔍 验证 chatGroupChats 数据:', verifiedGroup ? verifiedGroup.memberTitles : '未找到');
                     
             // 2. 更新 chatContacts（联系人列表 - 包含群聊）
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             console.log('  - 同步前 contacts:', contacts.length, '个联系人');
                     
@@ -13783,17 +13783,17 @@ window.removeMemberTitle = function(memberId, memberName) {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (groupIndex !== -1) {
                 contacts[groupIndex].memberTitles = groupInfo.memberTitles;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
         // 同时更新 localStorage
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const group = contacts.find(c => c.id === groupInfo.id);
         if (group) {
@@ -13842,10 +13842,10 @@ window.setMemberAsAdmin = function(memberId, memberName) {
         console.log('✅ 已保存到 sessionStorage');
         
         // 同时更新 chatContacts 和 chatGroupChats
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
         
         // 1. 更新 chatContacts（联系人列表）
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
         if (contactIndex !== -1) {
@@ -13855,7 +13855,7 @@ window.setMemberAsAdmin = function(memberId, memberName) {
         }
         
         // 2. 更新 chatGroupChats（群聊列表）
-        const groupChatsKey = `persona_${currentPersona}_chatGroupChats`;
+        const groupChatsKey = `dundun22_persona_${currentPersona}_chatGroupChats`;
         const groupChats = JSON.parse(localStorage.getItem(groupChatsKey) || '[]');
         const groupIndex = groupChats.findIndex(g => g.id === groupInfo.id);
         if (groupIndex !== -1) {
@@ -13869,11 +13869,11 @@ window.setMemberAsAdmin = function(memberId, memberName) {
             const mainFrame = document.querySelector('iframe');
             if (mainFrame && mainFrame.contentWindow) {
                 // 更新 chatContacts
-                const iframeContacts = mainFrame.contentWindow.getData('chatContacts') || [];
+                const iframeContacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
                 const iframeContactIndex = iframeContacts.findIndex(c => c.id === groupInfo.id);
                 if (iframeContactIndex !== -1) {
                     iframeContacts[iframeContactIndex].admins = groupInfo.admins;
-                    mainFrame.contentWindow.saveData('chatContacts', iframeContacts);
+                    mainFrame.contentWindow.saveData('dundun22_chatContacts', iframeContacts);
                     console.log('✅ 已同步 iframe chatContacts');
                 }
                 
@@ -13924,10 +13924,10 @@ window.removeMemberAdmin = function(memberId, memberName) {
         console.log('✅ 已保存到 sessionStorage');
         
         // 同时更新 chatContacts 和 chatGroupChats
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
         
         // 1. 更新 chatContacts（联系人列表）
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
         if (contactIndex !== -1) {
@@ -13937,7 +13937,7 @@ window.removeMemberAdmin = function(memberId, memberName) {
         }
         
         // 2. 更新 chatGroupChats（群聊列表）
-        const groupChatsKey = `persona_${currentPersona}_chatGroupChats`;
+        const groupChatsKey = `dundun22_persona_${currentPersona}_chatGroupChats`;
         const groupChats = JSON.parse(localStorage.getItem(groupChatsKey) || '[]');
         const groupIndex = groupChats.findIndex(g => g.id === groupInfo.id);
         if (groupIndex !== -1) {
@@ -13951,11 +13951,11 @@ window.removeMemberAdmin = function(memberId, memberName) {
             const mainFrame = document.querySelector('iframe');
             if (mainFrame && mainFrame.contentWindow) {
                 // 更新 chatContacts
-                const iframeContacts = mainFrame.contentWindow.getData('chatContacts') || [];
+                const iframeContacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
                 const iframeContactIndex = iframeContacts.findIndex(c => c.id === groupInfo.id);
                 if (iframeContactIndex !== -1) {
                     iframeContacts[iframeContactIndex].admins = groupInfo.admins;
-                    mainFrame.contentWindow.saveData('chatContacts', iframeContacts);
+                    mainFrame.contentWindow.saveData('dundun22_chatContacts', iframeContacts);
                     console.log('✅ 已同步 iframe chatContacts');
                 }
                 
@@ -14021,18 +14021,18 @@ window.transferGroupOwner = function(memberId, memberName) {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (groupIndex !== -1) {
                 contacts[groupIndex].owner = memberId;
                 contacts[groupIndex].admins = groupInfo.admins;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
         // 同时更新 localStorage
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const group = contacts.find(c => c.id === groupInfo.id);
         if (group) {
@@ -14086,17 +14086,17 @@ window.saveGroupAnnouncement = function() {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (groupIndex !== -1) {
                 contacts[groupIndex].announcement = announcement;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
         // 同时更新 localStorage
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const group = contacts.find(c => c.id === groupInfo.id);
         if (group) {
@@ -14131,17 +14131,17 @@ window.removeGroupAnnouncement = function() {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (groupIndex !== -1) {
                 contacts[groupIndex].announcement = '';
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
         // 同时更新 localStorage
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const group = contacts.find(c => c.id === groupInfo.id);
         if (group) {
@@ -14316,8 +14316,8 @@ function saveGroupAvatar(avatar) {
         
         // 同时更新 localStorage 中的群聊数据（重要：防止刷新后丢失）
         try {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const group = contacts.find(c => c.id === groupInfo.id);
             if (group) {
@@ -14327,7 +14327,7 @@ function saveGroupAvatar(avatar) {
             }
             
             // 同时更新 chatConversations
-            const conversationsKey = `persona_${currentPersona}_chatConversations`;
+            const conversationsKey = `dundun22_persona_${currentPersona}_chatConversations`;
             const conversations = JSON.parse(localStorage.getItem(conversationsKey) || '[]');
             const conv = conversations.find(c => c.id === groupInfo.id);
             if (conv) {
@@ -14352,11 +14352,11 @@ function updateContactAvatarInMainPage(groupId, avatar) {
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
             // 更新 chatContacts
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const group = contacts.find(c => c.id === groupId);
             if (group) {
                 group.avatar = avatar;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
                 console.log('✓ 主页面 chatContacts 头像已更新');
             }
             
@@ -14371,8 +14371,8 @@ function updateContactAvatarInMainPage(groupId, avatar) {
         }
         
         // 同时更新 localStorage
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const group = contacts.find(c => c.id === groupId);
         if (group) {
@@ -14382,7 +14382,7 @@ function updateContactAvatarInMainPage(groupId, avatar) {
         }
         
         // 更新 localStorage 中的 chatConversations
-        const conversationsKey = `persona_${currentPersona}_chatConversations`;
+        const conversationsKey = `dundun22_persona_${currentPersona}_chatConversations`;
         const conversations = JSON.parse(localStorage.getItem(conversationsKey) || '[]');
         const conv = conversations.find(c => c.id === groupId);
         if (conv) {
@@ -14505,17 +14505,17 @@ function loadSingleChatSettings(chatKey) {
     
     try {
         // 尝试读取带人设前缀的数据
-        const personaId = localStorage.getItem('currentPersonaId') || 'default';
-        const contactsKey = `persona_${personaId}_chatContacts`;
+        const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+        const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
         contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         
         console.log('从 localStorage 读取联系人:', contactsKey);
         console.log('联系人总数:', contacts.length);
         console.log('联系人列表:', contacts);
         
-        // 如果没有找到，尝试读取旧的 'chats' 键
+        // 如果没有找到，尝试读取旧的 'dundun22_chats' 键
         if (contacts.length === 0) {
-            const oldChats = JSON.parse(localStorage.getItem('chats') || '[]');
+            const oldChats = JSON.parse(localStorage.getItem('dundun22_chats') || '[]');
             if (oldChats.length > 0) {
                 contacts = oldChats;
                 console.log('使用旧的 chats 键:', contacts);
@@ -14581,7 +14581,7 @@ function loadSingleChatSettings(chatKey) {
     
     // 显示授权状态
     if (checkPhoneMode === 'password') {
-        const savedAuth = localStorage.getItem(`check_phone_auth_${chatId}`);
+        const savedAuth = localStorage.getItem(`dundun22_check_phone_auth_${chatId}`);
         updateAuthorizationUI(savedAuth === 'true');
     }
     
@@ -14731,14 +14731,14 @@ function saveGroupChatSettings() {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             
             if (groupIndex !== -1) {
                 contacts[groupIndex].name = groupName;
                 contacts[groupIndex].announcement = announcement;
                 contacts[groupIndex].worldbookId = worldbookId;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
                 console.log('✓ 群聊信息已更新到主界面');
             }
         }
@@ -14758,7 +14758,7 @@ function saveGroupChatSettings() {
 // 保存单聊设置
 function saveSingleChatSettings() {
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     
     console.log('💾 [saveSingleChatSettings] 开始保存配置:');
     console.log('   - chatId:', chatId);
@@ -14827,8 +14827,8 @@ function saveSingleChatSettings() {
     // 更新通讯录中的角色信息
     try {
         // 读取带人设前缀的联系人数据
-        const personaId = localStorage.getItem('currentPersonaId') || 'default';
-        const contactsKey = `persona_${personaId}_chatContacts`;
+        const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+        const contactsKey = `dundun22_persona_${personaId}_chatContacts`;
         let contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         
         const chatIndex = contacts.findIndex(c => c.id === chatId);
@@ -14873,7 +14873,7 @@ function saveSingleChatSettings() {
     // 保存表情包分类绑定
     try {
         const emojiCategory = document.getElementById('settings-role-emoji-category').value;
-        localStorage.setItem(`role_${chatId}_emoji_category`, emojiCategory);
+        localStorage.setItem(`dundun22_role_${chatId}_emoji_category`, emojiCategory);
         console.log('📸 表情包分类已保存:', emojiCategory ? `"${emojiCategory}"` : '未绑定');
     } catch (e) {
         console.error('保存表情包分类失败:', e);
@@ -14987,12 +14987,12 @@ window.changeRoleAvatar = function() {
                 // 保存到 localStorage
                 try {
                     const chatId = currentChatId;
-                    const chats = JSON.parse(localStorage.getItem('chats') || '[]');
+                    const chats = JSON.parse(localStorage.getItem('dundun22_chats') || '[]');
                     const chatIndex = chats.findIndex(c => c.id === chatId);
                     
                     if (chatIndex !== -1) {
                         chats[chatIndex].avatar = base64;
-                        localStorage.setItem('chats', JSON.stringify(chats));
+                        localStorage.setItem('dundun22_chats', JSON.stringify(chats));
                         console.log('✓ 头像已保存');
                     } else {
                         // 如果当前聊天不在列表中，添加新条目
@@ -15002,7 +15002,7 @@ window.changeRoleAvatar = function() {
                             avatar: base64
                         };
                         chats.push(newChat);
-                        localStorage.setItem('chats', JSON.stringify(chats));
+                        localStorage.setItem('dundun22_chats', JSON.stringify(chats));
                         console.log('✓ 头像已保存 (新建)');
                     }
                     
@@ -15167,7 +15167,7 @@ window.executeManualSummary = function() {
     
     // 调用 API 进行总结
     // 读取当前聊天的总结字数设置
-    const chatKey = `chat_config_${currentChatId}`;
+    const chatKey = `dundun22_chat_config_${currentChatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     const summaryLength = config.autoSummaryLength || 'medium';
     
@@ -15221,7 +15221,7 @@ async function callSummaryAPI(messagesText, count, summaryLength = 'medium') {
     // 获取 API 配置
     let apiConfig = null;
     try {
-        const globalConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const globalConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         console.log('全局 API 配置:', globalConfig);
         if (globalConfig.mainApi && globalConfig.mainApi.url && globalConfig.mainApi.token) {
             apiConfig = globalConfig;
@@ -15244,8 +15244,8 @@ async function callSummaryAPI(messagesText, count, summaryLength = 'medium') {
     let roleName = '角色';
     let characterLanguage = 'zh'; // 默认中文
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         if (currentContact) {
@@ -15377,7 +15377,7 @@ function loadMemoryRecords() {
     // 🛡️ 记忆记录库已移至独立应用，此函数保留但不执行DOM操作
     // 如果需要在聊天设置中显示记忆数量，可以在这里添加逻辑
     const chatId = currentChatId;
-    const memoryKey = `memory_records_${chatId}`;
+    const memoryKey = `dundun22_memory_records_${chatId}`;
     const records = JSON.parse(localStorage.getItem(memoryKey) || '[]');
     
     const container = document.getElementById('memory-records-list');
@@ -15432,7 +15432,7 @@ window.toggleMemoryContent = function(index) {
     
     if (!contentEl || !toggleEl) return;
     
-    const memoryKey = `memory_records_${currentChatId}`;
+    const memoryKey = `dundun22_memory_records_${currentChatId}`;
     const records = JSON.parse(localStorage.getItem(memoryKey) || '[]');
     const record = records[index];
     
@@ -15461,7 +15461,7 @@ window.clearChatMessages = function() {
     }
     
     // 清空消息列表
-    localStorage.removeItem(`chat_${currentChatId}`);
+    localStorage.removeItem(`dundun22_chat_${currentChatId}`);
     chatMessages = [];
     
     // 重新渲染消息
@@ -15485,7 +15485,7 @@ window.clearMemoryRecords = function() {
     }
     
     // 清空记忆记录
-    localStorage.removeItem(`memory_records_${currentChatId}`);
+    localStorage.removeItem(`dundun22_memory_records_${currentChatId}`);
     
     // 重新加载记忆列表
     loadMemoryRecords();
@@ -15500,14 +15500,14 @@ window.clearAllChatData = function() {
     }
     
     // 清空消息
-    localStorage.removeItem(`chat_${currentChatId}`);
+    localStorage.removeItem(`dundun22_chat_${currentChatId}`);
     chatMessages = [];
     
     // 清空记忆记录
-    localStorage.removeItem(`memory_records_${currentChatId}`);
+    localStorage.removeItem(`dundun22_memory_records_${currentChatId}`);
     
     // 清空聊天配置
-    localStorage.removeItem(`chat_config_${currentChatId}`);
+    localStorage.removeItem(`dundun22_chat_config_${currentChatId}`);
     
     // 重新渲染界面
     renderMessages();
@@ -15537,9 +15537,9 @@ window.exportChatData = function() {
             version: '1.0',
             exportTime: new Date().toISOString(),
             chatId: chatId,
-            messages: JSON.parse(localStorage.getItem(`chat_${chatId}`) || '[]'),
-            memoryRecords: JSON.parse(localStorage.getItem(`memory_records_${chatId}`) || '[]'),
-            chatConfig: JSON.parse(localStorage.getItem(`chat_config_${chatId}`) || '{}')
+            messages: JSON.parse(localStorage.getItem(`dundun22_chat_${chatId}`) || '[]'),
+            memoryRecords: JSON.parse(localStorage.getItem(`dundun22_memory_records_${chatId}`) || '[]'),
+            chatConfig: JSON.parse(localStorage.getItem(`dundun22_chat_config_${chatId}`) || '{}')
         };
         
         // 转换为 JSON
@@ -15599,14 +15599,14 @@ window.importChatData = function() {
                 const chatId = currentChatId;
                 
                 // 导入数据到 localStorage
-                localStorage.setItem(`chat_${chatId}`, JSON.stringify(importData.messages));
+                localStorage.setItem(`dundun22_chat_${chatId}`, JSON.stringify(importData.messages));
                 
                 if (importData.memoryRecords && Array.isArray(importData.memoryRecords)) {
-                    localStorage.setItem(`memory_records_${chatId}`, JSON.stringify(importData.memoryRecords));
+                    localStorage.setItem(`dundun22_memory_records_${chatId}`, JSON.stringify(importData.memoryRecords));
                 }
                 
                 if (importData.chatConfig && typeof importData.chatConfig === 'object') {
-                    localStorage.setItem(`chat_config_${chatId}`, JSON.stringify(importData.chatConfig));
+                    localStorage.setItem(`dundun22_chat_config_${chatId}`, JSON.stringify(importData.chatConfig));
                 }
                 
                 // 更新当前消息
@@ -15645,7 +15645,7 @@ window.importChatData = function() {
 // 删除记忆记录
 window.deleteMemoryRecord = function(index) {
     const chatId = currentChatId;
-    const memoryKey = `memory_records_${chatId}`;
+    const memoryKey = `dundun22_memory_records_${chatId}`;
     const records = JSON.parse(localStorage.getItem(memoryKey) || '[]');
     
     if (index >= 0 && index < records.length) {
@@ -15681,7 +15681,7 @@ function startCheckPhoneTimer() {
         return;
     }
     
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     
     console.log(' 读取的配置:', config);
@@ -15891,13 +15891,13 @@ async function showChangePasswordPrompt(chatId) {
             
             if (newPassword) {
                 // 保存新密码
-                const chatKey = `chat_config_${chatId}`;
+                const chatKey = `dundun22_chat_config_${chatId}`;
                 const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
                 config.checkPhonePassword = newPassword;
                 localStorage.setItem(chatKey, JSON.stringify(config));
                 
                 // 撤销授权
-                localStorage.setItem(`check_phone_auth_${chatId}`, 'false');
+                localStorage.setItem(`dundun22_check_phone_auth_${chatId}`, 'false');
                 isAuthorized = false;
                 
                 showToast('密码已修改，授权已撤销', 'success');
@@ -15919,7 +15919,7 @@ async function showChangePasswordPrompt(chatId) {
 // 撤销授权
 function revokeAuthorization() {
     const chatId = currentChatId;
-    localStorage.setItem(`check_phone_auth_${chatId}`, 'false');
+    localStorage.setItem(`dundun22_check_phone_auth_${chatId}`, 'false');
     isAuthorized = false;
     showToast('授权已撤销', 'info');
     
@@ -15932,7 +15932,7 @@ async function triggerPhoneCheck() {
     
     try {
         const chatId = currentChatId;
-        const chatKey = `chat_config_${chatId}`;
+        const chatKey = `dundun22_chat_config_${chatId}`;
         const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
         
         const roleName = document.getElementById('chat-title').textContent || '角色';
@@ -15956,7 +15956,7 @@ async function triggerPhoneCheck() {
         } else if (checkPhoneMode === 'password') {
             // 密码模式：检查授权状态
             const checkPhonePassword = config.checkPhonePassword || '';
-            const savedAuth = JSON.parse(localStorage.getItem(`check_phone_auth_${chatId}`) || 'false');
+            const savedAuth = JSON.parse(localStorage.getItem(`dundun22_check_phone_auth_${chatId}`) || 'false');
             
             if (savedAuth) {
                 // 已授权，直接查看
@@ -15990,7 +15990,7 @@ async function triggerPhoneCheck() {
                     console.log('✅ 密码验证成功');
                     
                     // 设置授权状态
-                    localStorage.setItem(`check_phone_auth_${chatId}`, 'true');
+                    localStorage.setItem(`dundun22_check_phone_auth_${chatId}`, 'true');
                     isAuthorized = true;
                     
                     // 更新授权状态UI
@@ -16043,8 +16043,8 @@ function showPhoneBeingChecked(roleName) {
     console.log('📱 开始模拟角色翻阅手机...');
     
     // 设置一个标志，表示正在查手机
-    localStorage.setItem('phone_being_checked', 'true');
-    localStorage.setItem('phone_checker_name', roleName || '角色');
+    localStorage.setItem('dundun22_phone_being_checked', 'true');
+    localStorage.setItem('dundun22_phone_checker_name', roleName || '角色');
     
     // 如果当前就在 chat-app.html 页面，直接启动自动翻阅
     if (window.location.href.includes('chat-app.html')) {
@@ -16064,8 +16064,8 @@ function hidePhoneBeingChecked() {
     console.log('📱 停止模拟角色翻阅手机');
     
     // 清除标志
-    localStorage.removeItem('phone_being_checked');
-    localStorage.removeItem('phone_checker_name');
+    localStorage.removeItem('dundun22_phone_being_checked');
+    localStorage.removeItem('dundun22_phone_checker_name');
     
     // 如果当前在 chat-app.html 页面，停止自动翻阅
     if (window.location.href.includes('chat-app.html')) {
@@ -16088,7 +16088,7 @@ async function collectPhoneData() {
     
     try {
         // 1. 收集微信消息（从其他聊天中提取真实消息）
-        const chatConversations = JSON.parse(localStorage.getItem('chatConversations') || '[]');
+        const chatConversations = JSON.parse(localStorage.getItem('dundun22_chatConversations') || '[]');
         const otherConversations = chatConversations.filter(c => c.id !== currentChatId);
         
         if (otherConversations.length > 0) {
@@ -16096,7 +16096,7 @@ async function collectPhoneData() {
             const selectedConvos = otherConversations.sort(() => Math.random() - 0.5).slice(0, msgCount);
             
             selectedConvos.forEach((convo) => {
-                const chatKey = `chat_${convo.id}`;
+                const chatKey = `dundun22_chat_${convo.id}`;
                 const messages = JSON.parse(localStorage.getItem(chatKey) || '[]');
                 const lastMsg = messages[messages.length - 1];
                 
@@ -16113,7 +16113,7 @@ async function collectPhoneData() {
         
         // 2. 收集论坛浏览历史（从真实论坛帖子中提取）
         try {
-            const forumPosts = JSON.parse(localStorage.getItem('forum_posts') || '[]');
+            const forumPosts = JSON.parse(localStorage.getItem('dundun22_forum_posts') || '[]');
             
             if (forumPosts.length > 0) {
                 // 按时间排序，取最近的帖子
@@ -16149,7 +16149,7 @@ async function collectPhoneData() {
         
         // 3. 收集购物消费记录（从商城订单中提取）
         try {
-            const shopOrders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+            const shopOrders = JSON.parse(localStorage.getItem('dundun22_shop_orders') || '[]');
             
             if (shopOrders.length > 0) {
                 // 按时间排序，取最近的订单
@@ -16198,7 +16198,7 @@ async function generatePhoneCheckReaction(phoneData) {
     
     try {
         const chatId = currentChatId;
-        const chatKey = `chat_config_${chatId}`;
+        const chatKey = `dundun22_chat_config_${chatId}`;
         const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
         
         const roleSetting = config.roleSetting || '';
@@ -16304,7 +16304,7 @@ function startAutoMessageIfNeeded() {
     
     // 读取聊天配置
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     
     console.log('配置键名:', chatKey);
@@ -16342,7 +16342,7 @@ async function sendAutoMessage() {
     try {
         // 获取角色设定
         const chatId = currentChatId;
-        const chatKey = `chat_config_${chatId}`;
+        const chatKey = `dundun22_chat_config_${chatId}`;
         const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
         
         const roleSetting = config.roleSetting || '';
@@ -16358,7 +16358,7 @@ async function sendAutoMessage() {
         
         try {
             // 优先读取 globalApiConfig (settings.js 保存的格式)
-            const globalConfig = localStorage.getItem('globalApiConfig');
+            const globalConfig = localStorage.getItem('dundun22_globalApiConfig');
             if (globalConfig) {
                 apiConfig = JSON.parse(globalConfig);
                 console.log('API 配置来源: globalApiConfig');
@@ -16366,7 +16366,7 @@ async function sendAutoMessage() {
             
             // 如果没有 globalApiConfig，尝试 apiConfig (兼容旧格式)
             if (!apiConfig) {
-                apiConfig = JSON.parse(localStorage.getItem('apiConfig') || '{}');
+                apiConfig = JSON.parse(localStorage.getItem('dundun22_apiConfig') || '{}');
                 console.log('API 配置来源: apiConfig');
             }
             
@@ -16440,14 +16440,14 @@ async function fetchAiResponse(prompt) {
         let apiConfig = null;
         try {
             // 优先读取 globalApiConfig (settings.js 保存的格式)
-            const globalConfig = localStorage.getItem('globalApiConfig');
+            const globalConfig = localStorage.getItem('dundun22_globalApiConfig');
             if (globalConfig) {
                 apiConfig = JSON.parse(globalConfig);
             }
             
             // 如果没有 globalApiConfig，尝试 apiConfig (兼容旧格式)
             if (!apiConfig) {
-                apiConfig = JSON.parse(localStorage.getItem('apiConfig') || '{}');
+                apiConfig = JSON.parse(localStorage.getItem('dundun22_apiConfig') || '{}');
             }
         } catch (e) {
             console.warn('读取 API 配置失败:', e);
@@ -16514,7 +16514,7 @@ async function fetchAiResponse(prompt) {
 // 添加记忆记录
 function addMemoryRecord(summary) {
     const chatId = currentChatId;
-    const memoryKey = `memory_records_${chatId}`;
+    const memoryKey = `dundun22_memory_records_${chatId}`;
     const records = JSON.parse(localStorage.getItem(memoryKey) || '[]');
     
     records.unshift({
@@ -16612,7 +16612,7 @@ window.clearBackground = function() {
 // 应用聊天背景
 function applyChatBackground(retryCount = 0) {
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     const bgUrl = config.backgroundUrl || '';
     
@@ -16670,7 +16670,7 @@ function applyChatBackground(retryCount = 0) {
 // 获取用户的预设列表
 function getUserBubblePresets() {
     try {
-        const presets = localStorage.getItem('user_bubble_presets');
+        const presets = localStorage.getItem('dundun22_user_bubble_presets');
         return presets ? JSON.parse(presets) : [];
     } catch (e) {
         console.error('读取预设失败:', e);
@@ -16681,7 +16681,7 @@ function getUserBubblePresets() {
 // 保存用户的预设列表
 function saveUserBubblePresets(presets) {
     try {
-        localStorage.setItem('user_bubble_presets', JSON.stringify(presets));
+        localStorage.setItem('dundun22_user_bubble_presets', JSON.stringify(presets));
         console.log('✅ 预设列表已保存:', presets.length, '个');
     } catch (e) {
         console.error('保存预设失败:', e);
@@ -16949,8 +16949,8 @@ window.applyInterfaceCss = function(event) {
     console.log(' CSS 内容长度:', css.length);
     console.log('📝 CSS 内容预览:', css.substring(0, 100));
     console.log('🔑 currentChatId:', currentChatId);
-    console.log('🔑 chatKey:', `chat_config_${currentChatId}`);
-    console.log('💾 保存前的 localStorage:', localStorage.getItem(`chat_config_${currentChatId}`));
+    console.log('🔑 chatKey:', `dundun22_chat_config_${currentChatId}`);
+    console.log('💾 保存前的 localStorage:', localStorage.getItem(`dundun22_chat_config_${currentChatId}`));
     
     // 移除旧的样式标签
     const oldStyle = document.getElementById('custom-interface-style');
@@ -16974,7 +16974,7 @@ window.applyInterfaceCss = function(event) {
     }
     
     // 只保存 interfaceCss 到 localStorage，不关闭设置面板
-    const chatKey = `chat_config_${currentChatId}`;
+    const chatKey = `dundun22_chat_config_${currentChatId}`;
     const configStr = localStorage.getItem(chatKey);
     const config = configStr ? JSON.parse(configStr) : {};
     config.interfaceCss = css;
@@ -17018,14 +17018,14 @@ function syncSingleChatTitle() {
     }
     
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const currentContact = contacts.find(c => c.id === currentChatId);
         
         if (currentContact) {
             const contactName = currentContact.remark || currentContact.name || '聊天';
-            const myProfileKey = `persona_${currentPersona}_myProfile`;
+            const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
             const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
             const altBadge = myProfile.isAlt ? ' [小号]' : '';
             document.getElementById('chat-title').textContent = contactName + altBadge;
@@ -17096,7 +17096,7 @@ window.clearInterfaceCss = function(event) {
     showToast('界面样式已清除');
     
     // 只清除 interfaceCss，不关闭设置面板
-    const chatKey = `chat_config_${currentChatId}`;
+    const chatKey = `dundun22_chat_config_${currentChatId}`;
     const configStr = localStorage.getItem(chatKey);
     const config = configStr ? JSON.parse(configStr) : {};
     config.interfaceCss = '';
@@ -17112,7 +17112,7 @@ window.clearInterfaceCss = function(event) {
 // 加载气泡 CSS
 function loadBubbleCss() {
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     const bubbleCss = config.bubbleCss || '';
     
@@ -17147,7 +17147,7 @@ function loadBubbleCss() {
 // 🎭 加载心声样式 CSS
 function loadVoiceCss() {
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const config = JSON.parse(localStorage.getItem(chatKey) || '{}');
     const voiceCss = config.voiceCss || '';
     
@@ -17182,7 +17182,7 @@ function loadVoiceCss() {
 // 🛠️ 加载界面 CSS
 function loadInterfaceCss() {
     const chatId = currentChatId;
-    const chatKey = `chat_config_${chatId}`;
+    const chatKey = `dundun22_chat_config_${chatId}`;
     const configStr = localStorage.getItem(chatKey);
     
     console.log('📦 [loadInterfaceCss] 读取界面 CSS 配置:');
@@ -17265,7 +17265,7 @@ function loadWorldbookList(selectedId) {
         if (!selectEl) return;
         
         // 获取世界书列表
-        const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+        const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
         
         console.log('加载世界书列表:', worldbooks.length, '个');
         
@@ -17312,7 +17312,7 @@ window.inviteGroupMembers = function() {
         let contacts = [];
         
         if (mainFrame && mainFrame.contentWindow) {
-            contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
         }
         
         // 过滤掉已在群里的成员
@@ -17354,12 +17354,12 @@ window.toggleGroupMute = function() {
         // 更新主界面的通讯录数据
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const groupIndex = contacts.findIndex(c => c.id === groupInfo.id);
             
             if (groupIndex !== -1) {
                 contacts[groupIndex].muted = newMutedState;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
                 console.log('✓ 群聊禁言状态已更新');
             }
         }
@@ -17401,8 +17401,8 @@ function handleGroupAdminCommand(jsonMatch) {
         let isAdmin = false;
         
         // 方法 1：从群成员列表中查找 AI 角色（通过名称匹配）
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         const contact = contacts.find(c => c.id === currentChatId);
         
@@ -17427,7 +17427,7 @@ function handleGroupAdminCommand(jsonMatch) {
         
         // 方法 2：如果方法 1 失败，尝试从 myProfile 获取
         if (!currentUserId) {
-            const myProfile = JSON.parse(localStorage.getItem('myProfile') || '{}');
+            const myProfile = JSON.parse(localStorage.getItem('dundun22_myProfile') || '{}');
             currentUserId = myProfile.id || 'user_' + Date.now();
             isOwner = groupInfo.owner === currentUserId;
             
@@ -17531,11 +17531,11 @@ function kickMemberByAI(memberId, reason) {
         // 同步到主界面的通讯录
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (contactIndex !== -1) {
                 contacts[contactIndex].members = members;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
@@ -17576,11 +17576,11 @@ function banMemberByAI(memberId, duration, reason) {
         // 同步到主界面的通讯录
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (contactIndex !== -1) {
                 contacts[contactIndex].members = members;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
@@ -17622,11 +17622,11 @@ function setTitleByAI(memberId, title) {
         // 同步到主界面的通讯录
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const contactIndex = contacts.findIndex(c => c.id === groupInfo.id);
             if (contactIndex !== -1) {
                 contacts[contactIndex].members = members;
-                mainFrame.contentWindow.saveData('chatContacts', contacts);
+                mainFrame.contentWindow.saveData('dundun22_chatContacts', contacts);
             }
         }
         
@@ -17668,7 +17668,7 @@ window.dismissGroup = function() {
         }
         
         // 检查是否为群主
-        const myProfile = JSON.parse(localStorage.getItem('myProfile') || '{}');
+        const myProfile = JSON.parse(localStorage.getItem('dundun22_myProfile') || '{}');
         const currentUserId = myProfile.id || 'user_' + Date.now();
         const ownerId = groupInfo.owner;
         
@@ -17688,9 +17688,9 @@ window.dismissGroup = function() {
         // 1. 从主界面的通讯录中删除
         const mainFrame = document.querySelector('iframe');
         if (mainFrame && mainFrame.contentWindow) {
-            const contacts = mainFrame.contentWindow.getData('chatContacts') || [];
+            const contacts = mainFrame.contentWindow.getData('dundun22_chatContacts') || [];
             const filteredContacts = contacts.filter(c => c.id !== groupInfo.id);
-            mainFrame.contentWindow.saveData('chatContacts', filteredContacts);
+            mainFrame.contentWindow.saveData('dundun22_chatContacts', filteredContacts);
             console.log('✓ 已从通讯录删除');
             
             // 2. 从会话列表中删除
@@ -17711,20 +17711,20 @@ window.dismissGroup = function() {
         }
         
         // 4. 删除 localStorage 中的聊天记录（兼容旧格式）
-        localStorage.removeItem(`chat_${groupInfo.id}`);
+        localStorage.removeItem(`dundun22_chat_${groupInfo.id}`);
         console.log('✓ 已删除本地聊天记录');
         
         // 5. 删除聊天设置
-        localStorage.removeItem(`chat_config_${groupInfo.id}`);
+        localStorage.removeItem(`dundun22_chat_config_${groupInfo.id}`);
         console.log('✓ 已删除聊天设置');
         
         // 6. 删除记忆记录
-        localStorage.removeItem(`memory_records_${groupInfo.id}`);
+        localStorage.removeItem(`dundun22_memory_records_${groupInfo.id}`);
         console.log('✓ 已删除记忆记录');
         
         // 7. 删除旁白模式状态
-        localStorage.removeItem(`offlineMode_${groupInfo.id}`);
-        localStorage.removeItem(`offlineStartTime_${groupInfo.id}`);
+        localStorage.removeItem(`dundun22_offlineMode_${groupInfo.id}`);
+        localStorage.removeItem(`dundun22_offlineStartTime_${groupInfo.id}`);
         console.log('✓ 已删除旁白状态');
         
         // 8. 清除 sessionStorage 中的当前群聊信息
@@ -17830,10 +17830,10 @@ async function processPendingReplyTask() {
         return;
     }
     
-    const pendingTask = localStorage.getItem('pendingAIReply');
+    const pendingTask = localStorage.getItem('dundun22_pendingAIReply');
     
     if (!pendingTask) {
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         return;
     }
     
@@ -17844,15 +17844,15 @@ async function processPendingReplyTask() {
         
         if (task.status !== 'pending') {
             console.log('️ 任务状态不是 pending，跳过:', task.status);
-            localStorage.removeItem('pendingAIReply');
-            localStorage.removeItem('pendingAIReplyTrigger');
+            localStorage.removeItem('dundun22_pendingAIReply');
+            localStorage.removeItem('dundun22_pendingAIReplyTrigger');
             return;
         }
         
         // 🛡️ 关键修复：立即加锁并清除任务，防止竞态条件
         isProcessing = true;
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         console.log('🔒 任务已锁定并清除，防止重复处理');
         
         console.log('🎯 开始执行回复任务...');
@@ -17860,8 +17860,8 @@ async function processPendingReplyTask() {
     } catch (e) {
         console.error('❌ 处理任务失败:', e);
         // 失败时也确保清除
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         
         // 在聊天界面显示错误提示
         await showErrorInChat('AI回复失败，请稍后重试');
@@ -17874,12 +17874,12 @@ async function processPendingReplyTask() {
 async function executeReplyTask(task) {
     console.log('🚀 开始执行回复任务:', task.chatId);
     
-    const config = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+    const config = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
     
     if (!config.mainApi?.url || !config.mainApi?.token) {
         console.warn('⚠️ API配置不完整');
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         removeTypingIndicator();
         return;
     }
@@ -17892,23 +17892,23 @@ async function executeReplyTask(task) {
             console.log('✅ 从 IndexedDB 读取聊天记录:', messages.length, '条');
         } else {
             console.warn('⚠️ ChatDB 未加载');
-            localStorage.removeItem('pendingAIReply');
-            localStorage.removeItem('pendingAIReplyTrigger');
+            localStorage.removeItem('dundun22_pendingAIReply');
+            localStorage.removeItem('dundun22_pendingAIReplyTrigger');
             removeTypingIndicator();
             return;
         }
     } catch (e) {
         console.error('❌ 读取聊天记录失败:', e);
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         removeTypingIndicator();
         return;
     }
     
     if (!messages || messages.length === 0) {
         console.error('❌ 找不到聊天记录');
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         removeTypingIndicator();
         return;
     }
@@ -18007,7 +18007,7 @@ async function executeReplyTask(task) {
     
     // 🔥 读取记忆库（让角色记得重要的记忆）
     try {
-        const memoryKey = `memory_records_${task.chatId}`;
+        const memoryKey = `dundun22_memory_records_${task.chatId}`;
         const memoryRecords = JSON.parse(localStorage.getItem(memoryKey) || '[]');
         
         if (memoryRecords.length > 0) {
@@ -18028,17 +18028,17 @@ async function executeReplyTask(task) {
     
     // 📸 读取角色绑定的表情包分类
     try {
-        const roleKey = `persona_${localStorage.getItem('currentPersona') || 'default'}_roles`;
+        const roleKey = `dundun22_persona_${localStorage.getItem('dundun22_currentPersona') || 'default'}_roles`;
         const roles = JSON.parse(localStorage.getItem(roleKey) || '[]');
         const currentRole = roles.find(r => r.id === task.chatId);
         
         if (currentRole) {
             // 读取角色绑定的表情包分类
-            const emojiCategory = localStorage.getItem(`role_${task.chatId}_emoji_category`) || '';
+            const emojiCategory = localStorage.getItem(`dundun22_role_${task.chatId}_emoji_category`) || '';
             
             if (emojiCategory) {
                 // 从全局表情包库中获取该分类下的所有表情
-                const emojis = JSON.parse(localStorage.getItem('emojis') || '{"categories":["默认"],"items":{}}');
+                const emojis = JSON.parse(localStorage.getItem('dundun22_emojis') || '{"categories":["默认"],"items":{}}');
                 const categoryEmojis = emojis.items[emojiCategory] || [];
                 
                 if (categoryEmojis.length > 0) {
@@ -18061,7 +18061,7 @@ async function executeReplyTask(task) {
     }
     
     try {
-        const chatKey = `chat_config_${task.chatId}`;
+        const chatKey = `dundun22_chat_config_${task.chatId}`;
         const chatConfig = JSON.parse(localStorage.getItem(chatKey) || '{}');
         console.log('📋 聊天配置:', chatConfig);
         console.log('⏰ 时间感知开关状态:', chatConfig.timeAwareness);
@@ -18094,13 +18094,13 @@ async function executeReplyTask(task) {
     
     // 📸 注入朋友圈动态（让角色看到用户的朋友圈）
     try {
-        const currentPersona = localStorage.getItem('currentPersonaId') || 'default';
-        const momentsKey = `persona_${currentPersona}_moments`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+        const momentsKey = `dundun22_persona_${currentPersona}_moments`;
         const allMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
         
         if (allMoments && allMoments.length > 0) {
             // 获取当前用户的名字
-            const myProfile = JSON.parse(localStorage.getItem(`persona_${currentPersona}_myProfile`) || '{}');
+            const myProfile = JSON.parse(localStorage.getItem(`dundun22_persona_${currentPersona}_myProfile`) || '{}');
             // 🔴 优先使用真实姓名
             const userName = myProfile.realName || myProfile.name || '用户';
             
@@ -18129,7 +18129,7 @@ async function executeReplyTask(task) {
     }
     
     // 如果开启旁白模式，注入旁白指令（按联系人存储）
-    const offlineMode = localStorage.getItem('offlineMode_' + task.chatId);
+    const offlineMode = localStorage.getItem('dundun22_offlineMode_' + task.chatId);
     if (offlineMode === 'narration') {
         console.log('🎭 后台任务：旁白模式已激活！');
         
@@ -18317,7 +18317,7 @@ JSON必须**嵌入在对话中**，例如：
     
     // 🚫 自主拉黑：根据角色人设决定是否拒绝回复
     try {
-        const autorejectKey = `role_${task.chatId}_autoreject`;
+        const autorejectKey = `dundun22_role_${task.chatId}_autoreject`;
         const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
         
         if (autorejectSettings.enabled) {
@@ -18413,7 +18413,7 @@ JSON必须**嵌入在对话中**，例如：
             
             // 更新心情：拒绝后心情变差
             try {
-                const autorejectKey = `role_${task.chatId}_autoreject`;
+                const autorejectKey = `dundun22_role_${task.chatId}_autoreject`;
                 const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
                 autorejectSettings.mood = Math.max(0, autorejectSettings.mood - 5);
                 localStorage.setItem(autorejectKey, JSON.stringify(autorejectSettings));
@@ -18467,7 +18467,7 @@ JSON必须**嵌入在对话中**，例如：
         
         // 正常回复时，心情稍微变好
         try {
-            const autorejectKey = `role_${task.chatId}_autoreject`;
+            const autorejectKey = `dundun22_role_${task.chatId}_autoreject`;
             const autorejectSettings = JSON.parse(localStorage.getItem(autorejectKey) || '{"enabled":false,"probability":10,"mood":70}');
             if (autorejectSettings.enabled) {
                 autorejectSettings.mood = Math.min(100, autorejectSettings.mood + 2);
@@ -18628,7 +18628,7 @@ JSON必须**嵌入在对话中**，例如：
                         const userRequestsVoice = userContent.includes('语音') || userContent.includes('声音') || userContent.includes('听你');
                         
                         // 🛡️ 获取语音消息计数器
-                        const voiceCountKey = `voice_message_count_${task.chatId}`;
+                        const voiceCountKey = `dundun22_voice_message_count_${task.chatId}`;
                         let voiceCount = parseInt(localStorage.getItem(voiceCountKey) || '0');
                         
                         // 🛡️ 每 150 条消息才发送一次语音，除非用户明确要求
@@ -18735,7 +18735,7 @@ JSON必须**嵌入在对话中**，例如：
                 
                 // 保存订单到商城
                 try {
-                    const orders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+                    const orders = JSON.parse(localStorage.getItem('dundun22_shop_orders') || '[]');
                     orders.push({
                         id: 'order_' + Date.now(),
                         itemName: specialMessage.itemName || '商品',
@@ -18746,16 +18746,16 @@ JSON必须**嵌入在对话中**，例如：
                         remark: specialMessage.remark || '',
                         time: Date.now()
                     });
-                    localStorage.setItem('shop_orders', JSON.stringify(orders));
+                    localStorage.setItem('dundun22_shop_orders', JSON.stringify(orders));
                     console.log('✅ 订单已保存到商城');
                     
                     // 从购物车中移除已代付的商品
                     try {
-                        const cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+                        const cart = JSON.parse(localStorage.getItem('dundun22_shopCart') || '[]');
                         const itemName = specialMessage.itemName || '商品';
                         const newCart = cart.filter(item => item.name !== itemName);
                         if (newCart.length !== cart.length) {
-                            localStorage.setItem('shopCart', JSON.stringify(newCart));
+                            localStorage.setItem('dundun22_shopCart', JSON.stringify(newCart));
                             console.log('🛒 已从购物车移除:', itemName);
                         }
                     } catch (e) {
@@ -18797,7 +18797,7 @@ JSON必须**嵌入在对话中**，例如：
                 
                 // 保存外卖订单到商城
                 try {
-                    const orders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+                    const orders = JSON.parse(localStorage.getItem('dundun22_shop_orders') || '[]');
                     const orderItems = (specialMessage.items || []).map(item => `${item.name}x${item.quantity || 1}`).join(', ');
                     orders.push({
                         id: 'order_' + Date.now(),
@@ -18810,7 +18810,7 @@ JSON必须**嵌入在对话中**，例如：
                         time: Date.now(),
                         isDelivery: true
                     });
-                    localStorage.setItem('shop_orders', JSON.stringify(orders));
+                    localStorage.setItem('dundun22_shop_orders', JSON.stringify(orders));
                     console.log('✅ 外卖订单已保存到商城');
                 } catch (e) {
                     console.error('保存外卖订单失败:', e);
@@ -18860,7 +18860,7 @@ JSON必须**嵌入在对话中**，例如：
                 console.log('🛒 后台任务：添加代买卡片:', specialMsg.content);
                 
                 try {
-                    const orders = JSON.parse(localStorage.getItem('shop_orders') || '[]');
+                    const orders = JSON.parse(localStorage.getItem('dundun22_shop_orders') || '[]');
                     const purchaseItems = (specialMessage.items || []).map(item => `${item.name}x${item.quantity || 1}`).join(', ');
                     orders.push({
                         id: 'order_' + Date.now(),
@@ -18873,7 +18873,7 @@ JSON必须**嵌入在对话中**，例如：
                         time: Date.now(),
                         isPurchase: true
                     });
-                    localStorage.setItem('shop_orders', JSON.stringify(orders));
+                    localStorage.setItem('dundun22_shop_orders', JSON.stringify(orders));
                     console.log('✅ 代买订单已保存到商城');
                 } catch (e) {
                     console.error('保存代买订单失败:', e);
@@ -18896,7 +18896,7 @@ JSON必须**嵌入在对话中**，例如：
                 try {
                     const mainFrame = document.querySelector('iframe');
                     if (mainFrame && mainFrame.contentWindow && mainFrame.contentWindow.receiveFamilyCard) {
-                        const currentChatName = localStorage.getItem('currentChatName_' + task.chatId) || '角色';
+                        const currentChatName = localStorage.getItem('dundun22_currentChatName_' + task.chatId) || '角色';
                         mainFrame.contentWindow.receiveFamilyCard(currentChatName, parseFloat(specialMessage.limit));
                     }
                 } catch (e) {
@@ -18972,15 +18972,15 @@ JSON必须**嵌入在对话中**，例如：
                 // 接受邀请
                 const inviterName = pendingInvite.inviter || '对方';
                 const inviteeId = pendingInvite.inviteeId || task.chatId;
-                const currentUserName = localStorage.getItem('userName') || '我';
+                const currentUserName = localStorage.getItem('dundun22_userName') || '我';
                 
                 // 获取对方的头像和名字
                 let partnerAvatar = '';
                 let partnerName = inviterName;
                 let myAvatar = ''; // 💕 获取用户的头像
                 try {
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     const contact = contacts.find(c => c.id === inviteeId);
                     if (contact) {
@@ -18989,7 +18989,7 @@ JSON必须**嵌入在对话中**，例如：
                     }
                     
                     // 获取用户自己的头像（从 myProfile 中读取）
-                    const profileKey = `persona_${currentPersona}_myProfile`;
+                    const profileKey = `dundun22_persona_${currentPersona}_myProfile`;
                     const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
                     myAvatar = profile.avatar || '';
                     console.log('💕 后台任务：获取用户头像:', myAvatar, 'from', profileKey);
@@ -18998,7 +18998,7 @@ JSON必须**嵌入在对话中**，例如：
                 }
                 
                 // 保存到数组中（couple-space.html 从这里读取）
-                const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+                const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
                 const existingIndex = couples.findIndex(c => c.id === inviteeId);
                 
                 const coupleData = {
@@ -19018,8 +19018,8 @@ JSON必须**嵌入在对话中**，例如：
                     couples.push(coupleData);
                 }
                 
-                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
-                localStorage.setItem('coupleSpace', JSON.stringify(coupleData));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
+                localStorage.setItem('dundun22_coupleSpace', JSON.stringify(coupleData));
                 
                 // 更新邀请消息状态
                 pendingInvite.status = 'accepted';
@@ -19069,7 +19069,7 @@ JSON必须**嵌入在对话中**，例如：
                 });
                 
                 window.ChatDB.saveMessages(task.chatId, updatedCompressed);
-                const key = `chat_${task.chatId}`;
+                const key = `dundun22_chat_${task.chatId}`;
                 localStorage.setItem(key, JSON.stringify(updatedCompressed));
                 
                 console.log('💕 后台任务：情侣空间已激活并接受，接受卡片已添加');
@@ -19174,8 +19174,8 @@ JSON必须**嵌入在对话中**，例如：
         removeTypingIndicator();
         
         // 清除任务
-        localStorage.removeItem('pendingAIReply');
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.removeItem('dundun22_pendingAIReply');
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         console.log('💾 消息已全部发送完毕，任务已清除');
         
         // 📝 检查是否需要自动总结（延迟500ms，确保消息已保存）
@@ -19210,8 +19210,8 @@ JSON必须**嵌入在对话中**，例如：
         console.error('❌ 生成AI回复失败:', error);
         task.status = 'failed';
         task.error = error.message;
-        localStorage.setItem('pendingAIReply', JSON.stringify(task));
-        localStorage.removeItem('pendingAIReplyTrigger');
+        localStorage.setItem('dundun22_pendingAIReply', JSON.stringify(task));
+        localStorage.removeItem('dundun22_pendingAIReplyTrigger');
         removeTypingIndicator();
         
         // 不在这里显示错误，让 processPendingReplyTask 统一处理
@@ -19235,8 +19235,8 @@ if (document.readyState === 'loading') {
 async function checkMomentsAutoUpdate() {
     try {
         // 获取所有联系人 - 使用正确的 key
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         
         if (!contacts || contacts.length === 0) {
@@ -19261,7 +19261,7 @@ async function checkMomentsAutoUpdate() {
             }
             
             // 获取上次更新时间
-            const lastUpdateTimeKey = `moments_last_update_${contactId}`;
+            const lastUpdateTimeKey = `dundun22_moments_last_update_${contactId}`;
             const lastUpdateTime = parseInt(localStorage.getItem(lastUpdateTimeKey) || '0');
             
             // 计算时间间隔（毫秒）
@@ -19364,8 +19364,8 @@ async function generateMomentForContact(contact) {
         // 获取 API 配置 - 兼容两种格式
         let apiConfig;
         let savedModel = ''; // 保存模型字段
-        const apiConfigStr = localStorage.getItem('apiConfig');
-        const globalApiConfigStr = localStorage.getItem('globalApiConfig');
+        const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
+        const globalApiConfigStr = localStorage.getItem('dundun22_globalApiConfig');
         
         if (apiConfigStr) {
             apiConfig = JSON.parse(apiConfigStr);
@@ -19438,7 +19438,7 @@ async function generateMomentForContact(contact) {
         else timeOfDay = '深夜';
         
         // 获取最近的聊天记录作为上下文
-        const messagesKey = `chat_${contactId}_messages`;
+        const messagesKey = `dundun22_chat_${contactId}_messages`;
         const messages = JSON.parse(localStorage.getItem(messagesKey) || '[]');
         let recentChatContext = '';
         
@@ -19503,7 +19503,7 @@ ${recentChatContext}
         console.log('✅ AI 生成的朋友圈内容:', momentContent.substring(0, 100));
         
         // 保存朋友圈到 localStorage
-        const momentsKey = `moments_${contactId}`;
+        const momentsKey = `dundun22_moments_${contactId}`;
         const existingMoments = JSON.parse(localStorage.getItem(momentsKey) || '[]');
         
         // 创建新的朋友圈记录
@@ -19530,8 +19530,8 @@ ${recentChatContext}
                 
         // 同时保存到全局朋友圈列表（供朋友圈 APP 显示）
         // 使用带人设前缀的 key，与 chat-app.js 的 getData('moments') 保持一致
-        const currentPersona = localStorage.getItem('currentPersonaId') || 'default';
-        const globalMomentsKey = `persona_${currentPersona}_moments`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+        const globalMomentsKey = `dundun22_persona_${currentPersona}_moments`;
         const globalMoments = JSON.parse(localStorage.getItem(globalMomentsKey) || '[]');
                 
         // 检查是否已存在（避免重复）
@@ -19557,7 +19557,7 @@ ${recentChatContext}
         console.log(`✅ 已保存朋友圈，当前共有 ${existingMoments.length} 条`);
                 
         // 📮 触发 storage 事件，通知朋友圈页面刷新
-        localStorage.setItem('moments_updated', Date.now().toString());
+        localStorage.setItem('dundun22_moments_updated', Date.now().toString());
                 
         // 🔄 触发朋友圈刷新事件（通知朋友圈页面重新渲染）
         try {
@@ -19605,7 +19605,7 @@ ${recentChatContext}
         }
                 
         // 也触发 storage 事件，让其他监听器能响应
-        localStorage.setItem('moments_updated', JSON.stringify({
+        localStorage.setItem('dundun22_moments_updated', JSON.stringify({
             contactId: contactId,
             momentId: newMoment.id,
             timestamp: now.getTime()
@@ -19621,7 +19621,7 @@ ${recentChatContext}
 
 // 监听 storage 事件，立即响应新任务
 window.addEventListener('storage', (e) => {
-    if (e.key === 'pendingAIReplyTrigger') {
+    if (e.key === 'dundun22_pendingAIReplyTrigger') {
         console.log('🚀 检测到新任务触发器，立即处理');
         // 使用锁防止重复处理
         if (!isProcessing) {
@@ -19652,7 +19652,7 @@ window.addEventListener('storage', (e) => {
 let hasPendingTask = false;
 window.addEventListener('visibilitychange', () => {
     // 检查是否有待处理的任务
-    const pendingTask = localStorage.getItem('pendingAIReply');
+    const pendingTask = localStorage.getItem('dundun22_pendingAIReply');
     if (pendingTask) {
         try {
             const task = JSON.parse(pendingTask);
@@ -19680,10 +19680,10 @@ async function updateUnreadCount(chatId, newMessages) {
         console.log(`🔔 更新未读消息计数: chatId=${chatId}, newMessages=${newMessages}`);
         
         // 获取当前人设
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
         
         // 读取会话列表
-        const conversationsKey = `persona_${currentPersona}_chatConversations`;
+        const conversationsKey = `dundun22_persona_${currentPersona}_chatConversations`;
         const conversations = JSON.parse(localStorage.getItem(conversationsKey) || '[]');
         
         // 查找对应的会话
@@ -19709,7 +19709,7 @@ async function updateUnreadCount(chatId, newMessages) {
         localStorage.setItem(conversationsKey, JSON.stringify(conversations));
         
         // 触发 storage 事件，通知主页面更新 UI
-        localStorage.setItem('unreadCountUpdated', JSON.stringify({
+        localStorage.setItem('dundun22_unreadCountUpdated', JSON.stringify({
             chatId: chatId,
             unread: conversation.unread,
             timestamp: Date.now()
@@ -19882,8 +19882,8 @@ window.rejectPayment = async function(messageId) {
 // 🛡️ 进入聊天界面时清除未读计数
 function clearUnreadCountOnEnter(chatId) {
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const conversationsKey = `persona_${currentPersona}_chatConversations`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const conversationsKey = `dundun22_persona_${currentPersona}_chatConversations`;
         const conversations = JSON.parse(localStorage.getItem(conversationsKey) || '[]');
         
         const conversation = conversations.find(c => c.id === chatId);
@@ -19901,7 +19901,7 @@ function clearUnreadCountOnEnter(chatId) {
             localStorage.setItem(conversationsKey, JSON.stringify(conversations));
             
             // 触发 storage 事件，通知主页面更新 UI
-            localStorage.setItem('unreadCountUpdated', JSON.stringify({
+            localStorage.setItem('dundun22_unreadCountUpdated', JSON.stringify({
                 chatId: chatId,
                 unread: 0,
                 timestamp: Date.now()
@@ -19935,13 +19935,13 @@ window.acceptReadingInvite = function(msgId) {
         renderMessages(true);
         
         // 更新书架中的邀请状态
-        const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+        const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
         const book = books.find(b => b.id === msg.bookId);
         if (book) {
             book.inviteStatus = 'accepted';
             book.acceptedAt = new Date().toISOString();
             book.currentChapter = 0; // 从头开始阅读
-            localStorage.setItem('myBooks', JSON.stringify(books));
+            localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
         }
         
         showToast('已接受邀请，开始一起阅读！');
@@ -19974,11 +19974,11 @@ window.rejectReadingInvite = function(msgId) {
         renderMessages(true);
         
         // 更新书架中的邀请状态
-        const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+        const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
         const book = books.find(b => b.id === msg.bookId);
         if (book) {
             book.inviteStatus = 'rejected';
-            localStorage.setItem('myBooks', JSON.stringify(books));
+            localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
         }
         
         showToast('已拒绝邀请');
@@ -20047,22 +20047,22 @@ window.requestReadingInviteResponse = async function(msgId) {
             
             // 如果接受了邀请，更新书架中的状态
             if (isAccepted) {
-                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
                 const book = books.find(b => b.id === msg.bookId);
                 if (book) {
                     book.inviteStatus = 'accepted';
                     book.acceptedAt = new Date().toISOString();
                     book.currentChapter = 0;
-                    localStorage.setItem('myBooks', JSON.stringify(books));
+                    localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 }
                 
                 showToast('角色接受了邀请！');
             } else {
-                const books = JSON.parse(localStorage.getItem('myBooks') || '[]');
+                const books = JSON.parse(localStorage.getItem('dundun22_myBooks') || '[]');
                 const book = books.find(b => b.id === msg.bookId);
                 if (book) {
                     book.inviteStatus = 'rejected';
-                    localStorage.setItem('myBooks', JSON.stringify(books));
+                    localStorage.setItem('dundun22_myBooks', JSON.stringify(books));
                 }
                 
                 showToast('角色拒绝了邀请');
@@ -20080,8 +20080,8 @@ window.requestReadingInviteResponse = async function(msgId) {
 // 🎯 加载用户个人资料
 function loadUserProfile() {
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const myProfileKey = `persona_${currentPersona}_myProfile`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
         const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
         
         // 填充昵称
@@ -20122,8 +20122,8 @@ window.saveUserProfile = function() {
         }
         
         // 获取当前人设
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const myProfileKey = `persona_${currentPersona}_myProfile`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
         const myProfile = JSON.parse(localStorage.getItem(myProfileKey) || '{}');
         
         // 更新资料
@@ -20148,8 +20148,8 @@ window.deleteUserProfile = async function() {
     if (!confirmed) return;
     
     try {
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const myProfileKey = `persona_${currentPersona}_myProfile`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const myProfileKey = `dundun22_persona_${currentPersona}_myProfile`;
         
         // 清空资料
         const myProfile = {
@@ -20419,7 +20419,7 @@ function handleNetworkChange() {
  * 检查待处理消息
  */
 function checkPendingMessages() {
-    const pendingTask = localStorage.getItem('pendingAIReply');
+    const pendingTask = localStorage.getItem('dundun22_pendingAIReply');
     if (pendingTask) {
         console.log('[KeepAlive] 📨 发现待处理任务，触发后台同步');
         // 触发 Service Worker 处理
@@ -20491,7 +20491,7 @@ function setCheckPhoneMode(mode) {
         
         // 更新授权状态UI
         const chatId = currentChatId;
-        const savedAuth = localStorage.getItem(`check_phone_auth_${chatId}`);
+        const savedAuth = localStorage.getItem(`dundun22_check_phone_auth_${chatId}`);
         updateAuthorizationUI(savedAuth === 'true');
     }
 }
@@ -20653,17 +20653,17 @@ async function toggleBannerNotification() {
         }
 
         startNotificationPoll();
-        localStorage.setItem('keepalive_notification_enabled', 'true');
+        localStorage.setItem('dundun22_keepalive_notification_enabled', 'true');
         if (window.showToast) showToast('横幅通知已开启，离开页面时会弹窗提醒', 'success');
     } else {
         stopNotificationPoll();
-        localStorage.setItem('keepalive_notification_enabled', 'false');
+        localStorage.setItem('dundun22_keepalive_notification_enabled', 'false');
         if (window.showToast) showToast('横幅通知已关闭', 'success');
     }
 }
 
 function loadNotificationSetting() {
-    const saved = localStorage.getItem('keepalive_notification_enabled');
+    const saved = localStorage.getItem('dundun22_keepalive_notification_enabled');
     const checkbox = document.getElementById('settings-notification-enabled');
     if (checkbox && saved === 'true') {
         checkbox.checked = true;
@@ -20686,8 +20686,8 @@ function loadSettingsEmojiCategories() {
     if (!selectElement) return;
     
     //  关键修复：读取带人设前缀的表情包数据
-    const personaId = localStorage.getItem('currentPersonaId') || 'default';
-    const emojisKey = `persona_${personaId}_emojis`;
+    const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+    const emojisKey = `dundun22_persona_${personaId}_emojis`;
     
     console.log('📸 [loadSettingsEmojiCategories] 人设ID:', personaId);
     console.log('📸 [loadSettingsEmojiCategories] 表情包键:', emojisKey);
@@ -20698,7 +20698,7 @@ function loadSettingsEmojiCategories() {
     // 如果带前缀的键为空，尝试不带前缀的键（向后兼容）
     if (!emojisStr) {
         console.log(' [loadSettingsEmojiCategories] 带前缀的键为空，尝试不带前缀的键...');
-        emojisStr = localStorage.getItem('emojis');
+        emojisStr = localStorage.getItem('dundun22_emojis');
         if (emojisStr) {
             console.log('📸 [loadSettingsEmojiCategories] 从不带前缀的键读取成功');
         }
@@ -20709,7 +20709,7 @@ function loadSettingsEmojiCategories() {
     console.log('📸 [loadSettingsEmojiCategories] 分类列表:', emojis.categories);
     
     const chatId = currentChatId;
-    const currentCategory = localStorage.getItem(`role_${chatId}_emoji_category`) || '';
+    const currentCategory = localStorage.getItem(`dundun22_role_${chatId}_emoji_category`) || '';
     console.log('📸 [loadSettingsEmojiCategories] 当前角色:', chatId, '当前绑定:', currentCategory);
     
     // 清空选项
@@ -20746,9 +20746,9 @@ window.updateSettingsEmojiPreview = function() {
     const selectedCategory = selectElement.value;
     
     // 读取带人设前缀的表情包数据
-    const personaId = localStorage.getItem('currentPersonaId') || 'default';
-    const emojisKey = `persona_${personaId}_emojis`;
-    const emojisStr = localStorage.getItem(emojisKey) || localStorage.getItem('emojis');
+    const personaId = localStorage.getItem('dundun22_currentPersonaId') || 'default';
+    const emojisKey = `dundun22_persona_${personaId}_emojis`;
+    const emojisStr = localStorage.getItem(emojisKey) || localStorage.getItem('dundun22_emojis');
     const emojis = JSON.parse(emojisStr || '{"categories":["默认"],"items":{}}');
     
     if (!selectedCategory) {
@@ -20790,8 +20790,8 @@ window.addEventListener('message', function(event) {
         console.log('🔓 角色名称:', data.checkerName);
         
         // 清除标志
-        localStorage.removeItem('phone_being_checked');
-        localStorage.removeItem('phone_checker_name');
+        localStorage.removeItem('dundun22_phone_being_checked');
+        localStorage.removeItem('dundun22_phone_checker_name');
         
         // 显示提示
         showToast(`已从 ${data.checkerName} 手中夺回账号`, 'success');

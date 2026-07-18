@@ -18,7 +18,7 @@ function renderWorldbookList() {
     if (!container) return;
     
     // 获取世界书列表
-    const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+    const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
     
     console.log('世界书列表:', worldbooks);
     
@@ -120,7 +120,7 @@ window.saveNewWorldbook = function() {
         }
         
         // 获取现有世界书列表
-        const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+        const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
         
         // 创建新世界书
         const newWorldbook = {
@@ -136,7 +136,7 @@ window.saveNewWorldbook = function() {
         worldbooks.push(newWorldbook);
         
         // 保存到 localStorage
-        localStorage.setItem('worldbooks', JSON.stringify(worldbooks));
+        localStorage.setItem('dundun22_worldbooks', JSON.stringify(worldbooks));
         
         console.log('✓ 世界书创建成功:', newWorldbook);
         
@@ -155,7 +155,7 @@ window.saveNewWorldbook = function() {
 
 // 编辑世界书
 window.editWorldbook = function(worldbookId) {
-    const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+    const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
     const wb = worldbooks.find(w => w.id === worldbookId);
     
     if (!wb) {
@@ -208,7 +208,7 @@ window.updateWorldbook = function(worldbookId) {
         }
         
         // 获取世界书列表
-        const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+        const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
         const wbIndex = worldbooks.findIndex(w => w.id === worldbookId);
         
         if (wbIndex === -1) {
@@ -223,7 +223,7 @@ window.updateWorldbook = function(worldbookId) {
         worldbooks[wbIndex].updatedAt = Date.now();
         
         // 保存
-        localStorage.setItem('worldbooks', JSON.stringify(worldbooks));
+        localStorage.setItem('dundun22_worldbooks', JSON.stringify(worldbooks));
         
         console.log('✓ 世界书更新成功');
         
@@ -248,11 +248,11 @@ window.deleteWorldbook = function(worldbookId) {
     
     try {
         // 获取世界书列表
-        const worldbooks = JSON.parse(localStorage.getItem('worldbooks') || '[]');
+        const worldbooks = JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]');
         const filteredWorldbooks = worldbooks.filter(w => w.id !== worldbookId);
         
         // 保存
-        localStorage.setItem('worldbooks', JSON.stringify(filteredWorldbooks));
+        localStorage.setItem('dundun22_worldbooks', JSON.stringify(filteredWorldbooks));
         
         console.log('✓ 世界书已删除');
         

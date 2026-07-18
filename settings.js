@@ -31,14 +31,14 @@ document.addEventListener('click', function(e) {
         // 实时更新全局配置并通知父窗口
         setTimeout(() => {
             const isEnabled = apiFabSwitch.classList.contains('active');
-            const globalConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+            const globalConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
             
             if (!globalConfig.notification) {
                 globalConfig.notification = {};
             }
             globalConfig.notification.apiFabEnabled = isEnabled;
             
-            localStorage.setItem('globalApiConfig', JSON.stringify(globalConfig));
+            localStorage.setItem('dundun22_globalApiConfig', JSON.stringify(globalConfig));
             
             // 如果是在 iframe 中，通知父窗口
             if (window.parent && window.parent !== window && window.parent.updateGlobalApiFab) {
@@ -80,7 +80,7 @@ document.addEventListener('click', function(e) {
             if (bannerSection) {
                 bannerSection.style.display = isActive ? 'block' : 'none';
             }
-            localStorage.setItem('banner-notification-enabled', isActive ? 'true' : 'false');
+            localStorage.setItem('dundun22_banner-notification-enabled', isActive ? 'true' : 'false');
             if (isActive && typeof toggleBannerNotification === 'function') {
                 toggleBannerNotification();
             }
@@ -226,7 +226,7 @@ function showToast(msg, type = 'success') {
 // ==============================================
 function getAllPresets() {
     try {
-        return JSON.parse(localStorage.getItem('apiPresets') || '[]');
+        return JSON.parse(localStorage.getItem('dundun22_apiPresets') || '[]');
     } catch (e) {
         return [];
     }
@@ -399,7 +399,7 @@ function saveCurrentPreset() {
             config: cfg,
             time: new Date().toLocaleString()
         });
-        localStorage.setItem('apiPresets', JSON.stringify(list));
+        localStorage.setItem('dundun22_apiPresets', JSON.stringify(list));
         renderPresetList();
         showToast('✅ 预设保存成功', 'success');
         close();
@@ -492,7 +492,7 @@ function deletePreset(id) {
     if (!p) return;
     if (!confirm(`确定删除「${p.name}」？`)) return;
     list = list.filter(x => x.id !== id);
-    localStorage.setItem('apiPresets', JSON.stringify(list));
+    localStorage.setItem('dundun22_apiPresets', JSON.stringify(list));
     renderPresetList();
     showToast('✅ 已删除', 'success');
 }
@@ -686,7 +686,7 @@ function saveAllSettings() {
         };
 
         window.globalApiConfig = config;
-        localStorage.setItem('globalApiConfig', JSON.stringify(config));
+        localStorage.setItem('dundun22_globalApiConfig', JSON.stringify(config));
         
         // 通知父窗口更新悬浮球状态
         if (window.parent && window.parent !== window && window.parent.updateGlobalApiFab) {
@@ -746,7 +746,7 @@ function saveImageGenSettings() {
         // 保存到 localStorage
         const configStr = JSON.stringify(window.globalApiConfig);
         console.log('保存的生图配置:', configStr);
-        localStorage.setItem('globalApiConfig', configStr);
+        localStorage.setItem('dundun22_globalApiConfig', configStr);
         
         // 显示成功提示
         console.log('显示成功提示');
@@ -761,7 +761,7 @@ function saveImageGenSettings() {
 // 加载配置（每次显示设置页面时都会调用）
 // ==============================================
 window.reloadApiSettings = function() {
-    const saved = localStorage.getItem('globalApiConfig');
+    const saved = localStorage.getItem('dundun22_globalApiConfig');
     if (!saved) {
         console.log('⚠️ 没有找到保存的 API 配置');
         return;
@@ -949,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 保存到 localStorage
             const configStr = JSON.stringify(window.globalApiConfig);
             console.log('保存的配置:', configStr);
-            localStorage.setItem('globalApiConfig', configStr);
+            localStorage.setItem('dundun22_globalApiConfig', configStr);
             
             // 显示成功提示
             console.log('显示成功提示');
@@ -987,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 保存到 localStorage
             const configStr = JSON.stringify(window.globalApiConfig);
             console.log('保存的配置:', configStr);
-            localStorage.setItem('globalApiConfig', configStr);
+            localStorage.setItem('dundun22_globalApiConfig', configStr);
             
             // 显示成功提示
             console.log('显示成功提示');
@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 保存到 localStorage
             const configStr = JSON.stringify(window.globalApiConfig);
             console.log('保存的生图配置:', configStr);
-            localStorage.setItem('globalApiConfig', configStr);
+            localStorage.setItem('dundun22_globalApiConfig', configStr);
             
             // 显示成功提示
             console.log('显示成功提示');
@@ -1057,23 +1057,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 const exportData = {
                     version: '1.0',
                     exportTime: new Date().toISOString(),
-                    chatContacts: JSON.parse(localStorage.getItem('chatContacts') || '[]'),
-                    chatConversations: JSON.parse(localStorage.getItem('chatConversations') || '[]'),
-                    myProfile: JSON.parse(localStorage.getItem('myProfile') || '{}'),
-                    worldbooks: JSON.parse(localStorage.getItem('worldbooks') || '[]'),
-                    allPersonas: JSON.parse(localStorage.getItem('allPersonas') || '[]'),
-                    currentPersonaId: localStorage.getItem('currentPersonaId') || 'default'
+                    chatContacts: JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]'),
+                    chatConversations: JSON.parse(localStorage.getItem('dundun22_chatConversations') || '[]'),
+                    myProfile: JSON.parse(localStorage.getItem('dundun22_myProfile') || '{}'),
+                    worldbooks: JSON.parse(localStorage.getItem('dundun22_worldbooks') || '[]'),
+                    allPersonas: JSON.parse(localStorage.getItem('dundun22_allPersonas') || '[]'),
+                    currentPersonaId: localStorage.getItem('dundun22_currentPersonaId') || 'default'
                 };
                 
                 // 收集所有人设的聊天记录
                 const allPersonas = exportData.allPersonas;
                 allPersonas.forEach(persona => {
                     const personaId = persona.id;
-                    exportData[`persona_${personaId}_chatContacts`] = JSON.parse(localStorage.getItem(`persona_${personaId}_chatContacts`) || '[]');
-                    exportData[`persona_${personaId}_chatConversations`] = JSON.parse(localStorage.getItem(`persona_${personaId}_chatConversations`) || '[]');
+                    exportData[`dundun22_persona_${personaId}_chatContacts`] = JSON.parse(localStorage.getItem(`dundun22_persona_${personaId}_chatContacts`) || '[]');
+                    exportData[`dundun22_persona_${personaId}_chatConversations`] = JSON.parse(localStorage.getItem(`dundun22_persona_${personaId}_chatConversations`) || '[]');
                     
                     // 收集该人设的所有聊天记录
-                    const chatKeys = Object.keys(localStorage).filter(k => k.startsWith(`chat_`) && !k.includes('persona_'));
+                    const chatKeys = Object.keys(localStorage).filter(k => k.startsWith(`dundun22_chat_`) && !k.includes('persona_'));
                     chatKeys.forEach(key => {
                         exportData[key] = JSON.parse(localStorage.getItem(key) || '[]');
                     });
@@ -1084,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `chat_backup_${new Date().getTime()}.json`;
+                a.download = `dundun22_chat_backup_${new Date().getTime()}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1127,12 +1127,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         // 导入数据
-                        if (importData.chatContacts) localStorage.setItem('chatContacts', JSON.stringify(importData.chatContacts));
-                        if (importData.chatConversations) localStorage.setItem('chatConversations', JSON.stringify(importData.chatConversations));
-                        if (importData.myProfile) localStorage.setItem('myProfile', JSON.stringify(importData.myProfile));
-                        if (importData.worldbooks) localStorage.setItem('worldbooks', JSON.stringify(importData.worldbooks));
-                        if (importData.allPersonas) localStorage.setItem('allPersonas', JSON.stringify(importData.allPersonas));
-                        if (importData.currentPersonaId) localStorage.setItem('currentPersonaId', importData.currentPersonaId);
+                        if (importData.chatContacts) localStorage.setItem('dundun22_chatContacts', JSON.stringify(importData.chatContacts));
+                        if (importData.chatConversations) localStorage.setItem('dundun22_chatConversations', JSON.stringify(importData.chatConversations));
+                        if (importData.myProfile) localStorage.setItem('dundun22_myProfile', JSON.stringify(importData.myProfile));
+                        if (importData.worldbooks) localStorage.setItem('dundun22_worldbooks', JSON.stringify(importData.worldbooks));
+                        if (importData.allPersonas) localStorage.setItem('dundun22_allPersonas', JSON.stringify(importData.allPersonas));
+                        if (importData.currentPersonaId) localStorage.setItem('dundun22_currentPersonaId', importData.currentPersonaId);
                         
                         // 导入人设相关数据
                         Object.keys(importData).forEach(key => {
@@ -1170,10 +1170,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const keysToRemove = Object.keys(localStorage).filter(k => 
                         k.startsWith('chat_') || 
                         k.startsWith('persona_') ||
-                        k === 'chatContacts' ||
+                        k === 'dundun22_chatContacts' ||
                         k === 'chatConversations' ||
                         k === 'worldbooks' ||
-                        k === 'allPersonas'
+                        k === 'dundun22_allPersonas'
                     );
                     
                     keysToRemove.forEach(key => localStorage.removeItem(key));
@@ -1526,10 +1526,10 @@ window.toggleBannerNotification = async function() {
             return;
         }
 
-        localStorage.setItem('keepalive_notification_enabled', 'true');
+        localStorage.setItem('dundun22_keepalive_notification_enabled', 'true');
         if (window.showToast) showToast('横幅通知已开启，离开页面时会弹窗提醒', 'success');
     } else {
-        localStorage.setItem('keepalive_notification_enabled', 'false');
+        localStorage.setItem('dundun22_keepalive_notification_enabled', 'false');
         if (window.showToast) showToast('横幅通知已关闭', 'success');
     }
 };
@@ -1721,7 +1721,7 @@ const LANGUAGES = {
 
 // 获取当前语言
 function getCurrentLanguage() {
-    return localStorage.getItem('app-language') || 'zh-CN';
+    return localStorage.getItem('dundun22_app-language') || 'zh-CN';
 }
 
 // 获取翻译文本
@@ -1732,7 +1732,7 @@ function t(key) {
 
 // 应用语言到界面
 function applyLanguage(lang) {
-    localStorage.setItem('app-language', lang);
+    localStorage.setItem('dundun22_app-language', lang);
     document.documentElement.lang = lang;
 
     // 更新设置页面标题

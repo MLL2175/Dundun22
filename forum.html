@@ -1488,7 +1488,7 @@
 
     <script>
         // 读取全局API配置
-        const globalConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+        const globalConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
         
         // 存储键名
         const FORUM_POSTS_KEY = 'forum_posts';
@@ -1723,8 +1723,8 @@
             let avatarStyle = '';
             let avatarClass = 'post-avatar';
                         
-            if (post.author === '我' || post.author === (JSON.parse(localStorage.getItem('forum_user_profile') || '{}').name || '我')) {
-                const profile = JSON.parse(localStorage.getItem('forum_user_profile') || '{}');
+            if (post.author === '我' || post.author === (JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}').name || '我')) {
+                const profile = JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}');
                 if (profile.avatar) {
                     avatarContent = '<img src="' + profile.avatar + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">';
                 } else {
@@ -1801,7 +1801,7 @@
             const posts = JSON.parse(localStorage.getItem(FORUM_POSTS_KEY) || '[]');
             
             // 获取用户资料
-            const profile = JSON.parse(localStorage.getItem('forum_user_profile') || '{}');
+            const profile = JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}');
             const userName = profile.name || '我';
             
             const newPost = {
@@ -1852,7 +1852,7 @@
             }
             
             // 获取所有角色
-            const characters = JSON.parse(localStorage.getItem('characters') || '[]');
+            const characters = JSON.parse(localStorage.getItem('dundun22_characters') || '[]');
             
             if (characters.length === 0) {
                 alert('还没有创建角色，请先去创建角色');
@@ -2517,7 +2517,7 @@
 
         // 打开编辑资料
         function editProfile() {
-            const profile = JSON.parse(localStorage.getItem('forum_user_profile') || '{}');
+            const profile = JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}');
             document.getElementById('edit-name').value = profile.name || '我的论坛';
             document.getElementById('edit-bio').value = profile.bio || '分享生活，记录美好';
             
@@ -2610,7 +2610,7 @@
                 avatar: avatar
             };
 
-            localStorage.setItem('forum_user_profile', JSON.stringify(profile));
+            localStorage.setItem('dundun22_forum_user_profile', JSON.stringify(profile));
             
             // 更新显示
             updateProfileDisplay();
@@ -2621,7 +2621,7 @@
 
         // 更新资料展示
         function updateProfileDisplay() {
-            const profile = JSON.parse(localStorage.getItem('forum_user_profile') || '{}');
+            const profile = JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}');
             const name = profile.name || '我的论坛';
             const bio = profile.bio || '分享生活，记录美好';
             const avatar = profile.avatar;
@@ -2696,7 +2696,7 @@
                 // 循环生成指定数量的帖子
                 for (let i = 0; i < postCount; i++) {
                     // 获取用户资料作为上下文
-                    const profile = JSON.parse(localStorage.getItem('forum_user_profile') || '{}');
+                    const profile = JSON.parse(localStorage.getItem('dundun22_forum_user_profile') || '{}');
                     const userName = profile.name || '我';
 
                     // 虚拟用户名称列表
@@ -3059,7 +3059,7 @@
                 alert('✅ 已发布「' + fakeUserName + '」的帖子（模拟数据）');
                 
                 const errorMsg = error.message.includes('API Key') ? 
-                    '⚠️ 请先在控制台配置API Key（localStorage.setItem("minimax_api_key", "你的密钥")）' :
+                    '⚠️ 请先在控制台配置API Key（localStorage.setItem("dundun22_minimax_api_key", "你的密钥")）' :
                     '⚠️ API调用失败：' + error.message + '。已使用模拟数据。';
                 alert(errorMsg);
             } finally {
@@ -3076,7 +3076,7 @@
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [论坛] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html

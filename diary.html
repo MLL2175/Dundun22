@@ -1502,7 +1502,7 @@
 
         // 加载日记列表
         function loadDiaryList() {
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const listEl = document.getElementById('diary-list');
 
             if (diaries.length === 0) {
@@ -1571,8 +1571,8 @@
 
         // 加载角色选择器
         function loadCharacterSelect() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             const selectEl = document.getElementById('diary-author');
@@ -1607,7 +1607,7 @@
                 return;
             }
 
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
 
             if (editingDiaryId) {
                 // 编辑模式
@@ -1636,15 +1636,15 @@
                 diaries.push(newDiary);
             }
 
-            localStorage.setItem('diaries', JSON.stringify(diaries));
+            localStorage.setItem('dundun22_diaries', JSON.stringify(diaries));
             closeAddModal();
             loadDiaryList();
         }
 
         // 获取角色名称
         function getCharacterName(characterId) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const contact = contacts.find(c => c.id === characterId);
             return contact ? contact.name : '角色';
@@ -1664,8 +1664,8 @@
 
         // 加载角色选择器
         function loadCharacterDiarySelect() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             const selectEl = document.getElementById('character-diary-select');
@@ -1705,7 +1705,7 @@
 
         // 显示详情
         function showDetail(diaryId) {
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const diary = diaries.find(d => d.id === diaryId);
             
             if (!diary) return;
@@ -1727,7 +1727,7 @@
             document.getElementById('cover-modal').classList.remove('active');
             
             // 获取日记数据
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const diary = diaries.find(d => d.id === currentDiaryId);
             
             if (!diary) return;
@@ -2002,7 +2002,7 @@
         function editCurrentDiary() {
             if (!currentDiaryId) return;
 
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const diary = diaries.find(d => d.id === currentDiaryId);
             
             if (!diary) return;
@@ -2028,15 +2028,15 @@
         function deleteDiary(diaryId) {
             if (!confirm('确定要删除这篇日记吗？')) return;
 
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const filtered = diaries.filter(d => d.id !== diaryId);
-            localStorage.setItem('diaries', JSON.stringify(filtered));
+            localStorage.setItem('dundun22_diaries', JSON.stringify(filtered));
             loadDiaryList();
         }
 
         // 显示设置
         function showSettings() {
-            const settings = JSON.parse(localStorage.getItem('diarySettings') || '{}');
+            const settings = JSON.parse(localStorage.getItem('dundun22_diarySettings') || '{}');
             
             document.getElementById('auto-diary-toggle').checked = settings.autoDiary || false;
             document.getElementById('time-setting').style.display = settings.autoDiary ? 'block' : 'none';
@@ -2078,8 +2078,8 @@
 
         // 加载角色多选框（设置用）
         function loadCharacterMultiSelect(selectedIds = []) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             const container = document.getElementById('character-multi-select');
@@ -2138,7 +2138,7 @@
                 characterIds: characterIds  // 保存多个角色ID
             };
 
-            localStorage.setItem('diarySettings', JSON.stringify(settings));
+            localStorage.setItem('dundun22_diarySettings', JSON.stringify(settings));
             closeSettingsModal();
             
             // 重新启动定时任务
@@ -2155,7 +2155,7 @@
                 clearInterval(window.diarySchedulerInterval);
             }
 
-            const settings = JSON.parse(localStorage.getItem('diarySettings') || '{}');
+            const settings = JSON.parse(localStorage.getItem('dundun22_diarySettings') || '{}');
             
             if (!settings.autoDiary || !settings.characterIds || settings.characterIds.length === 0) {
                 console.log('⏰ 自动日记未启用或未选择角色');
@@ -2173,7 +2173,7 @@
                 if (currentHour === settings.scheduledHour && currentMinute === settings.scheduledMinute) {
                     // 为每个选中的角色生成日记
                     settings.characterIds.forEach(characterId => {
-                        const todayKey = `lastAutoDiary_${characterId}_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+                        const todayKey = `dundun22_lastAutoDiary_${characterId}_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
                         const lastWritten = localStorage.getItem(todayKey);
                         
                         if (!lastWritten) {
@@ -2189,7 +2189,7 @@
         // 生成角色日记
         async function generateCharacterDiary(characterId) {
             try {
-                const config = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const config = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 
                 if (!config.mainApi?.url || !config.mainApi?.token) {
                     console.error('❌ API配置不完整');
@@ -2197,8 +2197,8 @@
                 }
 
                 // 获取角色信息
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const contactsKey = `persona_${currentPersona}_chatContacts`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                 const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                 const contact = contacts.find(c => c.id === characterId);
 
@@ -2211,7 +2211,7 @@
                 const characterName = contact.name;
 
                 // 获取最近的聊天记录作为上下文
-                const chatKey = `chat_${characterId}`;
+                const chatKey = `dundun22_chat_${characterId}`;
                 const chatMessages = JSON.parse(localStorage.getItem(chatKey) || '[]');
                 const recentMessages = chatMessages.slice(-30); // 取最近30条
                 
@@ -2284,7 +2284,7 @@ ${chatContext}
                 }
 
                 // 保存日记
-                const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+                const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
                 
                 // 生成装饰信息（仅在生成时随机，之后固定）
                 const decorations = generateRandomDecorations();
@@ -2302,7 +2302,7 @@ ${chatContext}
                 };
 
                 diaries.push(newDiary);
-                localStorage.setItem('diaries', JSON.stringify(diaries));
+                localStorage.setItem('dundun22_diaries', JSON.stringify(diaries));
 
                 console.log('💾 角色日记已保存');
                 
@@ -2336,7 +2336,7 @@ ${chatContext}
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [日记] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html
@@ -2405,7 +2405,7 @@ ${chatContext}
         
         // 切换收藏状态
         window.toggleCollectDiary = function(diaryId) {
-            const diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            const diaries = JSON.parse(localStorage.getItem('dundun22_diaries') || '[]');
             const diary = diaries.find(d => d.id === diaryId);
             
             if (!diary) {
@@ -2415,7 +2415,7 @@ ${chatContext}
             
             // 切换收藏状态
             diary.isCollected = !diary.isCollected;
-            localStorage.setItem('diaries', JSON.stringify(diaries));
+            localStorage.setItem('dundun22_diaries', JSON.stringify(diaries));
             
             loadDiaryList();
             

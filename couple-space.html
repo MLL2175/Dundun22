@@ -2350,7 +2350,7 @@
         function loadAnniversaryData() {
             if (!currentCoupleId) return;
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple) return;
@@ -2428,7 +2428,7 @@
             }
             
             // 保存到 localStorage
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const index = couples.findIndex(c => c.id === currentCoupleId);
             
             if (index >= 0) {
@@ -2453,7 +2453,7 @@
                 };
                 
                 couples[index].anniversaries.push(newAnniversary);
-                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                 
                 // 清空输入框
                 dateInput.value = '';
@@ -2536,7 +2536,7 @@
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const index = couples.findIndex(c => c.id === currentCoupleId);
             
             if (index >= 0 && couples[index].anniversaries) {
@@ -2551,7 +2551,7 @@
                 
                 // 删除纪念日
                 couples[index].anniversaries = couples[index].anniversaries.filter(a => a.id !== anniversaryId);
-                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                 
                 loadAnniversaryData();
                 showToast('✅ 纪念日已删除');
@@ -2562,7 +2562,7 @@
         function updateTogetherDays() {
             if (!currentCoupleId) return;
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple || !currentCouple.anniversaryDate) return;
@@ -2694,7 +2694,7 @@
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple || !currentCouple.giftReminders || currentCouple.giftReminders.length === 0) {
@@ -2775,7 +2775,7 @@
             }
             
             // 保存到 localStorage
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const index = couples.findIndex(c => c.id === currentCoupleId);
             
             if (index >= 0) {
@@ -2795,7 +2795,7 @@
                 };
                 
                 couples[index].giftReminders.push(newReminder);
-                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                 
                 // 清空输入框
                 occasionSelect.value = '';
@@ -2820,12 +2820,12 @@
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const index = couples.findIndex(c => c.id === currentCoupleId);
             
             if (index >= 0 && couples[index].giftReminders) {
                 couples[index].giftReminders = couples[index].giftReminders.filter(r => r.id !== reminderId);
-                localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                 
                 loadGiftReminders();
                 showToast('✅ 礼物提醒已删除');
@@ -2836,7 +2836,7 @@
         function checkAndShowGiftOfTheDay() {
             if (!currentCoupleId) return;
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple || !currentCouple.giftReminders) return;
@@ -2859,7 +2859,7 @@
                 if (giftIndex >= 0) {
                     couples[index].giftReminders[giftIndex].sent = true;
                     couples[index].giftReminders[giftIndex].sentAt = Date.now();
-                    localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+                    localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
                 }
             }
         }
@@ -2924,8 +2924,8 @@
             try {
                 // 从 localStorage 获取 API 配置 - 优先使用 globalApiConfig
                 let apiConfig;
-                const globalApiConfigStr = localStorage.getItem('globalApiConfig');
-                const apiConfigStr = localStorage.getItem('apiConfig');
+                const globalApiConfigStr = localStorage.getItem('dundun22_globalApiConfig');
+                const apiConfigStr = localStorage.getItem('dundun22_apiConfig');
                 
                 console.log('🔍 globalApiConfig:', globalApiConfigStr ? '存在' : '不存在');
                 console.log('🔍 apiConfig:', apiConfigStr ? '存在' : '不存在');
@@ -3056,7 +3056,7 @@
         // 🔥 保存提问箱互动的记忆
         async function saveQuestionMemory(question, answer) {
             try {
-                const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
                     console.log('⚠️ API配置不完整，跳过记忆生成');
                     return;
@@ -3075,7 +3075,7 @@
                 
                 // 保存到记忆库
                 const contactId = currentCouple.contactId || currentCouple.partnerName;
-                const memoryKey = `memory_records_${contactId}`;
+                const memoryKey = `dundun22_memory_records_${contactId}`;
                 const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
                 
                 memories.push({
@@ -3103,7 +3103,7 @@
         // 🔥 保存信件的记忆
         async function saveLetterMemory(title, content) {
             try {
-                const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 if (!apiConfig.mainApi?.url || !apiConfig.mainApi?.token) {
                     console.log('⚠️ API配置不完整，跳过记忆生成');
                     return;
@@ -3122,7 +3122,7 @@
                 
                 // 保存到记忆库
                 const contactId = currentCouple.contactId || currentCouple.partnerName;
-                const memoryKey = `memory_records_${contactId}`;
+                const memoryKey = `dundun22_memory_records_${contactId}`;
                 const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
                 
                 memories.push({
@@ -3172,12 +3172,12 @@
 
         // 渲染情侣列表
         function renderCoupleList() {
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const container = document.getElementById('couple-list-container');
             
             // 获取联系人信息以获取头像
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             if (couples.length === 0) {
@@ -3207,7 +3207,7 @@
                 // 如果没有我的头像，先尝试从 myProfile 获取
                 if (!myAvatarUrl || myAvatarUrl.trim() === '') {
                     try {
-                        const profileKey = `persona_${currentPersona}_myProfile`;
+                        const profileKey = `dundun22_persona_${currentPersona}_myProfile`;
                         const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
                         if (profile.avatar) {
                             myAvatarUrl = profile.avatar;
@@ -3271,7 +3271,7 @@
         // 打开情侣详情
         function openCoupleDetail(coupleId) {
             currentCoupleId = coupleId;
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const couple = couples.find(c => c.id === coupleId);
             
             if (!couple) {
@@ -3359,8 +3359,8 @@
             
             // 尝试常见的键名
             const possibleKeys = [
-                'chatContacts',
-                'persona_default_chatContacts',
+                'dundun22_chatContacts',
+                'dundun22_persona_default_chatContacts',
                 'chatContactsList',
                 'contacts'
             ];
@@ -3446,8 +3446,8 @@
             // 使用与renderContactList相同的逻辑获取联系人
             let contacts = [];
             const possibleKeys = [
-                'chatContacts',
-                'persona_default_chatContacts',
+                'dundun22_chatContacts',
+                'dundun22_persona_default_chatContacts',
                 'chatContactsList',
                 'contacts'
             ];
@@ -3494,9 +3494,9 @@
             };
             
             // 保存邀请记录
-            const invites = JSON.parse(localStorage.getItem('coupleInvites') || '[]');
+            const invites = JSON.parse(localStorage.getItem('dundun22_coupleInvites') || '[]');
             invites.push(inviteMessage);
-            localStorage.setItem('coupleInvites', JSON.stringify(invites));
+            localStorage.setItem('dundun22_coupleInvites', JSON.stringify(invites));
             
             // 在聊天记录中添加邀请卡片
             await addInviteToChat(selectedContactId, contact.name || contact.remark || '对方');
@@ -3568,16 +3568,16 @@
 
         // 保存背景到 localStorage
         function saveBackground(url) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const bgKey = `persona_${currentPersona}_coupleHeaderBg`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const bgKey = `dundun22_persona_${currentPersona}_coupleHeaderBg`;
             localStorage.setItem(bgKey, url);
             loadBackground();
         }
 
         // 加载背景
         function loadBackground() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const bgKey = `persona_${currentPersona}_coupleHeaderBg`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const bgKey = `dundun22_persona_${currentPersona}_coupleHeaderBg`;
             const bgUrl = localStorage.getItem(bgKey);
             const header = document.getElementById('couple-header');
             
@@ -3592,8 +3592,8 @@
 
         // 恢复默认背景
         window.resetBackground = function() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const bgKey = `persona_${currentPersona}_coupleHeaderBg`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const bgKey = `dundun22_persona_${currentPersona}_coupleHeaderBg`;
             localStorage.removeItem(bgKey);
             const header = document.getElementById('couple-header');
             if (header) {
@@ -3656,15 +3656,15 @@
         
         // 保存标签文字到 localStorage
         function saveCoupleTag(text) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const tagKey = `persona_${currentPersona}_coupleTag`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const tagKey = `dundun22_persona_${currentPersona}_coupleTag`;
             localStorage.setItem(tagKey, text);
         }
         
         // 加载标签文字
         function loadCoupleTag() {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const tagKey = `persona_${currentPersona}_coupleTag`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const tagKey = `dundun22_persona_${currentPersona}_coupleTag`;
             const savedTag = localStorage.getItem(tagKey);
             const tagElement = document.getElementById('couple-tag-text');
             
@@ -3685,7 +3685,7 @@
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple) {
@@ -3694,8 +3694,8 @@
             }
             
             // 获取对方角色信息
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             const partnerName = currentCouple.partnerName;
             
@@ -3727,7 +3727,7 @@
                 // 提取聊天记忆作为上下文
                 let chatMemory = '';
                 try {
-                    const chatKey = `persona_${currentPersona}_chat_${partnerContact.id || partnerContact.name}`;
+                    const chatKey = `dundun22_persona_${currentPersona}_chat_${partnerContact.id || partnerContact.name}`;
                     const chatMessages = JSON.parse(localStorage.getItem(chatKey) || '[]');
                     
                     if (chatMessages && chatMessages.length > 0) {
@@ -3783,7 +3783,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
                 console.log('📮 系统提示词:', systemPrompt.substring(0, 100) + '...');
                 
                 // 获取API配置
-                const globalApiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const globalApiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 
                 if (!globalApiConfig.mainApi || !globalApiConfig.mainApi.url || !globalApiConfig.mainApi.token) {
                     showToast('API配置不完整');
@@ -3868,7 +3868,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
                 }
                 
                 // 保存信件
-                const lettersKey = `persona_${currentPersona}_coupleLetters`;
+                const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
                 const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
                 
                 // 随机选择信纸样式（角色写信时随机使用）
@@ -4010,8 +4010,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
         // 渲染信件列表
         function renderLettersList() {
             console.log(' 开始渲染信件列表');
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const lettersKey = `persona_${currentPersona}_coupleLetters`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
             const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
             const container = document.getElementById('letters-list');
                     
@@ -4089,8 +4089,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
             
             try {
                 // 使用与 renderLettersList 相同的键名
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const lettersKey = `persona_${currentPersona}_coupleLetters`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
                 
                 console.log('🗑️ 删除信件 - lettersKey:', lettersKey);
                 console.log('🗑️ 待删除的信件ID:', letterId);
@@ -4296,7 +4296,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
             }
                     
             // 保存到 localStorage
-            const worldBooksKey = `worldbook_${currentCoupleId}`;
+            const worldBooksKey = `dundun22_worldbook_${currentCoupleId}`;
             const worldBooks = JSON.parse(localStorage.getItem(worldBooksKey) || '[]');
                     
             const newBook = {
@@ -4321,7 +4321,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
         function loadWorldBookList() {
             if (!currentCoupleId) return;
                     
-            const worldBooksKey = `worldbook_${currentCoupleId}`;
+            const worldBooksKey = `dundun22_worldbook_${currentCoupleId}`;
             const worldBooks = JSON.parse(localStorage.getItem(worldBooksKey) || '[]');
             const listEl = document.getElementById('worldbook-list');
                     
@@ -4415,7 +4415,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
                     
             if (!currentCoupleId) return;
                     
-            const worldBooksKey = `worldbook_${currentCoupleId}`;
+            const worldBooksKey = `dundun22_worldbook_${currentCoupleId}`;
             const worldBooks = JSON.parse(localStorage.getItem(worldBooksKey) || '[]');
                     
             const index = worldBooks.findIndex(book => book.id === bookId);
@@ -4525,7 +4525,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
         
         // 获取花朵数据
         function getFlowerData() {
-            const key = `flower_${currentCoupleId}`;
+            const key = `dundun22_flower_${currentCoupleId}`;
             const defaultData = {
                 score: 0,
                 stage: 'seed', // seed, sprout, bud, bloom
@@ -4544,7 +4544,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
         
         // 保存花朵数据
         function saveFlowerData(data) {
-            const key = `flower_${currentCoupleId}`;
+            const key = `dundun22_flower_${currentCoupleId}`;
             localStorage.setItem(key, JSON.stringify(data));
         }
         
@@ -4818,7 +4818,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
                 return;
             }
             
-            const questionsKey = `persona_${currentCoupleId}_questions`;
+            const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
             const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
             
             const newQuestion = {
@@ -4851,7 +4851,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
             try {
                 console.log('💬 开始生成问题回答...');
                 
-                const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+                const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
                 const currentCouple = couples.find(c => c.id === currentCoupleId);
                 
                 if (!currentCouple) return;
@@ -4865,7 +4865,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆）'}
                 // 获取最近的聊天记录（最多20条）
                 let recentChats = '';
                 try {
-                    const chatContacts = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+                    const chatContacts = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
                     const contact = chatContacts.find(c => c.id === currentCouple.contactId || c.name === currentCouple.partnerName);
                     
                     if (contact && contact.messages) {
@@ -4922,7 +4922,7 @@ ${recentChats || '（这是你们刚开始交往，还没有太多聊天记录�
                 
                 if (content) {
                     // 更新问题
-                    const questionsKey = `persona_${currentCoupleId}_questions`;
+                    const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
                     const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
                     const index = questions.findIndex(q => q.id === question.id);
                     
@@ -4955,7 +4955,7 @@ ${recentChats || '（这是你们刚开始交往，还没有太多聊天记录�
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             if (!currentCouple) {
@@ -4972,7 +4972,7 @@ ${recentChats || '（这是你们刚开始交往，还没有太多聊天记录�
             // 获取最近的聊天记录（最多20条）
             let recentChats = '';
             try {
-                const chatContacts = JSON.parse(localStorage.getItem('chatContacts') || '[]');
+                const chatContacts = JSON.parse(localStorage.getItem('dundun22_chatContacts') || '[]');
                 const contact = chatContacts.find(c => c.id === currentCouple.contactId || c.name === currentCouple.partnerName);
                 
                 if (contact && contact.messages) {
@@ -4991,7 +4991,7 @@ ${recentChats || '（这是你们刚开始交往，还没有太多聊天记录�
             let memoryContext = '';
             try {
                 const contactId = currentCouple.contactId || currentCouple.partnerName;
-                const memoryKey = `memory_records_${contactId}`;
+                const memoryKey = `dundun22_memory_records_${contactId}`;
                 const memories = JSON.parse(localStorage.getItem(memoryKey) || '[]');
                 
                 if (memories.length > 0) {
@@ -5057,7 +5057,7 @@ ${memoryContext}
                 
                 if (content) {
                     // 保存到提问列表
-                    const questionsKey = `persona_${currentCoupleId}_questions`;
+                    const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
                     const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
                     
                     const newQuestion = {
@@ -5092,7 +5092,7 @@ ${memoryContext}
         
         // 显示纸条详情
         function showQuestionDetail(question) {
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             const senderName = question.sender === 'user' ? currentCouple.myName : currentCouple.partnerName;
@@ -5233,7 +5233,7 @@ ${memoryContext}
                     }
                     
                     // 保存回复
-                    const questionsKey = `persona_${currentCoupleId}_questions`;
+                    const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
                     const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
                     const index = questions.findIndex(q => q.id === question.id);
                     
@@ -5268,7 +5268,7 @@ ${memoryContext}
         function renderQuestionList() {
             if (!currentCoupleId) return;
             
-            const questionsKey = `persona_${currentCoupleId}_questions`;
+            const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
             const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
             const listEl = document.getElementById('question-list');
             
@@ -5279,7 +5279,7 @@ ${memoryContext}
                 return;
             }
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             listEl.innerHTML = questions.map((q, index) => {
@@ -5315,13 +5315,13 @@ ${memoryContext}
         window.openNoteDetail = function(questionId) {
             if (!currentCoupleId) return;
             
-            const questionsKey = `persona_${currentCoupleId}_questions`;
+            const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
             const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
             const q = questions.find(item => item.id === questionId);
             
             if (!q) return;
             
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             const currentCouple = couples.find(c => c.id === currentCoupleId);
             
             const senderName = q.sender === 'user' ? '我' : currentCouple.partnerName;
@@ -5407,7 +5407,7 @@ ${memoryContext}
                 return;
             }
             
-            const questionsKey = `persona_${currentCoupleId}_questions`;
+            const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
             const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
             const qIndex = questions.findIndex(item => item.id === window.currentNoteQuestionId);
             
@@ -5441,7 +5441,7 @@ ${memoryContext}
                 return;
             }
             
-            const questionsKey = `persona_${currentCoupleId}_questions`;
+            const questionsKey = `dundun22_persona_${currentCoupleId}_questions`;
             const questions = JSON.parse(localStorage.getItem(questionsKey) || '[]');
             const filteredQuestions = questions.filter(q => q.id !== questionId);
             
@@ -5478,8 +5478,8 @@ ${memoryContext}
                 return;
             }
             
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const lettersKey = `persona_${currentPersona}_coupleLetters`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
             const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
             
             const newLetter = {
@@ -5517,7 +5517,7 @@ ${memoryContext}
                     return;
                 }
                 
-                const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+                const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
                 console.log('📮 所有情侣空间:', couples.map(c => ({id: c.id, name: c.name})));
                 
                 const currentCouple = couples.find(c => c.id === currentCoupleId);
@@ -5530,8 +5530,8 @@ ${memoryContext}
                 console.log('📮 当前情侣空间:', currentCouple);
                 
                 // 获取联系人信息
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const contactsKey = `persona_${currentPersona}_chatContacts`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                 const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                 
                 console.log('📮 contactsKey:', contactsKey);
@@ -5590,7 +5590,7 @@ ${memoryContext}
                 // 提取聊天记忆作为上下文
                 let chatMemory = '';
                 try {
-                    const chatKey = `persona_${currentPersona}_chat_${partnerContact.id || partnerContact.name}`;
+                    const chatKey = `dundun22_persona_${currentPersona}_chat_${partnerContact.id || partnerContact.name}`;
                     const chatMessages = JSON.parse(localStorage.getItem(chatKey) || '[]');
                     
                     if (chatMessages && chatMessages.length > 0) {
@@ -5650,7 +5650,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
                 console.log('📮 系统提示词:', systemPrompt.substring(0, 100) + '...');
                 
                 // 获取API配置 - 直接使用 globalApiConfig 原始结构（和聊天界面一样）
-                const globalApiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+                const globalApiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
                 
                 if (!globalApiConfig.mainApi || !globalApiConfig.mainApi.url || !globalApiConfig.mainApi.token) {
                     console.log('⚠️ API配置不完整，跳过AI回信');
@@ -5753,7 +5753,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
                         console.log('✅ AI回信生成成功（重试）:', retryContent.substring(0, 50) + '...');
                         
                         // 保存回信
-                        const lettersKey = `persona_${currentPersona}_coupleLetters`;
+                        const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
                         const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
                         
                         // 随机选择信纸样式
@@ -5797,7 +5797,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
                 console.log('✅ AI回信生成成功:', replyContent.substring(0, 50) + '...');
                 
                 // 保存AI回信
-                const lettersKey = `persona_${currentPersona}_coupleLetters`;
+                const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
                 const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
                 
                 // 随机选择信纸样式
@@ -5890,8 +5890,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         
         // 打开信件（带信封动画）
         window.openLetter = function(letterId) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const lettersKey = `persona_${currentPersona}_coupleLetters`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
             const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
             const letter = letters.find(l => l.id === letterId);
             
@@ -6191,8 +6191,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         
         // 查看信件详情
         window.viewLetter = function(letterId) {
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const lettersKey = `persona_${currentPersona}_coupleLetters`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
             const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
             const letter = letters.find(l => l.id === letterId);
             
@@ -6328,8 +6328,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             if (modal) {
                 modal.classList.add('active');
                 // 加载当前设置
-                const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                const settingsKey = `persona_${currentPersona}_letterSettings`;
+                const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                const settingsKey = `dundun22_persona_${currentPersona}_letterSettings`;
                 const settings = JSON.parse(localStorage.getItem(settingsKey) || '{"frequency": 0}');
                 document.getElementById('letter-frequency').value = settings.frequency || 0;
             }
@@ -6346,8 +6346,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         // 保存信件设置
         window.saveLetterSettings = function() {
             const frequency = parseInt(document.getElementById('letter-frequency').value);
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const settingsKey = `persona_${currentPersona}_letterSettings`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const settingsKey = `dundun22_persona_${currentPersona}_letterSettings`;
             
             localStorage.setItem(settingsKey, JSON.stringify({ frequency: frequency }));
             closeLetterSettings();
@@ -6408,7 +6408,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             
             // 如果 IndexedDB 没有数据，尝试从 localStorage 加载
             if (messages.length === 0) {
-                const chatKey = `chat_${contactId}`;
+                const chatKey = `dundun22_chat_${contactId}`;
                 const saved = localStorage.getItem(chatKey);
                 if (saved) {
                     try {
@@ -6458,7 +6458,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             messages.push(inviteCard);
             
             // 保存到 localStorage（未压缩格式）
-            const chatKey = `chat_${contactId}`;
+            const chatKey = `dundun22_chat_${contactId}`;
             localStorage.setItem(chatKey, JSON.stringify(messages));
             
             // 保存到 IndexedDB（需要压缩格式）
@@ -6496,7 +6496,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
 
         // 激活情侣空间
         function activateCoupleSpace(myName, partnerName) {
-            const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+            const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
             
             // 检查是否已经存在
             const existingIndex = couples.findIndex(c => 
@@ -6517,7 +6517,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
                 couples.push(coupleData);
             }
             
-            localStorage.setItem('coupleSpaces', JSON.stringify(couples));
+            localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(couples));
             
             // 显示详情页面
             openCoupleDetail(coupleData.id);
@@ -6528,7 +6528,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         // 获取数据
         function getData(key) {
             try {
-                const data = localStorage.getItem(key);
+                const data = localStorage.getItem('dundun22_' + key);
                 return data ? JSON.parse(data) : null;
             } catch (e) {
                 console.error('读取数据失败:', e);
@@ -6539,7 +6539,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         // 保存数据
         function saveData(key, value) {
             try {
-                localStorage.setItem(key, JSON.stringify(value));
+                localStorage.setItem('dundun22_' + key, JSON.stringify(value));
             } catch (e) {
                 console.error('保存数据失败:', e);
             }
@@ -6574,8 +6574,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             const days = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
             
             // 获取联系人信息以获取头像
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const contactsKey = `persona_${currentPersona}_chatContacts`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
             const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
             
             // 查找我的头像（用户的头像可能在设置中）
@@ -6585,7 +6585,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             // 如果没有保存我的头像，先尝试从 myProfile 中获取
             if (!myAvatarUrl || myAvatarUrl.trim() === '') {
                 try {
-                    const profileKey = `persona_${currentPersona}_myProfile`;
+                    const profileKey = `dundun22_persona_${currentPersona}_myProfile`;
                     const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
                     if (profile.avatar) {
                         myAvatarUrl = profile.avatar;
@@ -6712,13 +6712,13 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             
             try {
                 // 获取所有情侣空间
-                const couples = JSON.parse(localStorage.getItem('coupleSpaces') || '[]');
+                const couples = JSON.parse(localStorage.getItem('dundun22_coupleSpaces') || '[]');
                 
                 // 删除指定的情侣空间
                 const updatedCouples = couples.filter(c => c.id !== coupleId);
                 
                 // 保存
-                localStorage.setItem('coupleSpaces', JSON.stringify(updatedCouples));
+                localStorage.setItem('dundun22_coupleSpaces', JSON.stringify(updatedCouples));
                 
                 // 如果删除的是当前正在查看的，返回列表
                 if (currentCoupleId === coupleId) {
@@ -6741,19 +6741,19 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             if (confirm('⚠️ 确定要清除所有情侣空间数据吗？\n\n这将删除：\n- 所有情侣空间记录\n- 所有邀请记录\n- 聊天记录中的邀请卡片状态\n\n此操作不可恢复！')) {
                 try {
                     // 清除情侣空间列表
-                    localStorage.removeItem('coupleSpaces');
-                    localStorage.removeItem('coupleSpace');
+                    localStorage.removeItem('dundun22_coupleSpaces');
+                    localStorage.removeItem('dundun22_coupleSpace');
                     
                     // 清除邀请记录
-                    localStorage.removeItem('coupleInvites');
+                    localStorage.removeItem('dundun22_coupleInvites');
                     
                     // 清除聊天记录中的情侣邀请状态
-                    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-                    const contactsKey = `persona_${currentPersona}_chatContacts`;
+                    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+                    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
                     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
                     
                     contacts.forEach(contact => {
-                        const chatKey = `chat_${contact.id}`;
+                        const chatKey = `dundun22_chat_${contact.id}`;
                         const saved = localStorage.getItem(chatKey);
                         if (saved) {
                             try {
@@ -6792,7 +6792,7 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
         window.addEventListener('storage', function(e) {
             if (e.key === 'phone_being_checked' && e.newValue === 'true') {
                 console.log('📱 [情侣空间] 检测到角色查手机标志');
-                const checkerName = localStorage.getItem('phone_checker_name') || '角色';
+                const checkerName = localStorage.getItem('dundun22_phone_checker_name') || '角色';
                 console.log('📱 角色名称:', checkerName);
                 
                 // 跳转到 chat-app.html
@@ -6871,8 +6871,8 @@ ${chatMemory ? chatMemory : '（暂无聊天记忆，这是你们的第一次互
             // 关闭菜单
             document.querySelector('.letter-context-menu')?.remove();
             
-            const currentPersona = localStorage.getItem('currentPersona') || 'default';
-            const lettersKey = `persona_${currentPersona}_coupleLetters`;
+            const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+            const lettersKey = `dundun22_persona_${currentPersona}_coupleLetters`;
             const letters = JSON.parse(localStorage.getItem(lettersKey) || '[]');
             
             const letter = letters.find(l => l.id === letterId);

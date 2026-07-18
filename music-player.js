@@ -45,7 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // 加载音乐API配置
 function loadMusicAPIConfig() {
     try {
-        const config = JSON.parse(localStorage.getItem('musicApiConfig') || '{}');
+        const config = JSON.parse(localStorage.getItem('dundun22_musicApiConfig') || '{}');
         // 如果没有配置，使用默认的网易云API
         currentMusicAPI = config.api || 'all'; // 默认使用全部API
         neteaseApiUrl = config.neteaseApiUrl || PUBLIC_APIS.meting;
@@ -66,9 +66,9 @@ function selectAPI(api) {
     currentMusicAPI = api;
     
     // 保存到localStorage
-    const config = JSON.parse(localStorage.getItem('musicApiConfig') || '{}');
+    const config = JSON.parse(localStorage.getItem('dundun22_musicApiConfig') || '{}');
     config.api = api;
-    localStorage.setItem('musicApiConfig', JSON.stringify(config));
+    localStorage.setItem('dundun22_musicApiConfig', JSON.stringify(config));
     
     // 更新UI
     updateAPITags();
@@ -103,7 +103,7 @@ function updateAPITags() {
 // 加载网易云登录信息（从localStorage）
 function loadNeteaseLoginInfo() {
     try {
-        const saved = localStorage.getItem('neteaseLoginInfo');
+        const saved = localStorage.getItem('dundun22_neteaseLoginInfo');
         if (saved) {
             neteaseLoginInfo = JSON.parse(saved);
             console.log('[音乐] ✅ 已加载网易云登录信息:', neteaseLoginInfo.nickname);
@@ -117,7 +117,7 @@ function loadNeteaseLoginInfo() {
 // 保存网易云登录信息到localStorage
 function saveNeteaseLoginInfo(info) {
     try {
-        localStorage.setItem('neteaseLoginInfo', JSON.stringify(info));
+        localStorage.setItem('dundun22_neteaseLoginInfo', JSON.stringify(info));
         neteaseLoginInfo = info;
         console.log('[音乐] ✅ 登录信息已保存');
     } catch (e) {
@@ -128,7 +128,7 @@ function saveNeteaseLoginInfo(info) {
 // 清除网易云登录信息
 function clearNeteaseLoginInfo() {
     try {
-        localStorage.removeItem('neteaseLoginInfo');
+        localStorage.removeItem('dundun22_neteaseLoginInfo');
         neteaseLoginInfo = null;
         console.log('[音乐] ✅ 登录信息已清除');
     } catch (e) {
@@ -1203,8 +1203,8 @@ function showCharacterSelect() {
         return;
     }
 
-    const currentPersona = localStorage.getItem('currentPersona') || 'default';
-    const contactsKey = `persona_${currentPersona}_chatContacts`;
+    const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+    const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
     const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
     
     // 获取可用的角色列表（排除自己）
@@ -1306,7 +1306,7 @@ async function inviteCharacter(character) {
 // 生成角色反馈
 async function generateCharacterResponse(character, song) {
     // 获取 API 配置
-    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+    const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
     
     if (!apiConfig.mainApi || !apiConfig.mainApi.url || !apiConfig.mainApi.token) {
         throw new Error('API 配置不完整');
@@ -1471,7 +1471,7 @@ function showLoginModal() {
     document.getElementById('loginModal').classList.add('active');
     
     // 如果有保存的手机号，自动填充
-    const savedPhone = localStorage.getItem('netease_saved_phone');
+    const savedPhone = localStorage.getItem('dundun22_netease_saved_phone');
     if (savedPhone) {
         document.getElementById('phoneInput').value = savedPhone;
         document.getElementById('rememberMe').checked = true;
@@ -1542,8 +1542,8 @@ async function loginNetease() {
             
             // 如果选择记住登录，保存到localStorage
             if (rememberMe) {
-                localStorage.setItem('netease_saved_phone', phone);
-                localStorage.setItem('netease_login_info', JSON.stringify(neteaseLoginInfo));
+                localStorage.setItem('dundun22_netease_saved_phone', phone);
+                localStorage.setItem('dundun22_netease_login_info', JSON.stringify(neteaseLoginInfo));
             }
             
             // 更新UI
@@ -1587,8 +1587,8 @@ async function loginNetease() {
                 };
                 
                 if (rememberMe) {
-                    localStorage.setItem('netease_saved_phone', phone);
-                    localStorage.setItem('netease_login_info', JSON.stringify(neteaseLoginInfo));
+                    localStorage.setItem('dundun22_netease_saved_phone', phone);
+                    localStorage.setItem('dundun22_netease_login_info', JSON.stringify(neteaseLoginInfo));
                 }
                 
                 updateLoginButton();
@@ -1604,8 +1604,8 @@ async function loginNetease() {
 // 退出登录
 function logoutNetease() {
     neteaseLoginInfo = null;
-    localStorage.removeItem('netease_login_info');
-    localStorage.removeItem('netease_saved_phone');
+    localStorage.removeItem('dundun22_netease_login_info');
+    localStorage.removeItem('dundun22_netease_saved_phone');
     updateLoginButton();
     showToast('已退出登录');
 }
@@ -1653,7 +1653,7 @@ async function loadUserPlaylists() {
 
 // 页面加载时检查登录状态
 function checkLoginStatus() {
-    const savedLoginInfo = localStorage.getItem('netease_login_info');
+    const savedLoginInfo = localStorage.getItem('dundun22_netease_login_info');
     if (savedLoginInfo) {
         try {
             neteaseLoginInfo = JSON.parse(savedLoginInfo);
@@ -1684,7 +1684,7 @@ function startCharacterInviteTimer() {
     }
     
     // 获取配置
-    const config = JSON.parse(localStorage.getItem('musicCharacterInvite') || '{}');
+    const config = JSON.parse(localStorage.getItem('dundun22_musicCharacterInvite') || '{}');
     
     if (!config.enabled) {
         console.log('[角色邀请] 功能未开启');
@@ -1707,8 +1707,8 @@ function startCharacterInviteTimer() {
 async function triggerCharacterMusicInvite() {
     try {
         // 获取当前persona和联系人
-        const currentPersona = localStorage.getItem('currentPersona') || 'default';
-        const contactsKey = `persona_${currentPersona}_chatContacts`;
+        const currentPersona = localStorage.getItem('dundun22_currentPersona') || 'default';
+        const contactsKey = `dundun22_persona_${currentPersona}_chatContacts`;
         const contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
         
         // 获取可用的角色列表（排除自己）
@@ -1764,7 +1764,7 @@ async function triggerCharacterMusicInvite() {
 // 生成角色的音乐邀请消息
 async function generateCharacterMusicInvite(character, song) {
     // 获取 API 配置
-    const apiConfig = JSON.parse(localStorage.getItem('globalApiConfig') || '{}');
+    const apiConfig = JSON.parse(localStorage.getItem('dundun22_globalApiConfig') || '{}');
     
     if (!apiConfig.mainApi || !apiConfig.mainApi.url || !apiConfig.mainApi.token) {
         // 如果没有API配置，使用默认消息
@@ -1945,7 +1945,7 @@ window.addEventListener('load', () => {
 
 // 监听storage变化，当配置改变时重启定时器
 window.addEventListener('storage', (e) => {
-    if (e.key === 'musicCharacterInvite') {
+    if (e.key === 'dundun22_musicCharacterInvite') {
         console.log('[角色邀请] 检测到配置变化，重启定时器');
         startCharacterInviteTimer();
     }
@@ -1959,7 +1959,7 @@ window.showCharacterInviteSettings = function() {
     if (!modal) return;
     
     // 加载当前配置
-    const config = JSON.parse(localStorage.getItem('musicCharacterInvite') || '{"enabled": false, "interval": 30}');
+    const config = JSON.parse(localStorage.getItem('dundun22_musicCharacterInvite') || '{"enabled": false, "interval": 30}');
     
     // 设置开关状态
     const switchEl = document.getElementById('character-invite-switch');
@@ -2022,7 +2022,7 @@ window.saveCharacterInviteSettings = function() {
         interval: intervalInput ? parseInt(intervalInput.value) || 30 : 30
     };
     
-    localStorage.setItem('musicCharacterInvite', JSON.stringify(config));
+    localStorage.setItem('dundun22_musicCharacterInvite', JSON.stringify(config));
     
     closeCharacterInviteSettings();
     showToast(config.enabled ? `角色邀请已开启（每${config.interval}分钟）` : '角色邀请已关闭');
